@@ -1,0 +1,336 @@
+internal/SessionEventTracing/X2If/src/Etsi/Implementation/EtsiX2Session.cpp - 696 internal 
+
+epg/application/PgwControlPlane/LawfulInterception/src/X2/SessionAdapter.cpp   526
+
+
+ /workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/X2If/src/X2Multiplexer.cpp 906 926  790
+
+
+
+ /workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventTracer/src/SessionEventTracerMain.cpp  622
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/X2If/src/Etsi/Implementation/EtsiX2Session.cpp 695 send
+
+internal/SessionEventTracing/SessionEventMessages/AutoGen/QOSFlowList.h 
+
+ASN_SEQUENCE_ADD(fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList,
+
+fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList
+
+
+internal/SessionEventTracing/SessionEventMessagesTest/test-src/SessionEventMessagesTest/X2Asn1MessageOutputTest.cpp
+
+
+
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/src/X2Asn1MessageBuilder33128.cpp 966
+
+
+internal/SessionEventTracing/SessionEventMessages/src/X2Asn1MessageBuilder33128.cpp buildasn1format
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/include/SessionEventMessages/X2Asn1MessageBuilder33128.h 342
+
+
+--filter-tags 'LI&&NOT_READY_PCC&&SMF_SA_EXTENDED'  --filter-suites 'li_etsi_li_x2_with_oam_enable' --filter-testcases 'TC41527' --node-diagnostics '3 LI' --node-traces 'li' --run-until 150
+
+
+
+
+ 
+  https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28828492
+
+
+
+      // Wait until the UE is removed from the network before continuing to ensure stable test.
+    f_CLI_OP_LI__verify_targets
+    (
+        pl_pgw_active_targets      := 0,
+        pl_peak_pgw_active_targets := 1
+    );
+
+
+
+
+
+
+TEST_F(X2Asn1MessageBuilderTest33128, buildAsn1FiveGSGtpTunnelInfo_DefaultQOSFlow)
+{
+    GTPTunnelInfo_t* gtpTunnelInfo;
+    iriBulkData.setQosFlows({createQOSFlowData(1,38,37)});
+
+    Li::buildAsn1FiveGSGtpTunnelInfo(gtpTunnelInfo, iriBulkData);
+
+    ASSERT_TRUE(gtpTunnelInfo);
+    ASSERT_TRUE(gtpTunnelInfo->fiveGSGTPTunnels);
+    EXPECT_EQ(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qFI,iriBulkData.getQosFlows()[0].getQfi().getValue());
+   
+    QOSFlowDescription_t	*qOSFlowDescription = nullptr ;
+    octetStringEqual(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSFlowDescription->buf, gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSFlowDescription->size, qOSFlowDescription, static_cast<const char*>(iriBulkData.getQosFlows()[0].getQosFlowDescription().getReadData()));
+    ASSERT_TRUE(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSFlowDescription);
+   
+
+   QOSRules_t	*qOSRules = nullptr ;
+
+   octetStringEqual(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSRules->buf, gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSRules->size, qOSRules, static_cast<const char*>(iriBulkData.getQosFlows()[0].getQosRules().getReadData()));
+   
+   ASN_STRUCT_FREE(asn_DEF_GTPTunnelInfo, gtpTunnelInfo);
+   ASN_STRUCT_FREE(asn_DEF_QOSFlowDescription, qOSFlowDescription);
+}
+
+
+TEST_F(X2Asn1MessageBuilderTest33128, buildAsn1FiveGSGtpTunnelInfo_MultipleQOSFlows)
+{
+    GTPTunnelInfo_t* gtpTunnelInfo;
+    createQOSFlows();
+
+
+    Li::buildAsn1FiveGSGtpTunnelInfo(gtpTunnelInfo, iriBulkData);
+
+    ASSERT_TRUE(gtpTunnelInfo);
+    ASSERT_TRUE(gtpTunnelInfo->fiveGSGTPTunnels);
+    
+    
+    for(uint8_t i=0;i<2;i++)
+    {
+        EXPECT_EQ(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qFI,iriBulkData.getQosFlows()[i].getQfi().getValue());
+            QOSFlowDescription_t	*qOSFlowDescription = nullptr ;
+      octetStringEqual(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSFlowDescription->buf, gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qOSFlowDescription->size, qOSFlowDescription, static_cast<const char*>(iriBulkData.getQosFlows()[i].getQosFlowDescription().getReadData()));
+      QOSRules_t	*qOSRules = nullptr ;
+
+   octetStringEqual(gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[0]->qOSRules->buf, gtpTunnelInfo->fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qOSRules->size, qOSRules, static_cast<const char*>(iriBulkData.getQosFlows()[i].getQosRules().getReadData()));
+
+   
+    }
+
+     ASN_STRUCT_FREE(asn_DEF_GTPTunnelInfo, gtpTunnelInfo);
+}
+
+
+
+void buildAsn1FiveGSGTPTunnelsQOSFlow(QOSFlowLists_t& qosFlowInfo, const IriBulkData& iriBulkData)
+{
+    for(const auto& qosFlow : iriBulkData.getQosFlows())
+    {
+        QOSFlowList_t *qosFlowData =  nullptr;
+        Li::buildAsn1QOSFlow(qosFlowData, qosFlow);
+        if(qosFlowData)
+        {
+            ASN_SEQUENCE_ADD(&qosFlowInfo, qosFlowData);
+        }
+    }
+}
+
+
+
+
+git reset --soft HEAD~1
+
+
+
+
+void buildAsn1QOSFlowTunnelInformation(QOSFlowTunnelInformation*&  dLQOSFlowTunnelInformation,const IriBulkData& iriBulkData)
+{
+    dLQOSFlowTunnelInformation = Li::CallocAsn1Struct<QOSFlowTunnelInformation>();
+    if(dLQOSFlowTunnelInformation)
+    {
+        buildAsn1FiveGSGTPTunnelsQOSFlow(dLQOSFlowTunnelInformation->associatedQOSFlowList, iriBulkData);
+    }
+}
+
+
+void buildAsn1RANTunnelInformation(DLRANTunnelInformation*&  dLRANTunnelInformation,const IriBulkData& iriBulkData)
+{
+    dLRANTunnelInformation = Li::CallocAsn1Struct<DLRANTunnelInformation>();
+    if(dLRANTunnelInformation)
+    {
+        buildAsn1QOSFlowTunnelInformation(dLRANTunnelInformation->dLQOSFlowTunnelInformation, iriBulkData);
+    }
+}
+
+
+oid buildAsn1QOSFlowTunnelInformation(QOSFlowTunnelInformation*&  dLQOSFlowTunnelInformation,const IriBulkData& iriBulkData)
+{
+    dLQOSFlowTunnelInformation = Li::CallocAsn1Struct<QOSFlowTunnelInformation>();
+    if(dLQOSFlowTunnelInformation)
+    {
+        buildAsn1FiveGSGTPTunnelsQOSFlow(dLQOSFlowTunnelInformation->associatedQOSFlowList, iriBulkData);
+    }
+}
+
+
+void buildAsn1RANTunnelInformation(DLRANTunnelInformation*&  dLRANTunnelInformation,const IriBulkData& iriBulkData)
+{
+    dLRANTunnelInformation = Li::CallocAsn1Struct<DLRANTunnelInformation>();
+    if(dLRANTunnelInformation)
+    {
+        buildAsn1QOSFlowTunnelInformation(dLRANTunnelInformation->dLQOSFlowTunnelInformation, iriBulkData);
+    }
+}
+
+void buildAsn1FiveGSGTPTunnels(FiveGSGTPTunnels*& fiveGSGTPTunnels, const IriBulkData& iriBulkData)
+{
+    fiveGSGTPTunnels = Li::CallocAsn1Struct<FiveGSGTPTunnels>();
+
+    if (fiveGSGTPTunnels)
+    {
+        buildAsn1Fteid(fiveGSGTPTunnels->uLNGUUPTunnelInformation, iriBulkData.getGtpTunnelIdTeid(), iriBulkData.getGtpTunnelIdIpv4Address(), iriBulkData.getGtpTunnelIdIpv6Address());
+        //buildAsn1RANTunnelInformation(fiveGSGTPTunnels->dLRANTunnelInformation->dLQOSFlowTunnelInformation->associatedQOSFlowList, iriBulkData);
+        buildAsn1RANTunnelInformation(fiveGSGTPTunnels->dLRANTunnelInformation, iriBulkData);
+    }
+}
+
+void buildAsn1QOSFlow(QOSFlowList_t*& qosFlowData, const QosFlowData& qosFlow)
+{
+       qosFlowData = Li::CallocAsn1Struct<QOSFlowList_t>();
+       if(qosFlowData)
+       {
+          qosFlowData->qOSFlowDescription =  Li::CallocAsn1Struct<QOSFlowDescription_t>();
+          qosFlowData->qOSRules =  Li::CallocAsn1Struct<QOSRules_t>();
+           qosFlowData->qFI=qosFlow.getQfi().getValue();
+           OCTET_STRING_fromBuf(qosFlowData->qOSFlowDescription,static_cast<const char*>(qosFlow.getQosFlowDescription().getReadData()),qosFlow.getQosFlowDescription().getSize()); 
+           OCTET_STRING_fromBuf(qosFlowData->qOSRules,static_cast<const char*>(qosFlow.getQosRules().getReadData()),qosFlow.getQosRules().getSize()); 
+           
+
+
+  std::cout<<"yes it is fine esimnaa";             
+       }
+}
+
+
+void buildAsn1FiveGSGTPTunnelsQOSFlow(QOSFlowLists_t& qosFlowInfo, const IriBulkData& iriBulkData)
+{
+    for(const auto& qosFlow : iriBulkData.getQosFlows())
+    {
+        QOSFlowList_t *qosFlowData =  nullptr;
+        Li::buildAsn1QOSFlow(qosFlowData, qosFlow);
+        if(qosFlowData)
+        {
+            ASN_SEQUENCE_ADD(&qosFlowInfo, qosFlowData);
+        }
+    }
+}
+
+
+void buildAsn1FiveGSGtpTunnelInfo(GTPTunnelInfo*& gtpTunnelInfo, const IriBulkData& iriBulkData)
+{
+    if (iriBulkData.getGtpTunnelIdTeid() > 0)
+    {
+        gtpTunnelInfo = Li::CallocAsn1Struct<GTPTunnelInfo>();
+
+
+        if (gtpTunnelInfo)
+        {
+            buildAsn1FiveGSGTPTunnels(gtpTunnelInfo->fiveGSGTPTunnels, iriBulkData);
+        }
+    }
+}
+
+
+
+
+
+
+    Li::QosFlowData createQOSFlowData(uint8_t qosFlowId, uint8_t qosRuleId, uint8_t qosFlowParameter)
+     {
+        ByteBuffer qosFlowDescription;
+        ByteBuffer qosFlowRule;
+        const ApplicationSupport::QosFlowId qfi = ApplicationSupport::QosFlowId(qosFlowId);
+        Li::QosFlowData qosFlowData;
+
+        qosFlowDescription.appendU8(qosFlowParameter); 
+        qosFlowRule.appendU8(qosRuleId);
+        qosFlowData.setQfi(qfi);
+
+        return qosFlowData;
+     }
+
+    void createQOSFlows()
+    {
+        std::vector<Li::QosFlowData> qosFlows;
+
+        qosFlows.push_back(createQOSFlowData(1,5,10));
+        qosFlows.push_back(createQOSFlowData(1,6,12));
+
+        iriBulkData.setQosFlows(qosFlows);
+    }
+
+
+
+
+void buildAsn1QOSFlow(QOSFlowList_t*& qosFlowData, const QosFlowData& qosFlow);
+
+void buildAsn1FiveGSGTPTunnelsQOSFlow(QOSFlowLists_t& qosFlowInfo, const IriBulkData& iriBulkData);
+
+
+void buildAsn1RANTunnelInformation(DLRANTunnelInformation*&  dLRANTunnelInformation,const IriBulkData& iriBulkData);
+
+void buildAsn1FiveGSGTPTunnelsQOSFlow(QOSFlowLists_t& qosFlowInfo, const IriBulkData& iriBulkData);
+
+void buildAsn1RANTunnelInformation(DLRANTunnelInformation*&  dLRANTunnelInformation,const IriBulkData& iriBulkData);
+
+
+class LawfulInterceptionEtsiMultipleQosFlowUpDeactivation
+    : public LawfulInterceptionEtsiMultipleQosFlow
+{
+    void preTestCase() override {}
+    void postTestCase() override {}
+protected:
+    static constexpr auto IdleTimeoutSec       = 30s;
+    static constexpr auto InactivityTimeoutSec = 10s;   
+};
+
+
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/signalflowtest/psci/framework/test-src/Li/EtsiDf2.cpp
+
+
+    if (nasMsg)
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/pdu/src/PduSessionRequest.cpp
+
+
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/framework/Test/TestSupport/X2/test-include/TestSupportX2/EtsiX2MessageHelper/EtsiX2PduSessionEstablishment.h
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/framework/Test/TestSupport/X2/test-src/TestSupportX2/EtsiX2MessageHelper/EtsiX2PduSessionEstablishment.cpp
+
+
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/AutoGen/EPSPDNConnectionModification.h
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/radius/AuthenticationBasedOnEAP/EapAuthUpfForwarding.cpp
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/pdu/src/PduSessionRequest.h
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/LawfulInterception/src/Pdu/PduAsn1Codec.h
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/LawfulInterception/src/PgwIriHarvester.cpp
+
+
+
+
+/workspace/git/esimnaa/epg_internal/epg/application/PgwControlPlane/LawfulInterception/src/Pdu/PduAsn1Codec.h
+
+
+
+build -c lin pgwcd_Smf_Li_Etsi_Common_Hsmf_SFTSUITE
+./build/Linux_x86_64/bin/pgwcd_Smf_Li_Etsi_Common_Hsmf_SFTSUITE/pgwcd_Smf_Li_Etsi_Common_Hsmf_SFTSUITE_Linux_x86_64.elf
+
+
+
+
+Sft::X2::Message& pduSessionModificationInterceptEventN2Handover(const Session&                session,
+                                                                     LiEtsiTest::X2::HandoverState handoverState,
+                                                                     const std::vector<Bearer*>& bearers = {}) const;

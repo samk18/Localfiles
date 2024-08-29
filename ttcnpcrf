@@ -1,0 +1,119 @@
+
+    f_CLI_PCCSM_untaint_nodes();
+
+    log(%definitionId, " lm in elim mode");
+    //Improvment suggestion.check if there are still any bearers left on the node?
+    var integer vl_number_of_bearers    := 1;
+    
+
+    var SGSN_GTPC_CT vlc_sgsn_gtpc    := f_GTPC_Init();
+
+    var GTPCv2_CT   vlc_mme_gtpcv2    := f_GTPCv2_Init(pl_typeOfComponent := MME);
+    var GTPCv2_CT   vlc_sgw_gtpcv2    := f_GTPCv2_Init(pl_typeOfComponent := external_SGW);
+    var GTPCv2_CT   vlc_epdg_gtpcv2   := f_GTPCv2_Init(pl_typeOfComponent := ePDG);
+    var GTPCv2_CT   vlc_twan_gtpcv2   := f_GTPCv2_Init(pl_typeOfComponent := TWAN);
+    var GTPCv2_CT   vlc_sgsn_gtpcv2   := f_GTPCv2_Init(pl_typeOfComponent := SGSN);
+
+
+    //GTPP
+    var CGF_GTPP_CT vlc_cgf_gtpp      := f_GTPP_Init();
+
+    if ( vl_number_of_bearers > 0 )
+    {
+        log(%definitionId, " lm in elim mode2");
+        //GTPv2
+         log(%definitionId,   " BANNER: CUPS Configuration detected, executing CUPS recovery flow1");
+        vlc_mme_gtpcv2.start(f_cs_GTPCv2_dealWithDeleteRequestsFromGgsn());
+        vlc_sgw_gtpcv2.start (f_cs_GTPCv2_dealWithRequestsFromGgsn());
+        vlc_epdg_gtpcv2.start(f_cs_GTPCv2_dealWithRequestsFromGgsn());
+        vlc_twan_gtpcv2.start(f_cs_GTPCv2_dealWithRequestsFromGgsn());
+        vlc_sgsn_gtpcv2.start(f_cs_GTPCv2_dealWithDeleteRequestsFromGgsn());
+
+        //Gn
+        vlc_sgsn_gtpc.start(f_cs_GTPC_dealWithRequestsFromGgsn());
+
+        //GTPP
+        vlc_cgf_gtpp.start(f_cs_GTPP_dealWithCdrAndNodeAliveFromGgsn());
+    }
+
+   
+    //removal user-defined pm job
+    if (not (f_channel_is_cups() and f_channel_has_redundancy()))
+    {
+        log(%definitionId, " lm in elim mode7");
+            log(%definitionId,   " BANNER: CUPS Configuration detected, executing CUPS recovery flow5");
+        f_CLI_OP_OAM__deleteUserDefinedPmJob(pl_sut_peer := PRIMARY);
+    }
+
+
+    
+    //check license state is normal in elim
+    var charstring vl_ListLMDetailsState :=  f_CLI_sendReceive
+    (
+        pl_command                  := f_CLI_showSystemFunctionsLm()
+    );
+    log(%definitionId, " lm in elim mode8");
+    var charstring vl_matchLmStateAfter := f_pcre_regexp
+    (
+        instr                       := vl_ListLMDetailsState,
+        expression                  := "lm state (\w+)",
+        groupno                     := 1
+    );
+
+
+        if( f_channel_is_cups() )
+    {
+        log(%definitionId, " lm in elim mode14");
+        log(%definitionId,   " 3BANNER: CUPS Configuration detected, executing CUPS recovery flow.");
+        f_CLI_OP_RECONF_recoverCUPSNodes();
+    }
+
+
+    if ( vl_number_of_bearers > 0 )
+    {
+        log(%definitionId, " lm in elim mode30");
+         log(%definitionId,   " 6BANNER: CUPS Configuration detected, executing CUPS recovery flow.1");
+        //gn
+        vlc_sgsn_gtpc.stop;
+
+        //GTPv2
+        vlc_mme_gtpcv2.stop;
+        vlc_sgw_gtpcv2.stop;
+        vlc_epdg_gtpcv2.stop;
+        vlc_twan_gtpcv2.stop;
+        vlc_sgsn_gtpcv2.stop;
+
+        //GTPP
+        vlc_cgf_gtpp.stop;
+    }
+
+
+    f_INIT_BEAST__preamble
+    (
+        pl_nr_of_IMSIs         := 3,
+        pl_nr_of_endpoint_ids  :=
+        {
+            {MME_eNB,3,3}
+        }
+    )
+
+    // Initialize all necessary component ports
+    f_CLI_init();
+
+
+    f_CLI_LOG__log_banner( pl_message := "tc_prepare Connect LI-IMS1");
+    var charstring vl_ipTableComment := "defaultFTRules";
+    f_CLI_OP_DELETE__iptableRulesDeleteAllButComment
+    (
+        pl_comment      := vl_ipTableComment,
+        pl_use_ipv6     := false,
+        pl_tables       := {"filter"},
+        pl_ruleChains   := {"INPUT", "OUTPUT"}
+    );
+    f_CLI_OP_DELETE__iptableRulesDeleteAllButComment
+    (
+        pl_comment      := vl_ipTableComment,
+        pl_use_ipv6     := true,
+        pl_tables       := {"filter"},
+        pl_ruleChains   := {"INPUT", "OUTPUT"}
+    );

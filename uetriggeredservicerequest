@@ -1,0 +1,136 @@
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/changetrigger/servingnodechange/ServingNodeChangeAndUliChangeFor5G.cpp:5307:    // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/changetrigger/timezonechange/TimeZoneChange.cpp:2460://    - UE Triggered Service Request procedure with time zone change condition hit, triggers charging event.
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/changetrigger/timezonechange/TimeZoneChange.cpp:2495:    // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/changetrigger/userlocationchange/UliChangeOnline.cpp:916:    // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/changetrigger/userlocationchange/UliChangeOnline.cpp:1084:    // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/chfprovisionpraid/NrPraAbnormal.cpp:1131:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/mobilityregistration/Mainflows.cpp:382:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/n2handover/Mainflows.cpp:1331://    - UE Triggered Service Request with ULI change.
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/n2handover/Mainflows.cpp:1404:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:427:    banner("UE Triggered Service Request with Time Zone Change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:718:    banner("UE Triggered Service Request with Time Zone Change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:1182:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:1520:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:2165:    banner("UE Triggered Service Request with ULI Change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:2251:    banner("UE Triggered Service Request with Time Zone Change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:2923:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/FailureHandling.cpp:3342:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp:432:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp:884:    banner("UE Triggered Service Request with ULI change #1");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp:976:    banner("UE Triggered Service Request with ULI change #2");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp:1727:    banner("UE - Triggered Service Request with Time Zone change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp:2351:    banner("UE Triggered Service Request with ULI & AMBR change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/RestorationAttempt.cpp:419:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/RestorationAttempt.cpp:1133:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/RestorationAttempt.cpp:1797:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/RestorationAttempt.cpp:2571:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dropduplicatedusagereports/FivegDropDuplicatedUsageReports.cpp:372:    banner("UE Triggered Service Request with ULI change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/muihandling/5gs/MuiFailureToN40SessionFailure5gs.cpp:2695:    banner("UE Triggered Service Request with serving node change and charging trigger hits to report all RG usage");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/networkinstanceselectionbysnssai/NgMobilityWithMqf.cpp:128:// test case: TC64871_UETriggeredServiceRequest
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/networkinstanceselectionbysnssai/NgMobilityWithMqf.cpp:148:TEST_F(NgMobilityWithMqf, TC64871_UETriggeredServiceRequest)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:298:// Collision between an ongoing UE Triggered Service Request and an in-coming UE deregistration
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:306:    // Finalize current step in UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:316:// Collision between an ongoing UE Triggered Service Request and incoming UE triggered release  and UE deregistration
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:331:    // Finalize current step in UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:347:// Collision between an ongoing UE Triggered Service Request and incoming UE deregistration and UE triggered release
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:361:    // Finalize current step in UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:377:// Collision between an ongoing UE Triggered Service Request and incoming multiple UE deregistration
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:392:    // Finalize current step in UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/ReleaseSmContextRequest.cpp:397:    // Finalize current step in UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:558://      UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:582:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:620://      UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:644:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:683://      UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:711:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:745:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:806:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:867:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfReleaseN2ResourceDuringInternalDeletion.cpp:954:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfServiceRequestReleaseN2ResourceDuringInternalDeletion.cpp:175:// test case: TC60923_UETriggeredServiceRequest_CLICommandTerminatedSession
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfServiceRequestReleaseN2ResourceDuringInternalDeletion.cpp:191:       TC60923_UETriggeredServiceRequest_CLICommandTerminatedSession)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/SmfServiceRequestReleaseN2ResourceDuringInternalDeletion.cpp:206:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/UpdateSmContextRequest.cpp:801:// Abort an ongoing UE Triggered Service Request with an in-coming UE Initiated PDU Session Release
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/UpdateSmContextRequest.cpp:812:    // Finalize UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/UpdateSmContextRequest.cpp:820:// Collision between an ongoing UE Triggered Service Request and an in-coming AMF Initiated PDU Session Release with
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/UpdateSmContextRequest.cpp:838:    // Finalize UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/pdusessionrelease/UpdateSmContextRequest.cpp:852:// Collision between an ongoing UE Triggered Service Request and another UE Trigger Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequest.cpp:724:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequest.cpp:771:    banner("UE Triggered Service Request To Restore Connection");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequest.cpp:1166:    // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequest.cpp:2230:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequest2.cpp:1087:        // UE Triggered Service Request (without the first UpdateSmContext Request/Response to AMF)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequestWithEbm.cpp:772:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequests.cpp:373:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequests.cpp:465:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequests.cpp:628:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfNetworkTriggeredServiceRequests.cpp:686:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1150:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1222:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1297:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1382:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1522:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1600:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/smf/SmfServiceRequest.cpp:1652:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/upsecuritypolicy/UpSecurityPolicy.cpp:979:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/upsecuritypolicy/UpSecurityPolicy.cpp:1005:// To Verify UP security policy at UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/upsecuritypolicy/UpSecurityPolicy.cpp:1060:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/upsecuritypolicy/UpSecurityPolicy.cpp:1142:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/highavailability/DBbasedResilienceAyncTimers.cpp:768://    3. UE Triggered Service Request with Amf change
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/highavailability/DBbasedResilienceAyncTimers.cpp:820:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/highavailability/DBbasedResilienceAyncTimers.cpp:843:    banner("Continue UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:899:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if Service request message
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:938:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 response timeout
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:983:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 response with unexpected
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:1031:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 unsuccessful response
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:2999:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 response timeout
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:3069:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 response with unexpected
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:3154:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will terminate if N2 unsuccessful response
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/ismf/servicerequest/IsmfServiceRequest.cpp:3252:// ISMF as SUT, Verify UE Triggered Service Request with I-SMF procedure will continue if an expected UpdateIsmfRequest
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/mobility/MobilityEpsTo5gs/MobilityEpsTo5gs.cpp:3470:    banner("UE Triggered Service Request started");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/nfset/peernfset/amf/PeerNfSetBindingAmfServiceRequest.cpp:851:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsAnRelease.cpp:3203:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsDdnHandling.cpp:4906:// test case: TC53926_QfiChangedDuringUETriggeredServiceRequest
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsDdnHandling.cpp:4922:TEST_F(DedicatedQosFlowsDdnHandlingQfiMismatchValidation, TC53926_QfiChangedDuringUETriggeredServiceRequest)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsServiceRequest.cpp:880:// test case: TC48405_UETriggeredServiceRequestAllQosFlowsSuccess
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsServiceRequest.cpp:912:TEST_F(DedicatedQosFlowsServiceRequest, TC48405_UETriggeredServiceRequestAllQosFlowsSuccess)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsServiceRequest.cpp:4489:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/dedicatedQosFlows/DedicatedQosFlowsServiceRequest.cpp:4624://       before AMF send resource setup response to SMF during UE Triggered Service Request
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/eps5gshandover/Eps5gsHandover.cpp:2106:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/eventtrigger/PcfEventTrigger.cpp:1980:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/eventtrigger/PcfEventTrigger.cpp:2499:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/eventtrigger/PcfEventTrigger.cpp:2786:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/netloc/NetlocDefaultFlow.cpp:1780:// test case: TC49460_UETriggeredServiceRequest
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/netloc/NetlocDefaultFlow.cpp:1805:TEST_F(NetlocDefaultFlow, TC49460_UETriggeredServiceRequest)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:474:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:615:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:799:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:822:    banner("Continue UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:929:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:1329:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:1356:    banner("Continue UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:1734:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaConflictAMFChange.cpp:1757:    banner("Continue UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaNotification.cpp:573:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaNotification.cpp:678:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaNrfDiscovery.cpp:419:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaNrfDiscovery.cpp:514:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/presencereportingarea/NrPresenceReportingAreaWithIupf.cpp:299:    banner("UE Triggered Service Request with Amf change");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/pcf/updatenotify/UpdateNotify.cpp:666:    banner("UE Triggered Service Request");
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfNetworkTriggeredServiceRequest.cpp:1837:// test case: TC65482_DDNInterferedWithUETriggeredServiceRequest
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfNetworkTriggeredServiceRequest.cpp:1857:TEST_F(VsmfNetworkTriggeredServiceRequest, TC65482_DDNInterferedWithUETriggeredServiceRequest)
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:680://    1. Trigger UE Triggered Service Request With V-UPF Change
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:1162:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if Service request message
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:1201:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 response timeout
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:1245:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 response with unexpected
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:1292:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 unsuccessful response
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:2987:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will continue if an expected
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:3066:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 response unsuccessful
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequest.cpp:3276:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 unexpected upContextStatus
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequestWithChargingWithVupfChange.cpp:2287:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 response timeout
+application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/vsmf/servicerequest/VsmfServiceRequestWithChargingWithVupfChange.cpp:2397:// VSMF as SUT, Verify UE Triggered Service Request with V-SMF procedure will terminate if N2 unsuccessful respons
+
+
+
+
+I have created a ticket for feature review as the first step in the process to hand over to the LSV team. Could you please review the new ST test case? We are approaching the F4 deadline date

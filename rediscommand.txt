@@ -1,0 +1,23 @@
+eval "your_lua_script_here" 0
+
+
+info keyspace
+
+info
+
+kubectl cp eric-pc-sm-target-database-master-rd-55d59f8465-lsblp:/redis/redis_logs redis_logs
+
+INFO MEMORY
+
+MEMORY STATS
+
+INFO SCRIPT
+
+INFO COMMANDSTATS
+
+redis-cli INFO MEMORY
+redis-cli INFO KEYSPACE
+
+
+redis-cli SLOWLOG GET
+

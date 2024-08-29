@@ -1,0 +1,722 @@
+  1147	16:37	clear
+  1148	16:38	git stash list
+  1149	16:38	git stash show -p 1
+  1150	16:38	git stash show -p 2
+  1151	16:43	git stash apply 2
+  1153	16:43	git restore application/PgwControlPlane/LawfulInterception/src/PgwIriHarvester.cpp
+  1154	16:44	git restore --staged application/PgwControlPlane/LawfulInterception/src/PgwIriHarvester.cpp
+  1155	16:44	git status
+  1156	16:44	git diff application/PgwControlPlane/LawfulInterception/src/PgwIriHarvester.cpp
+  1157	16:45	history
+
+
+
+nSpecificIdentity().valu/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/src/X2Asn1MessageBuilder33128.cpp
+
+ 176
+
+
+epg/application/PgwControlPlane/LawfulInterception/src/LiAlarm.cpp
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/X2If/src/Legacy/Implementation/X2Session.cpp
+
+
+epg/application/PgwControlPlane/LawfulInterception/src/X1/Server.cpp
+
+ /workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/src/X2Asn1MessageBuilder17_5_33128.cpp
+
+internal/SessionEventTracing/X2If/src/Legacy/Implementation/X2Stack.cpp
+
+
+ framework/Test/TestSupport/X2/test-src/TestSupportX2/EtsiX2MessageHelper/EtsiX2PduSessionEstablishment.cpp
+
+
+
+
+ message.smPDUDNRequest = session.ue_.nai_ ? session.ue_.nai_.value() : Compare::Matcher<std::string>(Compare::MatchNotExist);
+
+
+
+
+ application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/connectivity/indirectdataforwarding/N2HandoverIndirectDataForwardingMultipleQosException.cpp
+
+
+
+
+
+
+
+     //    Procedures::smfDeleteQosFlowsWithUpDeactivated(optionalDataGbr,
+    //                                                {session_, qosFlowFailedToSetupList});
+
+
+
+
+    //    Procedures::smfDeleteQosFlowsWithUpDeactivated.runActionsBefore("PcfReceivePolicyUpdateRequest_Invalid_RuleReport", optionalDataGbr,
+    //                                                {session_, qosFlowFailedToSetupList});
+    //    Procedures::smfDeleteQosFlowsWithUpDeactivated(optionalDataGbr,
+    //                                                {session_, qosFlowFailedToSetupList});
+
+       
+      //  Procedures::smfDeleteQosFlowsDlAndUlSeparated.runActionsAfter("UpfSendEtsiLawfulInterceptionResponse1",optionalDataGbr, {session_, qosFlowFailedToSetupList});
+        // Procedures::deleteQosFlows.runActionsBetween("UpfSessionModificationResponseDownlinkRemoval",
+        //                                              "UpfSessionModificationRequestUplinkRemoval", optionalDataGbr,
+        //                                              {session_, qosFlowFailedToSetupList});
+        // Procedures::smfDeleteQosFlows.runActionsAfter("AmfReceiveUpdateSmContextN1Response_NoContent", optionalDataGbr,
+        //                                               {session_, qosFlowFailedToSetupList});
+                // Procedures::smfDeleteQosFlows.runActionsAfter("AmfReceiveUpdateSmContextN1Response_NoContent", optionalDataGbr,
+                //                                       {session_, qosFlowFailedToSetupList});
+// Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+//                                                      {session_, qosFlowFailedToSetupList});
+
+
+
+    N11::Message& buildN11Message(const std::vector<Sft::Bearer*>& qosFlowFailBearers)
+    {
+        QosFlowDescriptions               qosFlowDescriptions{};
+
+        for (const auto* bearer : qosFlowFailBearers)
+        {
+            std::for_each(bearer->qosRuleIds_.begin(), bearer->qosRuleIds_.end(),
+                      [&](const QosRuleId& qosRuleId) {
+                         QosRule qosRule{};
+                         qosRule.setQosRuleId(qosRuleId);
+                         qosRule.setDefaultQosRule(false);
+                         qosRule.setRuleOperationCode(TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+                         qosRules.addQosRule(qosRule);
+                      });
+
+            QosFlowDescription qosFlowDescription{};
+            qosFlowDescription.setQfi(bearer->qfi_);
+            qosFlowDescription.setEbit(QosFlowDescriptionEbit::ParametersListIsNotIncluded);
+            qosFlowDescription.setOperationCode(QosFlowDescriptionOperationCode::DeleteExistingQosFlowDescription);
+            qosFlowDescriptions.addQosFlowDescription(qosFlowDescription);
+
+        }
+        return amf_.n1n2MessageTransferRequest_ResourceModifyRequest_Basic(session_, qosRules, {}, {},
+                                                                           qosFlowDescriptions);
+    }
+
+
+
+
+
+
+TEST_F(LawfulInterceptionEtsiMultipleQosFlow, TC81398_N2HandoverWithOutAmfChangeWithInstallPccRules)
+{
+    banner("Start N2 HO DirectDataForwarding");
+    Procedures::n2HandoverDirectDataForwardingWithMultipleQos.runActionsBefore("AmfSendUpdateSmContextRequestHandoverComplete", optionalData, {session_, dedicatedQosBearers});
+
+    auto& amfSmContextUpdateRequest = amf_.updateSmContextRequest(session_);
+    amfSmContextUpdateRequest.getJsonBuilder().setHoState(TestSupport::Types::HoState::Cancelled).build();
+
+    amf_.send(session_, amfSmContextUpdateRequest);
+    amf_.receive(session_, amf_.updateSmContextResponse_HandoverCancel(session_, TestSupport::StatusCode::Ok));
+
+    // etsiDf2_.receive(
+    //     etsiDf2_.pduSessionModificationInterceptEventN2Handover(session_, LiEtsiTest::X2::HandoverState::Cancelled));
+
+        // Need the non const defaultBearer
+    auto& defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+
+    std::vector<Bearer*> movedBearers({&defaultBearer});
+    movedBearers.insert(movedBearers.end(), dedicatedQosBearers.begin(), dedicatedQosBearers.end());
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+        session_, movedBearers, LiEtsiTest::X2::HandoverState::Cancelled));
+
+    //Procedures::n2HandoverDirectDataForwardingWithMultipleQos.runActionsAfter("AmfReceiveUpdateSmContextResponseHandoverComplete", optionalData, {session_, dedicatedQosBearers});
+
+    // auto& defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+
+    // std::vector<Bearer*> movedBearers({&defaultBearer});
+    // movedBearers.insert(movedBearers.end(), dedicatedQosBearers.begin(), dedicatedQosBearers.end());
+    // etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+    //     session_, movedBearers, LiEtsiTest::X2::HandoverState::Completed));
+}
+
+
+what is INSTANTIATE_TEST_SUITE_P? and how to use it ? and I have two test cases using same class but with each INSTANTIATE_TEST_SUITE_P? how to do that?
+
+
+
+
+//*=============================================================================
+// test case: TC81637_N2HandoverWithAmfChangeFailedDedicatedQosFlows
+//
+//#Description#
+//    Verify that when a dedicated QoS flow is included in the QoS Flow Failed
+//    Setup List during N2 Handover, the SMF initiated a PDU session modification to remove failed
+//    QoS flows, that triggers a PDU Session modification.
+//
+//#Feature#
+//    PCPB-20230
+//
+//#Requirement#
+//    REQ21354
+//=============================================================================*
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureN2HandoverDedicatedQoSFlowsFailure, TC81637_N2HandoverWithAmfChangeFailedDedicatedQosFlows)
+{
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+    const auto [numSuccessfulFlows, numFailedFlows] = GetParam();
+    const auto numChargingRules                     = numSuccessfulFlows + numFailedFlows;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numChargingRules));
+    const ProcedureData optionalData{definitions, bearerQoses, task};
+    const auto&         dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    // Setup which flows that should be successful or failed.
+    std::vector<Bearer*> associatedQosFlowList    = {};
+    std::vector<Bearer*> qosFlowFailedToSetupList = {};
+
+    associatedQosFlowList.push_back(&session_.getDefaultBearer());
+
+    std::copy(dedicatedQosBearers.begin(), dedicatedQosBearers.begin() + numSuccessfulFlows,
+              std::back_inserter(associatedQosFlowList));
+    std::copy(dedicatedQosBearers.begin() + numSuccessfulFlows, dedicatedQosBearers.end(),
+              std::back_inserter(qosFlowFailedToSetupList));
+
+    ASSERT_GE(associatedQosFlowList.size(), 1);  // Mandatory IE and must have at least one bearer.
+
+    for (int i = numSuccessfulFlows; i < numChargingRules; i++)
+    {
+        dedicatedQosBearers[i]->isFailed = true;
+    }
+
+    Sft::Amf newAmf(TestSupport::Types::IpAddressFamily::Ipv6);
+    newAmf.setUp();
+
+    
+    
+    Procedures::n2HandoverWithAmfChange(optionalData, {session_, associatedQosFlowList},
+                                                             {piafGsc_, newAmf, upf_, pcf_, nrfd_});
+
+    // // Procedures::n2HandoverDirectDataForwardingWithMultipleQos.runActionsBefore(
+    // //     "UpfReceiveSessionModificationRequest_DownlinkFARUpdateWithMultipleQos", optionalData,
+    // //     {session_, associatedQosFlowList});
+    
+
+    // // upf_.receive(session_,
+    // //              upf_.sessionModificationRequest(session_).setVerificationLevel(VerificationLevel::OnlySpecified));
+
+    // // Procedures::n2HandoverDirectDataForwardingWithMultipleQos.runActionsAfter(
+    // //     "UpfReceiveSessionModificationRequest_DownlinkFARUpdateWithMultipleQos", optionalData,
+    // //     {session_, associatedQosFlowList});
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+        session_, associatedQosFlowList, LiEtsiTest::X2::HandoverState::Completed));
+
+    if (numFailedFlows > 0)
+    {
+        banner("SMF initiate delete flows for failed QoS flows");
+        auto                definitionsGbr = std::vector(definitions.begin() + numSuccessfulFlows, definitions.end());
+        auto                bearerQosesGbr = std::vector(bearerQoses.begin() + numSuccessfulFlows, bearerQoses.end());
+        const ProcedureData optionalDataGbr{definitionsGbr, bearerQosesGbr, task};
+
+        N11::Message& n11Message = buildN11Message(qosFlowFailedToSetupList);
+
+
+        // amf_.receive(session_, n11Message);
+        // amf_.send(session_,
+        //             amf_.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+        //                                             TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+
+        newAmf.receive(session_, n11Message);
+        newAmf.send(session_,
+                    newAmf.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+                                                    TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+        Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+                                                    {session_, qosFlowFailedToSetupList},{piafGsc_, newAmf, upf_, pcf_});
+
+        verifyLiT3(task);
+        const auto deleteQosRules =
+            Sft::Util::createQosRuleDefinitions(optionalData, qosFlowFailedToSetupList,
+                                                TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventDeleteQosFlow(session_, qosFlowFailedToSetupList,
+                                                                                    deleteQosRules));
+    }
+
+    // =======================
+    // === Session Release ===
+    // =======================
+    SftCore::Logger::banner("Pdu Session Release");
+    //Procedures::release5gSessionNetworkTriggered();
+    Procedures::release5gSession({},{session_},{piafGsc_, newAmf, upf_, pcf_, udm_});
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+//*=============================================================================
+// test case: TC81637_N2HandoverWithAmfChangeFailedDedicatedQosFlows
+//
+//#Description#
+//    Verify that when a dedicated QoS flow is included in the QoS Flow Failed
+//    Setup List during N2 Handover, the SMF initiated a PDU session modification to remove failed
+//    QoS flows, that triggers a PDU Session modification.
+//
+//#Feature#
+//    PCPB-20230
+//
+//#Requirement#
+//    REQ21354
+//=============================================================================*
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureN2HandoverDedicatedQoSFlowsFailure, TC81637_N2HandoverWithAmfChangeFailedDedicatedQosFlows)
+{
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+    const auto [numSuccessfulFlows, numFailedFlows, isAmfChanged] = GetParam();
+    const auto numChargingRules                     = numSuccessfulFlows + numFailedFlows;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numChargingRules));
+    const ProcedureData optionalData{definitions, bearerQoses, task};
+    const auto&         dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    // Setup which flows that should be successful or failed.
+    std::vector<Bearer*> associatedQosFlowList    = {};
+    std::vector<Bearer*> qosFlowFailedToSetupList = {};
+
+    associatedQosFlowList.push_back(&session_.getDefaultBearer());
+
+    std::copy(dedicatedQosBearers.begin(), dedicatedQosBearers.begin() + numSuccessfulFlows,
+              std::back_inserter(associatedQosFlowList));
+    std::copy(dedicatedQosBearers.begin() + numSuccessfulFlows, dedicatedQosBearers.end(),
+              std::back_inserter(qosFlowFailedToSetupList));
+
+    ASSERT_GE(associatedQosFlowList.size(), 1);  // Mandatory IE and must have at least one bearer.
+
+    for (int i = numSuccessfulFlows; i < numChargingRules; i++)
+    {
+        dedicatedQosBearers[i]->isFailed = true;
+    }
+
+    Sft::Amf newAmf(TestSupport::Types::IpAddressFamily::Ipv6);
+    newAmf.setUp();
+
+    Procedures::n2HandoverWithAmfChange(optionalData, {session_, associatedQosFlowList},
+                                                             {piafGsc_, newAmf, upf_, pcf_, nrfd_});
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+        session_, associatedQosFlowList, LiEtsiTest::X2::HandoverState::Completed));
+
+    if (numFailedFlows > 0)
+    {
+        banner("SMF initiate delete flows for failed QoS flows");
+        auto                definitionsGbr = std::vector(definitions.begin() + numSuccessfulFlows, definitions.end());
+        auto                bearerQosesGbr = std::vector(bearerQoses.begin() + numSuccessfulFlows, bearerQoses.end());
+        const ProcedureData optionalDataGbr{definitionsGbr, bearerQosesGbr, task};
+
+        N11::Message& n11Message = buildN11Message(qosFlowFailedToSetupList);
+
+        newAmf.receive(session_, n11Message);
+        newAmf.send(session_,
+                    newAmf.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+                                                    TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+        Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+                                                    {session_, qosFlowFailedToSetupList},{piafGsc_, newAmf, upf_, pcf_});
+
+        verifyLiT3(task);
+        const auto deleteQosRules =
+            Sft::Util::createQosRuleDefinitions(optionalData, qosFlowFailedToSetupList,
+                                                TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventDeleteQosFlow(session_, qosFlowFailedToSetupList,
+                                                                                    deleteQosRules));
+    }
+
+    // =======================
+    // === Session Release ===
+    // =======================
+    SftCore::Logger::banner("Pdu Session Release");
+    Procedures::release5gSession({},{session_},{piafGsc_, newAmf, upf_, pcf_, udm_});
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/29770544
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/29770543
+
+
+
+
+f_CLI_OP_LI__getNodeLawfulInterceptStatus
+
+
+    f_sr_LI_IMS__Disconnect
+    (
+        pl_x1_1_instance        := cl_LMISF_instance,
+        pl_x2_instance          := cl_LMISF_instance,
+        pl_x2_connections       := 0
+    );
+
+
+    f_r_X2__End_session
+    (
+        pl_number_of_instances := 1,
+        pl_instance            := cl_LMISF_instance
+    );
+
+
+    f_sr_X1_1__Alarm
+    (
+        pl_alarm := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_receive_timeout := 32.0,
+        pl_instance        := cl_LMISF_instance
+    );
+
+
+    f_sr_X1_1__Alarm
+    (
+        pl_alarm := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_receive_timeout := 32.0,
+        pl_instance        := cl_LMISF_instance
+    );
+
+
+https://selngerrit.mo.sw.ericsson.se/#/c/1117115/
+      f_CLI_OP_LI__getNodeLawfulInterceptStatus();
+    
+    // f_delay(pl_delay := 10.0);
+
+    f_sr_X1_1__Alarms
+    (
+        pl_alarm := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_number_of_alarms := 2,
+        pl_receive_timeout := 40.0,
+        pl_instance        := cl_IMS_instance
+    );
+    
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running370");
+
+
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running30");
+
+    f_s_X2__reopen_socket(pl_instance := cl_IMS_instance );
+
+
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running3");
+
+    f_CLI_OP_LI__getNodeLawfulInterceptStatus();
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_IMS_instance,
+        pl_x2_connects            := 2,
+        pl_expected_version       := "1.6"
+    );
+
+
+
+    
+
+    /lab/epg_ft/users/esimnaa/bbifftr/li_bbiff_seroicvm15383/TC47970__bbiff_lmisf_ims_apn_and_imsi_same_session_dedicated_ims_x1_version_1_3___latest.log.gz
+
+
+
+    epg/application/PgwControlPlane/LawfulInterception/src/X1/Server.cpp
+
+
+    git rebase --abort
+
+
+
+        if(isLmisf)
+        {
+            LOG_SETD(GtlDebug, "X2 Connect Failed: true " << x2LocalIpAddress_ << "->" << x2RemoteEndpoint_);
+        }
+        else 
+        {
+            LOG_SETD(GtlDebug, "X2 Connect Failed: false " << x2LocalIpAddress_ << "->" << x2RemoteEndpoint_);
+        }
+
+
+
+
+
+7.2.0-sles-3261e3b9
+
+
+        if(isLmisf)
+        {
+            LOG_SETD(GtlDebug, "X2 Connect Failed: true " << x2LocalIpAddress_ << "->" << x2RemoteEndpoint_);
+        }
+        else 
+        {
+            LOG_SETD(GtlDebug, "X2 Connect Failed: false " << x2LocalIpAddress_ << "->" << x2RemoteEndpoint_);
+        }
+        const LiAlarm alarm { LiAlarm::UnableToEstablishX2Connection, x2LocalIpAddress_, false };
+        itsISetcAgentRx->setdInd(alarm.encodeToTraceData());
+
+
+LI - IA69775: EPG sending alarm 5 to Li-IMS due to fail to connect with LMISF(PCTR-78152)
+
+Hello,
+
+/lab/epg_design5_builds/esimnaa/fixbbiffisfplease2
+
+we are currently comparing with 2.0 BBIFF version when we want to send an alarm if x2 is down. we wonder if in future, legacy might use 2.0 or BBIFF have more than one version then we end up getting same issue as TR that makes other issues expensive to solve ,As long as its only BBIFF that use 2.0 then this will work but in the long run it may cause trouble ? I will provide more info during this meeting.
+
+ 
+
+Here are the Tr link and commits:
+
+[PCTR-78152] LI - IA69775: EPG sending alarm 5 to Li-IMS due to fail to connect with LMISF - PDU Packet Core JIRA (ericsson.com)
+
+Change Ib9a4b0aa: Fix sending alarm to wrong node(LI-IMS) when x2 of LI-ISF is down. | selngerrit.mo Code Review (ericsson.se)
+
+Change I18f80119: Create TC83762__bbiff_report_alarm_issue_to_lmisf new ttcn testcase. | selngerrit.mo Code Review (ericsson.se)
+
+
+
+Thank you,
+
+Sai.
+
+
+
+Hello Isabella, I am from Team Ninja as Rohit might have mentioned about st work that we are doing. can you review it when you have a suitable time as we have created a ticket for it since tomorrow is F4 for which we need this commit to be submitted and, we also ran st test case multiple times with this change from latest eric-pcc-controller version which we attached passing logs in the commit ?
+
+
+
+Here is the ticket and commit.
+
+https://pdupc-jira.internal.ericsson.com/browse/PCGW-42790
+
+Change Ia3879615: Add helm flags to renew certifcates every 1 hr in ST | gerrit.ericsson Code Review
+
+
+
+Experienced in software development with proficiency in C, C++, and Golang. Specialized in deploying and managing applications using Docker and Kubernetes, with expertise in Helm for orchestration. Skilled in scripting and automation with Python. Extensive involvement in unit testing, functional testing, and system testing, ensuring product quality and reliability. Hands-on experience in 5G networking product development, utilizing a diverse technology stack.
+
+
+
+
+etsiDf2_.receive(etsiDf2_.pduSessionStartOfInterceptionInterceptEvent(session_));
+
+
+
+suites running today
+pgwcd_Smf_Li_Ismf_ErrorHandling_N2_Handover_SFTSUITE
+
+
+
+
+    auto& x2Message = etsiDf2_.pduSessionEstablishInterceptEvent(session_);
+
+    auto& modification                           = x2Message.get<LiEtsiTest::X2::PduSessionEstablishmentIEs>();
+    modification.gtpTunnelInfo.fiveGsGtpTunnels_->dLRANTunnelInformation_ = std::nullopt;
+    etsiDf2_.receive(x2Message);
+
+
+/lab/epg_ft/users/esimnaa/bbifftr
+
+
+
+
+            // If DF2 connection failure occurs on an LMISF connection, send only alarm to BBIFF sessions (i.e sessions with X2version = 2.0)
+            // If DF2 connection failure occurs on an LIIMS connection, send only alarm to Legacy sessions (i.e sessions with X2version != 2.0)
+            if (isLmisf && alarmId == LiAlarmId::Df2pConnectionFailure &&
+                session->x2version.getVersionAsEnum() == Li::XProtocolEnumVersion::V2_0)
+            {
+                // create a unique transaction for this session and process it
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+                LI_LOG2(Log::Notice, LI_ID,
+                        getLogId(__FUNCTION__).c_str()
+                            << ": Alarm {id:" << alarmId << ", addr:" << boardAddr.toString().c_str()
+                            << "} sent to ADMF client LM-ISF: (" << session->getLogId("").c_str()
+                            << " remote EP:" << session->getRemoteEndpoint().toString().c_str() << ").");
+            }
+            else if (!isLmisf && alarmId == LiAlarmId::Df2pConnectionFailure &&
+                     session->x2version.getVersionAsEnum() != Li::XProtocolEnumVersion::V2_0)
+            {
+                // create a unique transaction for this session and process it
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+                LI_LOG2(Log::Notice, LI_ID,
+                        getLogId(__FUNCTION__).c_str()
+                            << ": Alarm {id:" << alarmId << ", addr:" << boardAddr.toString().c_str()
+                            << "} sent to ADMF client LI-IMS: (" << session->getLogId("").c_str()
+                            << " remote EP:" << session->getRemoteEndpoint().toString().c_str() << ").");
+            }
+
+            if(alarmId != LiAlarmId::Df2pConnectionFailure)
+            {
+
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+            }
+
+
+
+            NE ISSUE
+
+void LiAlarmIssueReport::registerX2NeIssueReportCb(const LiX2NeIssueReportCb& cb)
+{
+    x2NeIssueReporter.registerCb(cb);
+}
+
+void LiAlarmIssueReport::reportDestinationIssueChina(const LiAlarmIssueDesc& issueDescription, const std::string& did)
+{
+    reportDestinationIssu
+B({x});
+
+
+B({x});B({x});
+
+
+B({x});B({x});B({x});B({x});
+Comments to the PCLIS-44v v taht you should add once completed:
+---- START OF DRAFT ----
+Not really any good way to manually trigger it.
+
+One theoretical way could be to disconnect the MDF2 & MDF3 function in the LI-IMS node, which would provoke a TCP connection loss of X2 & X3 destination issues.
+
+If we then have a ETSI MIIT a Report-NE-Issue would be issued from the SMF's X2 stack and transmitted via X1 stack to LI-IMS over the X1 interface.
+
+These are the condition that produces NE Issue:
+- ...
+These are the condition that produces Task Issue:
+- ...
+
+These are the condition that produces Destination Issue:
+- ...
+
+---- END OF DRAFT ----
+
+Q/Zapplication/PgwControlPlane/LawfulInterception/src/X1/X1LogMessages.md
+
+
+        Procedures::n2HandoverWithIsmfRemoveAIupfInsert.runActionsBetween(
+            "PsaReceiveSessionModificationRequestSwitchToN9WithEndMarker", "etsiDf2ReceivePduSessionModificationEventN2HandoverRequest", optionalData);
+          etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+        session_, {&session_.getDefaultBearer()}, LiEtsiTest::X2::HandoverState::Completed));
+
+        Procedures::n2HandoverWithIsmfRemoveAIupfInsert.runActionsAfter(
+     "etsiDf2ReceivePduSessionModificationEventN2HandoverRequest", optionalData);
+
+
+
+https://selngerrit.mo.sw.ericsson.se/#/c/1121701/
+https://selngerrit.mo.sw.ericsson.se/#/c/1121964/
+https://selngerrit.mo.sw.ericsson.se/#/c/1117115/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123203/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123192/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123211/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123201/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123191/
+https://selngerrit.mo.sw.ericsson.se/#/c/1117363/
+https://selngerrit.mo.sw.ericsson.se/#/c/1123209/
+
+sebastian bjurman
+david ström
+we had a customer tr which is described below here where LM_ISF and LI-IMS receiving each other's alarms:
+
+ modification.gtpTunnelId->setTeid(session_.getDefaultBearer().upf_->getAccessN3N9Teid(Sft::UpfConstants::N9NetworkInstance));
+
+-Explore potential solutions or workarounds to enable secd, certm service for vepg
+
+
+ MOM:
+
+•	Verify DAD is correct.
+•	What do we get for 50 LOC - Can anyone do that or just a specific team/person?
+•	Look into SECD - How to manually create cert?
+•	APO - is it ok to create cert with TTL for 1-2 year with alarm to renew manually.
+
+
+MOM:
+
+
+
+•	Verify DAD is correct.
+•	What do we get for 50 LOC - Can anyone do that or just a specific team/person?
+•	Look into SECD - How to manually create cert?
+•	APO - is it ok to create cert with TTL for 1-2 year with alarm to renew manually.
+
+
+
+We are starting up mTLS on vEPG and there are some initial questions regarding how to create certificates. Currently no service can generate internal certificates on vEPG. We want to explore some options (and discover new ones):
+•	Invest in CERTM to provide this service
+•	Let customer generate internal certificates using existing CLIs
+•	Other alternatives?
+
+- investigate on how to enable the secd, certm for vepg to generate certificates internally.
+
+    : what does 50 lines of code mean that you mentioned previously? 
+
+    : How high is the cost ?
+
+    : who will do it for us ? 
+
+    : what is the lead time ?
+
+    : By implementing these above, do we get the same support as pcc?
+
+    : Are certificates written to disk?
+
+    : if they are written, to where it will be stored in node ?
+
+
+
+- investigate on how to use already existing features if above of it is not applicable.
+
+- What's the longest validity period we can have for the certificate without compromising on security
+
+- Other alternatives?
+
+rourte oplanning
+
+fatigue 
+
+7 out of 10
+
+
+
+x1/x1server_integration_test.go:768	Could not Unmarshal response!	{"error": "expected ele
+ment type <X1Response> but have <X1TopLevelErrorResponse>", "payload": "<X1TopLevelErrorResponse><ns1:admfIdentifier></ns1:admfIdentifier><n
+s1:neIdentifier>ne01</ns1:neIdentifier><ns1:messageTimestamp>2024-02-28T22:52:31.025359+01:00</ns1:messageTimestamp><ns1:version>v1.7.1</ns1:version></X1TopLevelErrorResponse>"}
+X1If/internal/app/x1.recvX1Msg
+
+
+
+If I understand correctly, you have a function in your actual code that makes use of another function, and you want to mock that other function in your unit tests. However, 
+your actual code expects certain values from the function being mocked, and you need to provide these values in your unit test case.

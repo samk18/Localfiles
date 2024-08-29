@@ -1,0 +1,113 @@
+¨
+tls
+
+esimnaa_230731_142819_958522075
+https://epgweb.sero.wh.rnd.internal.ericsson.com/build/result/esimnaa_230731_142819_958522075
+
+
+
+non tls
+https://epgweb.sero.wh.rnd.internal.ericsson.com/build/result/esimnaa_230731_144356_724962867
+
+non tls
+https://epgweb.sero.wh.rnd.internal.ericsson.com/build/result/esimnaa_230731_144524_309401656
+
+go  --duration=3h
+
+
+tls 
+esimnaa_230730_180418_132473952
+
+non tls
+esimnaa_230731_144356_724962867
+
+onIoEventOut 214
+
+git grep -n -e 'events.*POLLHUP\|events.*POLLERR\|events.*POLLNVAL'   
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/X2If/src/Etsi/Implementation/EtsiX2StackMap.cpp
+
+
+/workspace/git/esimnaa/epg/application/PgwControlPlane/core/src/core_io_epoll.cpp
+
+
+        #cmd="sudo sed -i 's/enabled = True/enabled = True/g; s/x3_transport_protocol = 1/x3_transport_protocol = 2/g' /root/x3_only/list1_5G.cfg"
+
+
+
+
+
+
+
+
+
+G
+        class Qos_Rules final
+{
+public:
+    Qos_Rules();
+    Qos_Rules(const Qos_Rules& Qos_Rules);
+    Qos_Rules(Qos_Rules&& Qos_Rules) noexcept;
+    Qos_Rules& operator=(const Qos_Rules& other);
+    Qos_Rules& operator=(Qos_Rules&& other) noexcept;
+    ~Qos_Rules();
+
+    const std::vector<QosRule>& getQos_Rules() { return itsQos_Rules; }
+    void                        encodeV(ByteBuffer& data);
+    void                        encodeLV(ByteBuffer& data);
+    void                        encodeTLV(ByteBuffer& data);
+    void                        decodeV(ByteBuffer& data);
+    void                        decodeLV(ByteBuffer& data);
+    void                        decodeTLV(ByteBuffer& data);
+    void                        addQosRule(QosRule&& rule);
+    void                        addQosRule(const QosRule& rule);
+
+    std::size_t          len() const;
+    const uint8_t*       data();
+    friend std::ostream& operator<<(std::ostream& os, const Qos_Rules& Qos_Rules);
+
+private:
+    std::vector<QosRule> itsQos_Rules;
+    ByteBuffer           data_;
+    GLOBAL_INSTANCE_DECL(static GsnTrace, trace_);
+};
+
+
+
+
+TEST_F(LawfulInterceptionEtsiMultipleQosFlowFailure, TC81749_XnHandoverFailedDedicatedQosFlows1)
+{
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+    SftCore::Logger::banner("PDU Session establishment");
+    Procedures::establish5gSession({task});
+
+    banner("Create Qos Flows");
+    constexpr auto numFlows = 9;
+    createQosFlows(numFlows);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+ 
+    Procedures::xnHandover.runActionsBefore("pcfReceivePolicyUpdateRequest_TriggerReport", optionalData,
+                                            {session_, dedicatedQosBearers});
+
+    auto& response = amf_.updateSmContextResponse_PathSwitchRequestUnsuccessfulTransfer(
+        session_, TestSupport::StatusCode::Forbidden,
+        N2::Cause(N2::RadioNetworkCause::NoRadioResourcesAvailableInTargetCell));
+    amf_.receive(session_, response);
+
+    session_.tac_ = 1;
+    Procedures::release5gSessionNetworkTriggered();
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+definitionsAndBearerQos.first.begin() 
+
+xnhandoverdefaultqosflow
+
+definitionsAndBearerQos.second.begin()
+
+
+
+C:\Program Files\PuTTY\

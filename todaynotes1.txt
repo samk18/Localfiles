@@ -1,0 +1,172 @@
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/build/result/esimnaa_230807_013835_790390581 
+
+
+
+
+
+TC37540.1.6.3 +: Scope==="";
+TC37540.1.6.3 +: test_object === "stability";
+TC37540.1.6.3 +: Automation==="Automated";
+TC37540.1.6.3 +: Reference_configuration === "cots_1_host_8vcpu";
+
+
+
+
+            # self.list1.list_getDestinationDetails(timeout=timeout_add)
+            # output=self.list1.list_show_counters(timeout=180)
+            # self.list1.list_getTaskDetails(msid_list[0], timeout=timeout_add)
+            # #self.list1.list_infoQuery(msid_list[0], timeout=timeout_add)
+            # #output=self.list1.list_show_counters(timeout=180)
+            # self.list1.list_delet_target_from_list(msid_list, timeout=timeout_add)
+            # #output=self.list1.list_show_counters(timeout=180)
+            # self.list1.list_remove_destination(timeout=timeout_add)
+            # #output=self.list1.list_show_counters(timeout=180)
+            # self.list1.list_create_destination()
+            # self.list1.list_add_target_from_list(msid_list, timeout_add)
+
+
+
+#TC37540.1.6.1 +: M_li_cots_1_host_8vcpu_targets;
+#TC37540.1.6.1 +: M_li_gwcu_5G_common;
+#TC37540.1.6.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/node_tool_certificate_key_scp";
+#TC37540.1.6.1 +: pre_testmethod_cmd = "__epgcats__/tcdb/hooks/li_enable_tls_pgwcu --transport_tls";
+#TC37540.1.6.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_etsi4G --start5G --config __epgcats__/tools/list/config/list_ETSI4G.cfg --dtls_on_x3";
+#TC37540.1.6.1 +: post_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_etsi4G --status --config __epgcats__/tools/list/config/list_ETSI4G.cfg --dtls_on_x3";
+#TC37540.1.6.1 +: post_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_etsi4G --stop5G --config __epgcats__/tools/list/config/list_ETSI4G.cfg --dtls_on_x3";
+
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/build/result/esimnaa_230807_181920_595055431
+
+
+
+
+
+
+
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/SessionEventMessages/src/X2Asn1MessageBuilder33128.cpp  
+
+
+
+ std::string asn1Str(static_cast<const char*>(byteBuffer.getReadData()), byteBuffer.getAvailableSizeToRead());
+
+
+
+
+
+ small doubt, can I keep it same as it was before but including size when passing which wasnt there earlier ? what do you think 
+
+
+
+
+
+
+
+
+
+
+
+
+ //   return intertype == intertype::S5S8SgwGtpC || intertype == intertype::S5S8PgwGtpC ||
+//            intertype == intertype::GnC;
+    constexpr std::array<intertype, 4> terface {intertype::S5S8SgwGtpC, intertype::S5S8PgwGtpC, intertype::GnC, intertype::N11SmfHttp};
+     auto result= std::find(terface.begin(), terface.end(), intertype);
+    return result!=terface.end();
+    //return (std::find(begin(terface), end(terface), intertype) != std::end(terface));
+
+
+         //octetStringEqualqosflows(octetStr,std::string(static_cast<const char*>(bytebuffer.getReadData()),bytebuffer.getSize()));
+
+          // octetStringEqual(octetStr->buf, octetStr->size, qOSData, static_cast<const char*>(bytebuffer.getReadData()));
+
+          
+    template <typename T>
+    void octetStringEqualqosflows(T*& expectedOctetString, const std::string& expectedOctetStringValue)
+    {
+        if(!expectedOctetStringValue.empty())
+        {
+         
+          //   if (strcmp(std::string(static_cast<char>(*expectedOctetString->buf), expectedOctetString->size).c_str(),expectedOctetStringValue) == 0)  
+
+            EXPECT_EQ(std::string(static_cast<char>(*expectedOctetString->buf), expectedOctetString->size),expectedOctetStringValue);
+        }
+    }
+
+
+
+
+    TEST_F(X2Asn1MessageBuilderTest33128, buildAsn1FiveGSGtpTunnelInfo_DefaultQOSFlowsWithRulesAndDedicatedQOSFlowsWithNoRules)
+{
+    QOSFlowTunnelInformation*  dLQOSFlowTunnelInformation;
+    iriBulkData.setQosFlows({createQOSFlowData(ApplicationSupport::QosFlowId(1),38,false),createQOSFlowData(ApplicationSupport::QosFlowId(2),6,false)});
+
+    Li::buildAsn1QOSFlowTunnelInformation(dLQOSFlowTunnelInformation,iriBulkData);
+    ASSERT_TRUE(dLQOSFlowTunnelInformation);
+
+    for(uint8_t i=0;i<2;i++)
+    {
+      ASSERT_TRUE(dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]);
+      EXPECT_EQ(dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qFI,iriBulkData.getQosFlows()[i].getQfi().getValue());
+      verifyQOSFlowData(dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qOSFlowDescription,iriBulkData.getQosFlows()[i].getQosFlowDescription());
+      ASSERT_FALSE(dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qOSRules);
+      //verifyQOSFlowData(dLQOSFlowTunnelInformation->associatedQOSFlowList.list.array[i]->qOSRules,iriBulkData.getQosFlows()[i].getQosRules());
+    }
+
+   ASN_STRUCT_FREE(asn_DEF_QOSFlowTunnelInformation, dLQOSFlowTunnelInformation);
+}
+
+
+
+
+QosFlowTestData{ApplicationSupport::QosFlowId(1),37,2}
+
+
+
+jenkins errors
+wash_suite SessionEventMessagesTest_SUITE
+
+
+
+SmfInitiatedUpDeactivationN11
+
+control+k+x to remove trailing spaces.
+
+
+
+
+
+
+
+Done. Internal open again 😊
+
+
+
+CONDITION IN WHICH THIS FAULT IS TRIGGERED:
+we expect pgw-peak-active-targets to be one after pdu session relase step but we see there is 2 pgw active peak targets due to which test is failing.
+
+DESCRIPTION OF THE FAULT:
+there are some other test cases running before this test case(tc41527) due to no clean up in between test cases, value of pgw-peak-active target from previous test run will continue to exist for subsequent tests which is why test failing.
+IMPACT ON THE CUSTOMER NETWORK:
+None.
+WORKAROUND:
+we stop checking this pgw-peak-active-targtes as it doesnt impact actual test case behavior.
+WHEN WAS THIS FAULT INTRODUCED (If the fault is caused by PCTR or a PCPB feature use “is caused by” in linked issue as well, otherwise state other IDs here, like CQ or HS):
+
+WHAT IS THE TR FINGERPRINT:
+
+DESCRIPTION OF THE CORRECTION: 
+
+
+
+
+
+
+return std::find(begin(terface), end(terface), intertype) != std::end(terface)
+
+
+return std::find(terface.begin(), terface.end(), intertype);

@@ -1,0 +1,1733 @@
+
+
+
+
+etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_,flows));
+
+
+
+etsiDf2_.receive(etsiDf2_.pduSessionEstablishInterceptEventDeleteQosFlow(session_,flows));
+
+
+
+// Copyright Ericsson AB 2023. All Rights Reserved.
+
+#include "Pfcp/PfcpDataTypes.h"
+#include "Pfcp/PfcpInformationElementList.h"
+#include "Pfcp/PfcpMessages.h"
+#include "PsciSftFramework/Gsc/Gsc.h"
+#include "PsciSftFramework/Pcf/PcfMessageFactory.h"
+#include "PsciSftFramework/Pfcp/FarHelper.h"
+#include "PsciSftFramework/Pfcp/PdrHelper.h"
+#include "PsciSftFramework/Pfcp/QerHelper.h"
+#include "PsciSftFramework/Pfcp/UrrHelper.h"
+#include "PsciSftFramework/Procedure/ProcedureData.h"
+#include "PsciSftFramework/SftEtsiLi.h"
+#include "PsciSftFramework/SftLiRedis.h"
+#include "PsciSftFramework/Sgw/SftSgw.h"
+#include "PsciSftFramework/Upf/SftMultipleUpf.h"
+#include "PsciSftFramework/Upf/UpfMessageFactory.h"
+#include "PsciSftHelpers/procedures/CreateQosFlows.h"
+#include "PsciSftHelpers/procedures/CreateSession.h"
+#include "PsciSftHelpers/procedures/DeleteQosFlows.h"
+#include "PsciSftHelpers/procedures/DeleteSession.h"
+#include "PsciSftHelpers/procedures/Eps5gs.h"
+#include "PsciSftHelpers/procedures/Establish5gSession.h"
+#include "PsciSftHelpers/procedures/Mobility4g5g.h"
+#include "PsciSftHelpers/procedures/Mobility5g4g.h"
+#include "PsciSftHelpers/procedures/N2Handover.h"
+#include "PsciSftHelpers/procedures/ProcedureUtility.h"
+#include "PsciSftHelpers/procedures/Release5gSession.h"
+#include "PsciSftLiHelpers/common/LawfulInterceptionEtsiBasic.h"
+#include "PsciSftLiHelpers/smf/LawfulInterceptionMqfBasedOnServiceBasic.h"
+#include "SftN11/Message.h"
+#include "SftN11/MessageBuilder.h"
+#include "SftN11/N1MessageClass.h"
+#include "SftN11/N1MessageContainer.h"
+#include "SftN11/N2InfoContainer.h"
+#include "SftN11/N2SmInformation.h"
+#include "SftN7/MessageBuilder.h"
+#include "SftN7/PolicyControlRequestTrigger.h"
+#include "SftPfcp/Fteid.h"
+#include "SftPfcp/MessageBuilder.h"
+#include "SftPgwcd/Bearer.h"  // IWYU pragma: keep
+#include "SftPgwcd/Counters.h"
+#include "SftPgwcd/Li/Redis.h"
+#include "SftPgwcd/Li/SessionTasks.h"
+#include "TestSupportGtpCommon/GtpCommon.h"
+#include "TestSupportMatcher/Matcher.h"
+#include "TestSupportN1/Ies.h"
+#include "TestSupportN1/SmMessage.h"
+#include "TestSupportN1/SmMessageFactory.h"
+#include "TestSupportN1/Types.h"
+#include "TestSupportN2/Cause.h"
+#include "TestSupportN2/PduSessionResourceModifyRequestTransfer.h"
+#include "TestSupportN2/SmInfo.h"
+#include "TestSupportN2/SmInfoBuilder.h"
+#include "TestSupportN2/Types.h"
+#include "TestSupportSftCore/Banner.h"
+#include "TestSupportSftTestData/Session.h"
+#include "TestSupportTypes/BitratePair.h"
+#include "TestSupportTypes/Qci.h"
+#include "TestSupportTypes/RatType.h"
+#include "TestSupportX2/EtsiX2MessageHelper/EtsiX2PduSessionModification.h"
+#include "TestSupportX2/X2Message.h"
+
+#include <optional>
+#include <string>
+#include <string_view>
+
+#include <cstdint>
+
+#include <gtest/gtest.h>
+
+using namespace Sft;
+using namespace Sft::pfcp;
+using namespace std::chrono_literals;
+
+using PfcpCause  = Pfcp::Cause::Type;
+using StatusCode = TestSupport::StatusCode;
+using AppCause   = TestSupport::Types::ApplicationErrorCause;
+
+ENUM_CLASS(StartInterceptionPoint, uint8_t, None = 0, BeforeN7 = 1, BeforeStartTraffic = 2, BeforeEndTraffic = 3);
+
+static auto TEST_PARAM_START_INTERCEPTION = ::testing::Values(
+    ::testing::make_tuple(Interception::Normal, StartInterceptionPoint::None),
+    ::testing::make_tuple(Interception::StartOfInterception, StartInterceptionPoint::BeforeN7),
+    ::testing::make_tuple(Interception::StartOfInterception, StartInterceptionPoint::BeforeStartTraffic),
+    ::testing::make_tuple(Interception::StartOfInterception, StartInterceptionPoint::BeforeEndTraffic));
+
+class LawfulInterceptionEtsiMqfBasedOnService
+    : public LawfulInterceptionMqfBasedOnServiceBasic_Df2,
+      public ::testing::WithParamInterface<::testing::tuple<Interception, StartInterceptionPoint>>
+{
+public:
+    LawfulInterceptionEtsiMqfBasedOnService() { interceptionType_ = ::testing::get<Interception>(GetParam()); }
+};
+
+class LawfulInterceptionEtsiMqfBasedOnServiceN4Failure
+    : public LawfulInterceptionMqfBasedOnServiceBasic_Df2,
+      public ::testing::WithParamInterface<::testing::tuple<PfcpCause, StatusCode, AppCause>>
+{
+};
+
+// clang-format off
+INSTANTIATE_TEST_SUITE_P(
+    , LawfulInterceptionEtsiMqfBasedOnServiceN4Failure,
+    ::testing::Values(
+//                    error code for PFCP response,                 HTTP status code for SMF,        app cause for SMF
+::testing::make_tuple(PfcpCause::RequestRejected,                   StatusCode::InternalServerError, AppCause::UnspecifiedNfFailure),
+::testing::make_tuple(PfcpCause::SessionContextNotFound,            StatusCode::NotFound,            AppCause::ContextNotFound),
+::testing::make_tuple(PfcpCause::MandatoryIeMissing,                StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::ConditionalIeMissing,              StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::InvalidLength,                     StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::MandatoryIeIncorrect,              StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::InvalidForwardingPolicy,           StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::InvalidFteidAllocationOption,      StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::RuleCreationModificationFailure,   StatusCode::InternalServerError, AppCause::SystemFailure),
+::testing::make_tuple(PfcpCause::PfcpEntityInCongestion,            StatusCode::InternalServerError, AppCause::InsufficientResources),
+::testing::make_tuple(PfcpCause::NoResourcesAvailable,              StatusCode::InternalServerError, AppCause::InsufficientResources),
+::testing::make_tuple(PfcpCause::ServiceNotSupported,               StatusCode::InternalServerError, AppCause::UnspecifiedNfFailure),
+::testing::make_tuple(PfcpCause::SystemFailure,                     StatusCode::InternalServerError, AppCause::SystemFailure)));
+// clang-format on
+
+class LawfulInterceptionEtsiMqfBasedOnServiceInterfere : public LawfulInterceptionMqfBasedOnServiceBasic_Df2
+{
+};
+
+INSTANTIATE_TEST_SUITE_P(, LawfulInterceptionEtsiMqfBasedOnService, TEST_PARAM_START_INTERCEPTION);
+
+// NOLINTBEGIN(cppcoreguidelines-special-member-functions)
+//*=============================================================================
+// test case: TC78680_MqfBasedOnService_Mainflow_StartStop_UplinkFilter
+//
+//#Description#
+//    Main-flow behavior for start & stop of traffic with uplink filter
+//    configured for a service detection rule. AMF and UPF interfaces should be
+//    affected by this configuration.
+//
+//    1. After Predefined rule is applied on the UPF, T3 was sent out.
+//    2. After Creating dedicated QoS flow, the X2 and T3 event are sent out.
+//    3. After removing dedicated QoS flow, the X2 and T3 event are sent out.
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21266
+//=============================================================================*
+TEST_P(LawfulInterceptionEtsiMqfBasedOnService, TC78680_MqfBasedOnService_Mainflow_StartStop_UplinkFilter)
+{
+    auto              point               = ::testing::get<StartInterceptionPoint>(GetParam());
+    auto              isStartInterception = interceptionType_ == Interception::Normal;
+    const std::string serviceRuleName     = "gbrRuleWithArp";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, arp_);
+        configurePccRuleForProfile(config, serviceRuleName);
+        configureUplinkFilter(config, appId_, filterId_, UplinkFilterType::REMOTE_ADDRESS);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession(optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "Qer";
+
+    Sft::banner("PCF installs PCC rule");
+    {
+        if (interceptionType_ == Interception::StartOfInterception && point == StartInterceptionPoint::BeforeN7)
+        {
+            startOfInterception(liRedis_, session_);
+            isStartInterception = true;
+        }
+
+        pcf_.send(session_, Sft::N7::MessageBuilder{pcf_.policyNotifyRequest(session_)}.addPccRule(
+                                Sft::N7::PccRule{serviceRuleName}));
+        pcf_.receive(session_, pcf_.policyNotifyResponse(session_, TestSupport::StatusCode::NoContent));
+    }
+
+    Sft::banner("Predefined rule is applied on the UPF");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::uplink(predefinedRulePdrUl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerUplink)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::downlink(predefinedRulePdrDl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerDownlink)
+                                                     .addQerId(SftUpf::QerQfiSession)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreateQer(Sft::pfcp::Qer(predefinedRuleQer).setMbr(mbrUl_, mbrDl_))
+                                   .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(serviceRuleName)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+        if (isStartInterception)
+        {
+            // receive T3 event
+            lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_} /* tasks */);
+        }
+    }
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+    {
+        if (interceptionType_ == Interception::StartOfInterception &&
+            point == StartInterceptionPoint::BeforeStartTraffic)
+        {
+            startOfInterception(liRedis_, session_);
+            isStartInterception = true;
+        }
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(serviceRuleName)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+    Sft::ProcedureData optionalData =
+        createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_, arp_);
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+
+    Sft::Procedures::createQosFlows.runActionsBetween("PcfPdnSessionPolicyUpdate",
+                                                      "UpfReceiveSessionUlDcrModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::downlink(dedicatedRulePdrUl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .setFarId(dedicatedRuleFarUl)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName())
+                                                     .setSourceInterface(Pfcp::SourceInterface::Access)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .setOuterHeaderRemoval(Pfcp::OuterHeaderRemoval(
+                                                         Pfcp::OuterHeaderRemovalType::UdpIpv4)))
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                                     .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                                     .setTransportLevelMarking(qci_))
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbr(gbrUl_, gbrDl_)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionModificationResponseTempInstallOnDefaultFlow",
+                                                      "AmfReceiveEbiAssignmentReq", optionalData, {session_, flows},
+                                                      {amf_, pcf_, upf_, lcdd_});
+
+    auto& message = amf_.n1n2MessageTransferRequest_ResourceModifyRequest(session_);
+
+    banner("N1N2 Message Transfer Request");
+    {
+        const auto&       configuration = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        const std::string instanceId    = configuration.get("pgw sbi smf-services nf-instance-id");
+
+        // Create "Content" part of resource modify request
+        const std::string n1ContentId{"PDUSessionModificationCommand"};
+        message.getJsonBuilder()
+            .setN1MessageContainer(
+                N11::N1MessageContainer(N11::N1MessageClass::SM, TestSupport::Types::RefToBinaryData(n1ContentId),
+                                        TestSupport::Types::NfInstanceId(TestSupport::Types::Uuid(instanceId))))
+            .build();
+
+        // Create N1 SmMessage template
+        auto n1Message = N1::createSmMessage(session_.pduSessionId_, N1::MessageType::PduSessionModificationCommand);
+        n1Message->setProcedureTransactionIdentity(0);
+        message.setN1SmMessage(std::move(n1Message), n1ContentId);
+
+        // In non-gbr flow we do not expect QosFlowDescriptions communicating the mbr change to AMF
+        // According to the standard 23.501 Ch 5.7.2.5, mbr changes are communicated to AMF only for GBR flows
+
+        // Create N2 part template
+        message.getJsonBuilder()
+            .setPduSessionId(TestSupport::Types::PduSessionId(session_.pduSessionId_))
+            .setN2InfoContainer(N11::N2InfoContainer(N11::N2SmInformation(
+                TestSupport::Types::PduSessionId(session_.pduSessionId_),
+                TestSupport::Types::N2InfoContent(
+                    TestSupport::Types::NgapIeType::PduResModReq,
+                    TestSupport::Types::RefToBinaryData("PduSessionResourceModifyRequestTransfer")),
+                session_.amf_.getSnssai())))
+            .build();
+
+        auto n2Message = N2::SmInfoBuilder::createSmInfo(N2::SmInfoType::PduSessionResourceModifyRequestTransfer);
+        message.setN2SmInfo(std::move(n2Message), "PduSessionResourceModifyRequestTransfer");
+
+        // add IeI QosRules to N1
+        ::TestSupport::Types::QosRules qosRules;
+
+        ::TestSupport::Types::QosRule sqfRule;
+        sqfRule.setQosRuleId(Compare::MatchAnyValue);
+        sqfRule.setRuleOperationCode(::TestSupport::Types::QosRule::RuleOperationCode::CreateNewQosRule);
+        sqfRule.setPrecedence(254);  // this stands out from configured "9" in precedence_ object from fixture instead
+        // it's amf precedence as seen in createOptionalData()
+        sqfRule.setQfi(flows[0]->qfi_);
+        sqfRule.setSegregation(0);
+        sqfRule.setDefaultQosRule(false);
+
+        sqfRule.addPacketFilter(::TestSupport::Types::PacketFilter()
+                                    .setIdentifier(::Compare::MatchAnyValue)
+                                    .setDirection(::TestSupport::Types::PacketFilterDirection::Uplink)
+                                    .addComponent(::TestSupport::Types::PacketFilterComponent::Ipv4RemoteAddress(
+                                        ::TestSupport::Types::IpAddress(remote_address_),
+                                        ::TestSupport::Types::IpAddress("255.255.255.255"))));
+
+        qosRules.addQosRule(std::move(sqfRule));
+
+        message.getN1SmMessage().add<N1::Ie::QosRules>(std::move(qosRules));
+
+        // add IeI QosFlowDescriptions to N1
+        message.getN1SmMessage().add<N1::Ie::QosFlowDescriptions>(
+            ::TestSupport::Types::QosFlowDescriptions().addQosFlowDescription(
+                ::TestSupport::Types::QosFlowDescription()
+                    .setQfi(flows[0]->qfi_)
+                    .setOperationCode(
+                        ::TestSupport::Types::QosFlowDescriptionOperationCode::CreateNewQosFlowDescription)
+                    .setEbit(::TestSupport::Types::QosFlowDescriptionEbit::ParametersListIsIncluded)
+                    .setFiveQi(qci_)
+                    .setMfbrUplink(mbrUl_)
+                    .setMfbrDownlink(mbrDl_)
+                    .setGfbrUplink(gbrUl_)
+                    .setGfbrDownlink(gbrDl_)));
+
+        // add qos change info to N2
+        N2::NonDynamic5qiDescriptor characteristics;
+        characteristics.fiveQi_ = qci_.get();
+        TestSupport::Types::Arp arp;
+        arp.priorityLevel_ = dedicatedPriorityLevel_;
+        N2::GbrQosInformation gbrQosInfo;
+        gbrQosInfo = N2::GbrQosInformation{{mbrUl_, mbrDl_}, {gbrUl_, gbrDl_}};
+
+        const N2::QosFlowLevelQosParameters     parameters{characteristics, arp, gbrQosInfo};
+        const N2::QosFlowAddOrModifyRequestItem qosFlow{flows[0]->qfi_, parameters, std::nullopt};
+        const N2::QosFlowAddOrModifyRequestList qosFlowList{qosFlow};
+
+        message.getN2SmInfoAs<N2::PduSessionResourceModifyRequestTransfer>().addQosFlowAddOrModifyRequestList(
+            qosFlowList);
+    }
+
+    amf_.receive(session_, message);
+    amf_.send(session_,
+              amf_.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+                                               TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+
+    Sft::Procedures::createQosFlows.runActionsBetween("AmfSendN1n2MessageTransferResponse",
+                                                      "UpfReceiveSessionDlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Create DL tunnel for dedicated QoS flow");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                                     .setFarId(dedicatedRuleFarDl)
+                                                     .addQerId(predefinedRuleQer)
+                                                     .addQerId(dedicatedRuleQer))
+                                   .addCreateQer(Sft::pfcp::Qer(dedicatedRuleQer)
+                                                     .setQfi(flows[0]->qfi_)
+                                                     .setUplinkEnabled(true)
+                                                     .setDownlinkEnabled(true))
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                                                     .setTransportLevelMarking(qci_)));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsAfter("UpfReceiveSessionDlModificationRequest", optionalData,
+                                                    {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    if (isStartInterception)
+    {
+        // receive X2 event and T3 event
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, flows));
+        lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_} /* tasks */);
+    }
+
+    Sft::banner("Report stop of traffic");
+    {
+        if (interceptionType_ == Interception::StartOfInterception && point == StartInterceptionPoint::BeforeEndTraffic)
+        {
+            startOfInterception(liRedis_, session_);
+            isStartInterception = true;
+        }
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(serviceRuleName)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StopOfTraffic)));
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    Sft::Procedures::deleteQosFlows.runActionsBetween("PcfReceiveUpdateResponse",
+                                                      "UpfSessionModificationRequestDownlinkRemoval", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Remove Ul tunnel for DQF and attach rule back to default bearer");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addRemoveFar(dedicatedRuleFarDl)
+                                   .addRemoveQer(dedicatedRuleQer)
+                                   .addRemovePdr(dedicatedRulePdrUl)
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbrEmpty())
+                                   .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                                     .setFarId(FarDefaultBearerDownlink)
+                                                     .addQerId(predefinedRuleQer)
+                                                     .addQerId(QerApnAmbr)
+                                                     .addQerId(SftUpf::QerQfiSession)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::deleteQosFlows.runActionsBetween("UpfSessionModificationResponseDownlinkRemoval",
+                                                      "UpfSessionModificationRequestUplinkRemoval", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    upf_.receive(session_, upf_.sessionModificationRequest(session_).addRemoveFar(dedicatedRuleFarUl));
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    if (isStartInterception)
+    {
+        // receive X2 event and T3 event
+        etsiDf2_.receive(etsiDf2_.pduSessionEstablishInterceptEventDeleteQosFlow(session_, flows));
+        lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+    }
+    Sft::Procedures::release5gSession({liSessionTask_});
+}
+// NOLINTEND(cppcoreguidelines-special-member-functions)
+
+class LawfulInterceptionEtsiMqfBasedOnServiceHandover : public LawfulInterceptionMqfBasedOnServiceBasic, public SftSgw
+{
+public:
+    void preTestCase() override
+    {
+        LawfulInterceptionMqfBasedOnServiceBasic::preTestCase();
+        session_.isEpsIwki_ = TestSupport::Types::EpsInterworkingInd::WithN26;
+    }
+    void removeLiRule(pfcp::MessageBuilder& t3Request, uint32_t excludePdrId)
+    {
+        const auto&                                         oldLiRules = t3Request.getLIRule().value();
+        Pfcp::IeList<::Pfcp::IeLIRule<::Pfcp::Conditional>> newLiRules;
+        for (const auto& liRule : oldLiRules)
+        {
+            if (liRule.pdrId_.getValue() == excludePdrId)
+            {
+                continue;
+            }
+            newLiRules.emplace_back(liRule);
+        }
+        t3Request.setLIRule(newLiRules);
+    }
+};
+
+
+//*=============================================================================
+// test case: TC79540_MqfBasedOnService_EpsFallback_InterferingHandling
+//
+//#Description#
+//    TC of Service Detection profile with a GBR rule.
+//    LPCP installs Service Rule during session establishment.
+//    Start of traffic trigger resulting in DQF establishment
+//    during creationg of qos flow, fallback is triggered, which will take
+//    effect after current procedure is done. Verify that 2 EPS bearers are active
+//    after the creation of dedicated bearer in EPS.
+//
+//    1. EPS fallback trigged X2 unsuccessful procedure event send out
+//    2. During EPS fallbakc procedure, X2 epsPdu modification event and T3 event are send out
+//    3. During dedicated bearer creation procedure, X2 epsPdu modification event are send out
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.2
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMqfBasedOnServiceHandover, TC79540_MqfBasedOnService_EpsFallback_InterferingHandling)
+{
+    const std::string serviceRuleName = "preDefRule1";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_);
+        configurePccRuleForProfile(config, serviceRuleName);
+
+        // Add unconditional rule in LPCP
+        config.add("pgw policy-control local profile=" + localPolicyControlProfile + " unconditional pcc-rule",
+                   serviceRuleName);
+
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession.runActionsBefore("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "_Qer";
+    const std::string predefinedRuleUrr   = serviceRuleName + "_Urr";
+
+    auto pfcpMessage = UpfMessageFactory::sessionEstablishmentMessage5g(session_, upf_);
+    pfcpMessage
+        .addCreatePdr(PdrHelper::uplink(predefinedRulePdrUl, session_.getDefaultBearer())
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerUplink)
+                          .setApplicationId(appId_)
+                          .addUrrId(predefinedRuleUrr)
+                          .addQerId(predefinedRuleQer)
+                          .addQerId(QerApnAmbr)
+                          .setNetworkInstance(UpfConstants::N3NetworkInstance))
+        .addCreatePdr(PdrHelper::downlink(predefinedRulePdrDl)
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerDownlink)
+                          .setApplicationId(appId_)
+                          .addUrrId(predefinedRuleUrr)
+                          .addQerId(predefinedRuleQer)
+                          .addQerId(QerApnAmbr)
+                          .addQerId(SftUpf::QerQfiSession))
+        .addCreateQer(Qer(predefinedRuleQer).setMbr({mbrUl_, mbrDl_}))
+        .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(predefinedRuleUrr));
+
+    upf_.receive(session_, pfcpMessage);
+
+    Sft::Procedures::establish5gSession.runActionsAfter("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+    {
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(predefinedRuleUrr)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+    Sft::ProcedureData optionalData = createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_,
+                                                         session_.getDefaultBearer().qos_.arp_);
+
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+    flows.at(0)->qfi_                     = TestSupport::Types::Qfi{4};
+    qosRules.getQosRules()[0].setQfi(4);
+
+    session_.epsFallback_ = true;
+
+    Sft::Procedures::createQosFlows.runActionsBetween("EbmPfcpSessionModificationEventTempInstallOnDefaultFlow",
+                                                      "UpfReceiveSessionUlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                                     .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                                     .setTransportLevelMarking(qci_))
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbr(gbrUl_, gbrDl_)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionModificationResponseTempInstallOnDefaultFlow",
+                                                      "EbmPfcpSessionModificationEventTempInstallOnDefaultFlow",
+                                                      optionalData, {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    // jumping over UpfReceiveSessionUlModification (moving dedicated mqf UL from default bearer)
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionUlModificationResponse",
+                                                      "AmfSendUpdateSmContextRequest_N1ResourceModifyCompleteTransfer",
+                                                      optionalData, {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    amf_.receive(session_, amf_.epsFallbackEbiAssignmentRequest(session_));
+    amf_.send(session_, amf_.epsFallbackEbiAssignmentResponse(session_, TestSupport::StatusCode::Ok));
+
+    //---------------------------------------------------------
+    //       EPS fallback trigged EtsiPduUnsuccessfulkProcedureEvent
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.unsuccessfulSmfProcedureEvent(
+        session_, LiEtsiTest::X2::FailedProcedureType::PDU_SESSION_MODIFICATION, N1::Ie::SmCause::NetworkFailure));
+
+    Sft::banner("Create DL tunnel for dedicated QoS flow");
+    {
+        upf_.receive(
+            session_,
+            upf_.sessionModificationRequest(session_)
+                .addUpdatePdr(
+                    Sft::pfcp::Pdr(predefinedRulePdrDl).setFarId(dedicatedRuleFarDl).addQerId(predefinedRuleQer))
+                .addRemoveFar(dedicatedRuleFarUl)
+                .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                                  .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                  .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                                  .setTransportLevelMarking(qci_)));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsAfter("UpfReceiveSessionDlModificationRequest", optionalData,
+                                                    {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    // Remove dedicated bearer
+    session_.deleteBearer(flows.at(0)->qos_.getQci(), flows.at(0)->qos_.getArp().getPriorityLevel());
+    // Due to the dedicated bearer was removed, the associated pdrIds are out of the T3 liRules.
+    auto excludePdrId = session_.upf_->current_.ruleDb_.getIdByName(Sft::pfcp::Pdr(predefinedRulePdrDl)).value_or(0);
+
+    banner("Fallback continues");
+    amf_.send(session_, amf_.createSmContextRetrieveRequest(session_));
+    upf_.receive(session_, upf_.sessionModificationRequest(session_).setVerificationLevel(
+                               VerificationLevel::OnlySpecified));  // @fixme
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+    amf_.receive(session_, amf_.createSmContextRetrieveResponse(session_, TestSupport::StatusCode::Ok));
+
+    session_.servingNode_.cFTeid_ = TestSupport::Types::CFTeid(
+        TestSupport::Types::IpAddress(sgw_.getServingNodeCAddressV4(), sgw_.getServingNodeCAddressV6()),
+        Sft::Generator::getInstance().newTeid());
+
+    sgw_.send(sgw_.modifyBearerRequestWithUteid(session_));
+
+    ForwardingParameters forwardingParameters;
+    forwardingParameters.setNetworkInstance(UpfConstants::S5S8NetworkInstance);  // todo: verify
+    forwardingParameters.setDestinationInterface(::Pfcp::DestinationInterface::Access);
+    forwardingParameters.setOuterHeaderCreationGtp(session_.getDefaultBearer().servingNode_.uFTeid_.getTeid(),
+                                                   sgw_.getUserPlaneIpAddress());
+    if (upf_.isEndMarkerSupported())
+    {
+        forwardingParameters.addPfcpSmReqFlag(Pfcp::PfcpSmReqFlagsType::SendEndMarkerPackets);
+    }
+
+    auto downlinkUpdatePfcpMessage =
+        upf_.sessionModificationRequest(session_)
+            .addUpdatePdr(Pdr(SftUpf::PdrUnconditionalDownlink).addQerId(SftUpf::QerApnAmbr))
+            .addRemovePdr(SftUpf::PdrUnconditionalUplink)
+            .addRemoveQer("QerQfiSession")
+            .addUpdateFar(Far(FarDefaultBearerDownlink)
+                              .addApplyAction(Pfcp::ApplyAction::Action::Forward)
+                              .setForwardingParameters(forwardingParameters));
+
+
+    upf_.receive(session_, downlinkUpdatePfcpMessage);
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    sgw_.receive(session_, sgw_.modifyBearerResponseWithUteid(session_));
+
+    //---------------------------------------------------------
+    //       EPS fallback: X2 and T3
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptHandoverEvent(session_));
+    {
+        auto t3Request = lit3_.lawfulInterceptionRequest_Etsi_Basic(session_, {liSessionTask_});
+        removeLiRule(t3Request, excludePdrId);
+        lit3_.receive(session_, t3Request);
+        lit3_.send(session_, lit3_.lawfulInterceptionResponse(session_));
+    }
+
+    banner("Activate Dedicated Bearer in EPS");
+    Bearer& newDedicatedBearer = session_.createNewBearer();
+
+    upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                               .addCreatePdr(PdrHelper::uplink(PdrUnconditionalUplink, newDedicatedBearer)
+                                                 .setFarId(FarHelper::getUplinkFarNameForBearer(newDedicatedBearer))
+                                                 .setPrecedence(SftUpf::pccRuleUnconditionalPrecedence))
+                               .addCreateFar(FarHelper::forwardUplink(newDedicatedBearer)
+                                                 .setApplyAction(Pfcp::ApplyAction::Action::Drop)
+                                                 .setTransportLevelMarking(qci_)));
+
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    sgw_.receive(session_, sgw_.createBearerRequest({&newDedicatedBearer}));
+
+    GtpCommon::Plmn plmn{session_.ue_.mccMnc_};
+
+    session_.eci_ = session_.eci_.value() + 1;
+    gtpv2::ie::UserLocationOptionalField::Ecgi ecgi(plmn, session_.eci_.value());
+    gtpv2::ie::UserLocationOptionalField::Tai  tai(plmn, session_.tac_.value());
+
+    gtpv2::ie::UserLocationOptionalField uselocation;
+    uselocation.ecgi_ = ecgi;
+    uselocation.tai_  = tai;
+    sgw_.send(sgw_.createBearerResponse({&newDedicatedBearer})
+                  .add<gtpv2::ie::UserLocationInformation>(gtpv2::ie::UserLocationOptionalField(uselocation)));
+
+
+    upf_.receive(session_, upf_.sessionModificationRequest(session_)
+
+                               .addCreateFar(FarHelper::forwardDownlink(newDedicatedBearer, sgw_)));
+
+
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    //---------------------------------------------------------
+    //       CreateDedicatedBearers procedure: X2 modification event
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.pdnSessionModificationInterceptEvent(session_));
+
+    ASSERT_EQ(2, Counters::nbrOfActiveEpsBearers());
+
+    Procedures::deletePdnSessionNoRediscovery(optionalData_, {session_}, {piafGsc_, sgw_, nrf_, pcf_, upf_, udm_});
+
+    //---------------------------------------------------------
+    //       DeleteServingNodeInitiatedS5S2Gtp procedure: X2 modification & release event
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.pdnSessionModificationInterceptEvent(session_));
+    etsiDf2_.receive(etsiDf2_.pdnSessionReleaseInterceptEvent(session_));
+}
+
+class LawfulInterceptionEtsiMqfBasedOnServiceHandoverEps5gs : public LawfulInterceptionMqfBasedOnServiceBasic,
+                                                              public SftSgw
+
+{
+public:
+    void preTestCase() override
+    {
+        LawfulInterceptionMqfBasedOnServiceBasic::preTestCase();
+
+        session_.isEpsIwki_ = TestSupport::Types::EpsInterworkingInd::WithN26;
+    }
+
+    // void addInitialConfiguration(TestSupport::Configuration::Builder& configuration) override
+    // {
+    //     using namespace TestSupport::Configuration;
+
+    //     LawfulInterceptionMqfBasedOnServiceBasic::addInitialConfiguration(configuration);
+    //     configuration.getPgw()
+    //         .getPgwLawfulIntercept()
+    //         .setEtsiConfig(true)
+    //         .setLiStatusEnabled(true)
+    //         .setLicense(PgwLawfulIntercept::LicenseMode::Base)
+    //         .setLawfulInterceptEtsiReporting(LawfulInterceptEtsiReporting().setSmfEtsiReportingEnabled(true));
+    // }
+    void removeLiRule(pfcp::MessageBuilder& t3Request, uint32_t excludePdrId)
+    {
+        const auto&                                         oldLiRules = t3Request.getLIRule().value();
+        Pfcp::IeList<::Pfcp::IeLIRule<::Pfcp::Conditional>> newLiRules;
+        for (const auto& liRule : oldLiRules)
+        {
+            if (liRule.pdrId_.getValue() == excludePdrId)
+            {
+                continue;
+            }
+            newLiRules.emplace_back(liRule);
+        }
+        t3Request.setLIRule(newLiRules);
+    }
+};
+
+//*=============================================================================
+// test case: TC79541_MqfBasedOnService_HandoverEpsTo5gs_InterferingHandling
+//
+//#Description#
+//    Service detection profile with a GBR ARP rule.
+//    Session establishment then installation of a predefined rule by PCF
+//    notification. Start of traffic trigger, which results in creation
+//    of dedicated qos flows, during this procedure trigger Handover EPS to 5GS (interfering handling).
+//    The handover will be buffered til after the creation of dedicated qos flow procedure
+//    is done.
+//
+//    1.  After Predefined rule is applied on the UPF, T3 was sent out.
+//    2.  During dedicated bearers creation, send X2 epsPdu modification event and T3 event
+//    3.  During handover from EPS to 5G, send X2 modification event and T3 event
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.2
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMqfBasedOnServiceHandoverEps5gs,
+       TC79541_MqfBasedOnService_HandoverEpsTo5gs_InterferingHandling)
+{
+    //---------------------------------------------------------
+    //        Task added to DB
+    //---------------------------------------------------------
+    liRedis_.sendToSubscribers(liRedis_.onKeySetNotification("task", Li::SessionTasks::Task6.iKey_));
+    liRedis_.receive(liRedis_.getAllRequest("task", Li::SessionTasks::Task6.iKey_));
+    liRedis_.send(liRedis_.getAllTaskReply(session_, {Li::SessionTasks::Task6}));
+
+    const std::string serviceRuleName = "gbrRuleWithArp";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, arp_);
+        configurePccRuleForProfile(config, serviceRuleName);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+
+    Procedures::createPdnSession.runActionsBefore("ServingNodeReceiveCreateSessionResponse", optionalData_, {session_},
+                                                  {piafGsc_, sgw_, nrf_, pcf_, upf_});
+
+    //---------------------------------------------------------
+    //        Query and answer from targetQuery during pdn session establishment
+    //---------------------------------------------------------
+    liRedis_.receive(session_, liRedis_.targetInfoRequest(session_));
+    liRedis_.send(liRedis_.targetInfoEtsiReply(session_, {Sft::Li::SessionTasks::Task6}));
+    etsiDf2_.receive(etsiDf2_.pdnSessionEstablishInterceptEvent(session_));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    Procedures::createPdnSession.runActionsFrom("ServingNodeReceiveCreateSessionResponse", optionalData_, {session_},
+                                                {piafGsc_, sgw_, nrf_, pcf_, upf_});
+
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "Qer";
+
+    Sft::banner("PCF installs PCC rule");
+    {
+        pcf_.send(session_, Sft::N7::MessageBuilder{pcf_.policyNotifyRequest(session_)}.addPccRule(
+                                Sft::N7::PccRule{serviceRuleName}));
+        pcf_.receive(session_, pcf_.policyNotifyResponse(session_, TestSupport::StatusCode::NoContent));
+    }
+
+    Sft::banner("Predefined rule is applied on the UPF");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::uplink(predefinedRulePdrUl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerUplink)
+                                                     .setNetworkInstance(Sft::UpfConstants::S5S8NetworkInstance)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::downlink(predefinedRulePdrDl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerDownlink)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreateQer(Sft::pfcp::Qer(predefinedRuleQer).setMbr(mbrUl_, mbrDl_))
+                                   .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(serviceRuleName)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+        //---------------------------------------------------------
+        //        Predefined rule is applied on the UPF
+        //---------------------------------------------------------
+        lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+    }
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+
+    upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                            Sft::pfcp::UsageReport(serviceRuleName)
+                                .setSequenceNumber(usageReportSequenceNr++)
+                                .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+
+    const ProcedureData optionalDataHo{Eps5gsMobilityType::EpsTo5gsHandover};
+
+    Sft::ProcedureData optionalData =
+        createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_, arp_);
+
+    banner("Mobility Handover");
+    Procedures::mobility4g5g.runActionsBefore("UpfSessionModificationRequestUplinkFor4gHandover5g", optionalDataHo,
+                                              {session_});
+
+    upf_.receive(session_, upf_.sessionReportResponse(session_));
+
+    // todo we should abort the current procedure, creation of dedicated qos flows
+    //  and instead start the eps to 5g handover
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+
+    uint32_t dummyUplinkPdrId = 0;
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        auto dummyUplinkPdr = PdrHelper::dummyUplink(*flows.at(0), dedicatedRuleFarUl, 1);
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(dummyUplinkPdr)
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                                     .setApplyAction(Pfcp::ApplyActionAction::Drop)
+                                                     .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                                     .setTransportLevelMarking(qci_))
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbr(gbrUl_, gbrDl_)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+        // There doesn't exists any traffic on this dummy uplink PDR. Due to FAR's apply action is DROP.
+        dummyUplinkPdrId = session_.upf_->current_.ruleDb_.getIdByName(dummyUplinkPdr).value_or(0);
+    }
+
+    sgw_.receive(session_, sgw_.createBearerRequest({flows.at(0)}));
+    sgw_.send(sgw_.createBearerResponse({flows.at(0)}));
+
+    upf_.receive(
+        session_,
+        upf_.sessionModificationRequest(session_)
+            .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl).setFarId(dedicatedRuleFarDl).addQerId(predefinedRuleQer))
+            .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                              .setNetworkInstance(Sft::UpfConstants::S5S8NetworkInstance)
+                              .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                              .setTransportLevelMarking(qci_)));
+
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    //---------------------------------------------------------
+    //        CreateDedicatedBearers procedure: X2 and T3 event
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.pdnSessionModificationInterceptEvent(session_));
+    {
+        auto t3Request = lit3_.lawfulInterceptionRequest_Etsi_Basic(session_, {liSessionTask_});
+        // This dummy uplink PDR was not presient in the T3 report request
+        removeLiRule(t3Request, dummyUplinkPdrId);
+        lit3_.receive(session_, t3Request);
+        lit3_.send(session_, lit3_.lawfulInterceptionResponse(session_));
+    }
+
+    const ProcedureData optionalDataHoEps5gs{Eps5gsMobilityType::EpsTo5gsHandover};
+
+    Sft::ProcedureData optionalDataContinue =
+        createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_, arp_);
+
+    banner("Continue Handover Eps to 5gs");
+
+    const std::string dedicatedRulePdrUlHoDefault   = "DedicatedPdrUpHoDefault_" + serviceRuleName;
+    const std::string dedicatedRulePdrUlHoDedicated = "DedicatedPdrUpHoDedicated_" + serviceRuleName;
+    const std::string dedicatedRulePdrDlHoDefault   = "DedicatedPdrUpHoDefault_" + serviceRuleName;
+    const std::string dedicatedRulePdrDlHoDedicated = "DedicatedPdrUpHoDedicated_" + serviceRuleName;
+
+    std::vector<Bearer*> dedicatedBearers_;
+
+    upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                               .addCreatePdr(Sft::pfcp::PdrHelper::uplink(dedicatedRulePdrUlHoDedicated)
+                                                 .setPrecedence(precedence_)
+                                                 .setApplicationId(appId_)
+                                                 .setFarId(dedicatedRuleFarUl)
+                                                 .addUrrId(serviceRuleName)
+                                                 .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                 .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                               .addCreatePdr(Sft::pfcp::PdrHelper::uplink(dedicatedRulePdrUlHoDefault)
+                                                 .setPrecedence(SftUpf::pccRuleUnconditionalPrecedence)
+                                                 .setApplicationId("default")
+                                                 .addQerId(SftUpf::QerApnAmbr)
+                                                 .setFarId(FarDefaultBearerUplink)
+                                                 .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance))
+                               .addRemovePdr(PdrHelper::getDummyPdrUplinkNameForBearer(*flows.at(0), 1)));
+
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    Procedures::mobility4g5g.runActionsBetween("UpfSessionModificationResponseUplinkPdrTeidFor4g5gIwk",
+                                               "UpfReceiveSessionModificationRequestDownlinkFor4g5gIwk",
+                                               optionalDataHoEps5gs, {session_, flows},
+                                               {piafGsc_, sgw_, amf_, nrf_, upf_, pcf_});
+
+    upf_.receive(
+        session_,
+        upf_.sessionModificationRequest(session_)
+            .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                              .addQerId(("QerQfiSession_dedicated"))
+                              .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+            .addUpdatePdr(
+                Sft::pfcp::Pdr(PdrUnconditionalDownlink).addQerId((SftUpf::QerQfiSession)).addQerId(SftUpf::QerApnAmbr))
+            .addCreateQer(Sft::pfcp::Qer("QerQfiSession_dedicated")
+                              .setQfi(TestSupport::Types::Qfi{4})
+                              .setUplinkEnabled(true)
+                              .setDownlinkEnabled(true))
+            .addCreateQer(Sft::pfcp::Qer(QerQfiSession)
+                              .setQfi(TestSupport::Types::Qfi{5})
+                              .setUplinkEnabled(true)
+                              .setDownlinkEnabled(true))
+            .addUpdateFar(Sft::pfcp::FarHelper::forwardUplink(FarDefaultBearerDownlink)
+                              .addApplyAction(Pfcp::ApplyAction::Action::Forward)
+                              .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                              .setDestinationInterface(Pfcp::DestinationInterface::Access))
+            .addUpdateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                              .addApplyAction(Pfcp::ApplyAction::Action::Forward)
+                              .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                              .setDestinationInterface(Pfcp::DestinationInterface::Access))
+            .addRemovePdr(PdrUnconditionalUplink)
+            .addRemovePdr(predefinedRulePdrUl));
+
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    Procedures::mobility4g5g.runActionsBetween("UpfSendSessionModificationResponsePdrTeidFor4g5gIwk",
+                                               "PcfReceivePolicyUpdateRequest4g5gIwk", optionalDataHoEps5gs,
+                                               {session_, flows}, {piafGsc_, sgw_, amf_, nrf_, udm_, upf_, pcf_});
+
+    // Skip PCF signaling since we don't have any trigger
+    Procedures::mobility4g5g.runActionsAfter("PcfSendPolicyUpdateResponse", optionalDataHoEps5gs, {session_, flows},
+                                             {piafGsc_, sgw_, amf_, nrf_, udm_, upf_, pcf_});
+
+    //---------------------------------------------------------
+    //        HandoverS5ToN11 procedure: X2 and T3 event
+    //---------------------------------------------------------
+    etsiDf2_.receive(etsiDf2_.pdnSessionModificationInterceptHandoverEvent(session_));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    Sft::Procedures::release5gSession(optionalData_);
+}
+
+//*=============================================================================
+// test case: TC63907_MqfBasedOnService_Lpcp_Unconditonal_N4_Failure
+//
+//#Description#
+//    Mainflow TC of service detection profile with a Non-Gbr rule.
+//    LPCP installs Service Rule during session establishment.
+//    Start of traffic trigger resulting in DQF establishment
+//    Up rejects DQF Establishment. MQF Failure handling.
+//    Release Session
+//
+//    1. After Predefined rule is applied on the UPF, T3 messaging happens.
+//    2. After Creating dedicated QoS flow, X2 event are sent and T3 messaging happens.
+//    3. After N2 handover, X2 event is sent and T3 messaging happens.
+//    4. After removing dedicated QoS flow, X2 event is sent and T3 messaging happens.
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.1
+//=============================================================================*
+TEST_P(LawfulInterceptionEtsiMqfBasedOnServiceN4Failure, TC63907_MqfBasedOnService_Lpcp_Unconditonal_N4_Failure)
+{
+    const auto pfcpCause = ::testing::get<0>(GetParam());
+    // const auto statusCode = ::testing::get<1>(GetParam());
+    // const auto appCause   = ::testing::get<2>(GetParam());
+
+    const auto        qci             = TestSupport::Types::Qci(6);
+    const std::string serviceRuleName = "preDefRule1";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci, mbrUl_, mbrDl_);
+        configurePccRuleForProfile(config, serviceRuleName);
+
+        config
+            .add("pgw policy-control local profile=" + localPolicyControlProfile + " unconditional pcc-rule",
+                 serviceRuleName)
+            .add("pgw qos-control bearer-creation max-retries", 2)
+            .add("pgw qos-control bearer-creation retry-delay", 30);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession.runActionsBefore("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "_Qer";
+    const std::string predefinedRuleUrr   = serviceRuleName + "_Urr";
+
+    auto pfcpMessage = UpfMessageFactory::sessionEstablishmentMessage5g(session_, upf_);
+    pfcpMessage
+        .addCreatePdr(PdrHelper::uplink(predefinedRulePdrUl, session_.getDefaultBearer())
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerUplink)
+                          .setApplicationId(appId_)
+                          .addUrrId(predefinedRuleUrr)
+                          .addQerId(Qer(predefinedRuleQer).idName())
+                          .addQerId(QerApnAmbr)
+                          .setNetworkInstance(UpfConstants::N3NetworkInstance))
+
+        .addCreatePdr(PdrHelper::downlink(predefinedRulePdrDl)
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerDownlink)
+                          .setApplicationId(appId_)
+                          .addUrrId(predefinedRuleUrr)
+                          .addQerId(Qer(predefinedRuleQer).idName())
+                          .addQerId(QerApnAmbr)
+                          .addQerId(SftUpf::QerQfiSession))
+        .addCreateQer(Qer(predefinedRuleQer).setMbr({mbrUl_, mbrDl_}))
+        .addCreateUrr(Urr(predefinedRuleUrr)
+                          .addReportingTriggerType(Pfcp::ReportingTriggerType::StartOfTraffic)
+                          .addReportingTriggerType(Pfcp::ReportingTriggerType::StopOfTraffic)
+                          .addMeasurementMethod(Pfcp::MeasurementMethod::Method::Event));
+
+    upf_.receive(session_, pfcpMessage);
+
+    Sft::Procedures::establish5gSession.runActionsAfter("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+    {
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(predefinedRuleUrr)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    const std::string  dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string  dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string  dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string  dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string  dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+    Sft::ProcedureData optionalData       = createOptionalData(serviceRuleName, qci, mbrUl_, mbrDl_, std::nullopt,
+                                                               std::nullopt, appId_, session_.getDefaultBearer().qos_.arp_);
+
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+
+    Sft::Procedures::createQosFlows.runActionsBetween("PcfPdnSessionPolicyUpdate",
+                                                      "UpfReceiveSessionUlDcrModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Creating dedicated QoS flow UL, UPF rejects");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_).addCreateFar(
+                                   Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                       .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                       .setTransportLevelMarking(qci)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_, pfcpCause));
+    }
+
+    if (pfcpCause == PfcpCause::SessionContextNotFound)
+    {
+        etsiDf2_.receive(etsiDf2_.unsuccessfulSmfProcedureEvent(
+            session_, LiEtsiTest::X2::FailedProcedureType::PDU_SESSION_MODIFICATION, N1::Ie::SmCause::NetworkFailure));
+
+        Procedures::release5gSessionNetworkTriggered.runActionsAfter("UpfSendSessionDeletionResponse", optionalData_);
+    }
+    else
+    {
+        Procedures::dontReceive({}, {}, {pcf_, upf_, amf_});
+        Time::run(40s);
+        Procedures::dontReceive({}, {}, {pcf_, upf_, amf_});
+
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEvent(session_));
+
+        Sft::Procedures::release5gSession(optionalData_);
+    }
+}
+
+//*=============================================================================
+// test case: TC63908_MqfBasedOnService_Mainflow_StartStop_NonGbr_Arp_N2_Handover
+//
+//#Description#
+//    Mainflow TC of service detection profile with a Non-Gbr ARP rule.
+//    Session establishment then installation of a predefined rule by PCF
+//    notification. Start of traffic trigger resulting in DQF establishment.
+//    N2 Handover, new AMF.
+//    Stop of traffic trigger resulting in DQF deletion then session release.
+//
+//    1. After Predefined rule is applied on the UPF, T3 messaging happens.
+//    2. After Creating dedicated QoS flow, X2 event are sent and T3 messaging happens.
+//    3. After N2 handover, X2 event is sent and T3 messaging happens.
+//    4. After removing dedicated QoS flow, X2 event is sent and T3 messaging happens.
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.2
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMqfBasedOnServiceInterfere,
+       TC63908_MqfBasedOnService_Mainflow_StartStop_NonGbr_Arp_N2_Handover)
+{
+    const auto        qci             = TestSupport::Types::Qci(6);
+    const std::string serviceRuleName = "mbrRuleWithArp";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci, mbrUl_, mbrDl_, std::nullopt, std::nullopt, arp_);
+        configurePccRuleForProfile(config, serviceRuleName);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession(optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "Qer";
+
+    Sft::banner("PCF installs PCC rule");
+    {
+        pcf_.send(session_, Sft::N7::MessageBuilder{pcf_.policyNotifyRequest(session_)}.addPccRule(
+                                Sft::N7::PccRule{serviceRuleName}));
+        pcf_.receive(session_, pcf_.policyNotifyResponse(session_, TestSupport::StatusCode::NoContent));
+    }
+
+    Sft::banner("Predefined rule is applied on the UPF");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::uplink(predefinedRulePdrUl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerUplink)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::downlink(predefinedRulePdrDl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerDownlink)
+                                                     .addQerId(SftUpf::QerQfiSession)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreateQer(Sft::pfcp::Qer(predefinedRuleQer).setMbr(mbrUl_, mbrDl_))
+                                   .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(serviceRuleName)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+    {
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(serviceRuleName)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+
+    Sft::ProcedureData optionalData =
+        createOptionalData(serviceRuleName, qci, mbrUl_, mbrDl_, std::nullopt, std::nullopt, appId_, arp_);
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+    flows.at(0)->qfi_                     = TestSupport::Types::Qfi{6};
+    qosRules.getQosRules()[0].setQfi(6);
+
+    Sft::Procedures::createQosFlows.runActionsBetween("PcfPdnSessionPolicyUpdate",
+                                                      "UpfReceiveSessionUlDcrModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_).addCreateFar(
+                                   Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                       .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                       .setTransportLevelMarking(qci)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionModificationResponseTempInstallOnDefaultFlow",
+                                                      "UpfReceiveSessionUlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    // jumping over UpfReceiveSessionUlModification (moving dedicated mqf UL from default bearer)
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionUlModificationResponse",
+                                                      "UpfReceiveSessionDlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Create DL tunnel for dedicated QoS flow");
+    {
+        upf_.receive(session_,
+                     upf_.sessionModificationRequest(session_)
+                         .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                           .setFarId(dedicatedRuleFarDl)
+                                           .addQerId(Sft::pfcp::Qer(dedicatedRuleQer).idName())
+                                           .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName())
+                                           .addQerId(SftUpf::QerApnAmbr))
+                         .addCreateQer(
+                             Sft::pfcp::Qer(dedicatedRuleQer).setQfi(6).setUplinkEnabled(true).setDownlinkEnabled(true))
+                         .addCreateFar(Sft::pfcp::FarHelper::forwardDownlink(dedicatedRuleFarDl)
+                                           .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                           .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                                           .setTransportLevelMarking(qci)));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsAfter("UpfReceiveSessionDlModificationRequest", optionalData,
+                                                    {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, flows));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    banner("N2 Handover with AMF Change ");
+
+    std::vector<Bearer*> setupResponsebearers = {&session_.getDefaultBearer(), flows.at(0)};
+    Procedures::n2HandoverWithAmfChange.runActionsBefore("UpfReceiveSessionModificationRequest_DownlinkFARUpdate",
+                                                         optionalData, {session_, setupResponsebearers},
+                                                         {piafGsc_, amf_, upf_, nrf_, pcf_});
+    auto forwardingParameters = pfcp::ForwardingParameters()
+                                    .setNetworkInstance(UpfConstants::N3NetworkInstance)
+                                    .setDestinationInterface(::Pfcp::DestinationInterface::Access)
+                                    .setPfcpSmReqFlag(::Pfcp::PfcpSmReqFlagsType::SendEndMarkerPackets)
+                                    .setOuterHeaderCreationGtp(session_.amf_.dlForwardingTeid_,
+                                                               session_.amf_.dlForwardingAddr_.getPreferredIpAddress());
+    upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                               .addUpdateFar(pfcp::Far(Far(SftUpf::FarDefaultBearerDownlink))
+                                                 .addApplyAction(Pfcp::ApplyAction::Action::Forward)
+                                                 .setForwardingParameters(forwardingParameters))
+                               .addUpdateFar(Sft::pfcp::FarHelper::forwardDownlink(dedicatedRuleFarDl)
+                                                 .addApplyAction(Pfcp::ApplyAction::Action::Forward)
+                                                 .setForwardingParameters(forwardingParameters)));
+
+    Procedures::n2HandoverWithAmfChange.runActionsAfter("UpfReceiveSessionModificationRequest_DownlinkFARUpdate",
+                                                        optionalData, {session_, setupResponsebearers},
+                                                        {piafGsc_, amf_, upf_, nrf_, pcf_});
+
+    auto& x2Message       = etsiDf2_.pduSessionModificationInterceptEvent(session_);
+    auto& message         = x2Message.get<LiEtsiTest::X2::EtsiX2PduSessionModification>();
+    message.handoverState = LiEtsiTest::X2::HandoverState::Completed;
+
+    etsiDf2_.receive(x2Message);
+
+    Sft::banner("Report stop of traffic");
+    {
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(serviceRuleName)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StopOfTraffic)));
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    Sft::Procedures::deleteQosFlows.runActionsBetween("PcfReceiveUpdateResponse",
+                                                      "UpfSessionModificationRequestDownlinkRemoval", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Remove Ul tunnel for DQF and attach rule back to default bearer");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addRemoveFar(dedicatedRuleFarDl)
+                                   .addRemoveQer(dedicatedRuleQer)
+                                   .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                                     .setFarId(SftUpf::FarDefaultBearerDownlink)
+                                                     .addQerId(SftUpf::QerQfiSession)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName())
+                                                     .addQerId(SftUpf::QerApnAmbr)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::deleteQosFlows.runActionsBetween("UpfSessionModificationResponseDownlinkRemoval",
+                                                      "UpfSessionModificationRequestUplinkRemoval", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    upf_.receive(session_, upf_.sessionModificationRequest(session_).addRemoveFar(dedicatedRuleFarUl));
+    upf_.send(session_, upf_.sessionModificationResponse(session_));
+
+    etsiDf2_.receive(etsiDf2_.pduSessionEstablishInterceptEventDeleteQosFlow(session_, flows));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    Procedures::release5gSession(liSessionTask_);
+}
+
+//*=============================================================================
+// test case: TC63909_MqfBasedOnService_UEInitiatedTermination_InterferingHandling
+//
+//#Description#
+//    Service detection profile with a GBR ARP rule.
+//    Session establishment then installation of a predefined rule by PCF
+//    notification. Start of traffic trigger, which results in creation
+//    of dedicated qos flows, during this procedure UE initiate a release of session.
+//    The UE initiated release will be buffered till after the creation of dedicated
+//    is done.
+//
+//    1. After Predefined rule is applied on the UPF, T3 messaging happens.
+//    2. After Creating dedicated QoS flow, X2 event are sent and T3 messaging happens.
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.2
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMqfBasedOnServiceInterfere,
+       TC63909_MqfBasedOnService_UEInitiatedTermination_InterferingHandling)
+{
+    const std::string serviceRuleName = "gbrRuleWithArp";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, arp_);
+        configurePccRuleForProfile(config, serviceRuleName);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession(optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "Qer";
+
+    Sft::banner("PCF installs PCC rule");
+    {
+        pcf_.send(session_, Sft::N7::MessageBuilder{pcf_.policyNotifyRequest(session_)}.addPccRule(
+                                Sft::N7::PccRule{serviceRuleName}));
+        pcf_.receive(session_, pcf_.policyNotifyResponse(session_, TestSupport::StatusCode::NoContent));
+    }
+
+    Sft::banner("Predefined rule is applied on the UPF");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::uplink(predefinedRulePdrUl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerUplink)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreatePdr(Sft::pfcp::PdrHelper::downlink(predefinedRulePdrDl)
+                                                     .setPrecedence(precedence_)
+                                                     .setApplicationId(appId_)
+                                                     .addQerId(SftUpf::QerApnAmbr)
+                                                     .setFarId(FarDefaultBearerDownlink)
+                                                     .addQerId(SftUpf::QerQfiSession)
+                                                     .addUrrId(serviceRuleName)
+                                                     .addQerId(Sft::pfcp::Qer(predefinedRuleQer).idName()))
+                                   .addCreateQer(Sft::pfcp::Qer(predefinedRuleQer).setMbr(mbrUl_, mbrDl_))
+                                   .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(serviceRuleName)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+
+    upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                            Sft::pfcp::UsageReport(serviceRuleName)
+                                .setSequenceNumber(usageReportSequenceNr++)
+                                .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+
+    banner("Release 5G session triggered by UE");
+
+    // Need to save the sequence ID for the response
+    N11::Message& updateSmContextRequest = amf_.updateSmContextRequest_ReleaseRequest(session_);
+
+    uint32_t updateRequestseqId = *updateSmContextRequest.getSequenceId();
+
+    amf_.send(session_, updateSmContextRequest);
+
+    upf_.receive(session_, upf_.sessionReportResponse(session_));
+
+    // Todo after the response comes from UPF, we should instead release the session
+    //  this means that we abort the creation of dedicated qos flow procedure
+    //  we then no longer need to save the sequence ID for later.
+
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+    Sft::ProcedureData optionalData =
+        createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_, arp_);
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                                     .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                                     .setTransportLevelMarking(qci_))
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbr(gbrUl_, gbrDl_)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionModificationResponseTempInstallOnDefaultFlow",
+                                                      "UpfReceiveSessionUlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    // jumping over UpfReceiveSessionUlModification (moving dedicated mqf UL from default bearer)
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionUlModificationResponse",
+                                                      "UpfReceiveSessionDlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Create DL tunnel for dedicated QoS flow");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                                     .setFarId(dedicatedRuleFarDl)
+                                                     .addQerId(predefinedRuleQer)
+                                                     .addQerId(Qer(dedicatedRuleQer).idName()))
+                                   .addCreateQer(Sft::pfcp::Qer(dedicatedRuleQer)
+                                                     .setQfi(flows[0]->qfi_)
+                                                     .setUplinkEnabled(true)
+                                                     .setDownlinkEnabled(true))
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                                                     .setTransportLevelMarking(qci_)));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsAfter("UpfReceiveSessionDlModificationRequest", optionalData,
+                                                    {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, flows));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {liSessionTask_});
+
+    banner("Continue with UE initiated release");
+
+    Procedures::release5gSession.runActionsBetween("AmfSendUpdateSmContextRequest_ReleaseRequest",
+                                                   "AmfReceiveUpdateSmContextResponse_PduSessionReleaseCommand",
+                                                   optionalData_, {session_});
+
+    amf_.receive(session_, amf_.updateSmContextResponse_PduSessionReleaseCommand(session_, TestSupport::StatusCode::Ok,
+                                                                                 1, updateRequestseqId));
+
+    Procedures::release5gSession.runActionsAfter("AmfReceiveUpdateSmContextResponse_PduSessionReleaseCommand",
+                                                 optionalData_, {session_});
+}
+
+//*=============================================================================
+// test case: TC79426_MqfBasedOnService_PcfInitiatedTermination_InterferingHandling
+//
+//#Description#
+//    Service detection profile with a GBR ARP rule.
+//    Session establishment then installation of a predefined rule by PCF
+//    notification. Start of traffic trigger, which results in creation
+//    of dedicated qos flows, during this procedure Pcf initiate a release of session.
+//    The Pcf initiated release will be buffered till after the creation of dedicated
+//    is done.
+//
+//    1. After Predefined rule is applied on the UPF, T3 messaging happens.
+//    2. After Creating dedicated QoS flow, X2 event are sent and T3 messaging happens.
+//
+//#Feature#
+//    PCPB-22065
+//
+//#Requirement#
+//    REQ21267.2
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMqfBasedOnServiceInterfere,
+       TC79426_MqfBasedOnService_PcfInitiatedTermination_InterferingHandling)
+{
+    const std::string serviceRuleName = "gbrRuleWithArp";
+
+    Sft::banner("Configure predefined rule with service profile");
+    {
+        SftCore::Configuration& config = SftCore::CurrentConfiguration::getInstance().getConfiguration();
+        configurePreDefServiceProfile(config, serviceProfile_, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, arp_);
+        configurePccRuleForProfile(config, serviceRuleName);
+
+        config.add("pgw policy-control local profile=" + localPolicyControlProfile + " unconditional pcc-rule",
+                   serviceRuleName);
+        Sft::ConfigurationUtil::commit(lcmd_, config);
+    }
+
+    Sft::Procedures::establish5gSession.runActionsBefore("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    const std::string predefinedRulePdrUl = "PredefinedPdrUp_" + serviceRuleName;
+    const std::string predefinedRulePdrDl = "PredefinedPdrDown_" + serviceRuleName;
+    const std::string predefinedRuleQer   = serviceRuleName + "_Qer";
+
+    auto pfcpMessage = UpfMessageFactory::sessionEstablishmentMessage5g(session_, upf_);
+    pfcpMessage
+        .addCreatePdr(PdrHelper::uplink(predefinedRulePdrUl, session_.getDefaultBearer())
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerUplink)
+                          .setApplicationId(appId_)
+                          .addUrrId(serviceRuleName)
+                          .addQerId(Qer(predefinedRuleQer).idName())
+                          .addQerId(QerApnAmbr)
+                          .setNetworkInstance(UpfConstants::N3NetworkInstance))
+        .addCreatePdr(PdrHelper::downlink(predefinedRulePdrDl)
+                          .setPrecedence(precedence_)
+                          .setFarId(FarDefaultBearerDownlink)
+                          .setApplicationId(appId_)
+                          .addUrrId(serviceRuleName)
+                          .addQerId(predefinedRuleQer)
+                          .addQerId(QerApnAmbr)
+                          .addQerId(SftUpf::QerQfiSession))
+        .addCreateQer(Qer(predefinedRuleQer).setMbr({mbrUl_, mbrDl_}))
+        .addCreateUrr(Sft::pfcp::UrrHelper::serviceDetection(serviceRuleName));
+
+    upf_.receive(session_, pfcpMessage);
+
+    Sft::Procedures::establish5gSession.runActionsAfter("UpfReceiveSessionEstablishmentRequest", optionalData_);
+
+    auto usageReportSequenceNr = 0;
+    Sft::banner("Report start of traffic");
+    {
+        upf_.send(session_, upf_.sessionReportRequest(session_).MessageBuilder::addUsageReport(
+                                Sft::pfcp::UsageReport(serviceRuleName)
+                                    .setSequenceNumber(usageReportSequenceNr++)
+                                    .addUsageReportTrigger(Pfcp::UsageReportTriggerType::StartOfTraffic)));
+
+        banner("Release 5G session triggered by PCF");
+
+        Procedures::release5gSessionPcfTriggered.runActionsBefore("UpfReceiveSessionDeletionRequest",
+                                                                  {N1::Ie::SmCause::RequestRejectedUnspecified});
+
+        upf_.receive(session_, upf_.sessionReportResponse(session_));
+    }
+
+    // Todo: here we should abort the creation of dedicated qos flow and instead continue with
+    //  the release of pcf initiated termination.
+    const std::string dedicatedRulePdrUl = "DedicatedPdrUp_" + serviceRuleName;
+    const std::string dedicatedRulePdrDl = "DedicatedPdrDown_" + serviceRuleName;
+    const std::string dedicatedRuleFarUl = "DedicatedFarUp_" + serviceRuleName;
+    const std::string dedicatedRuleFarDl = "DedicatedFarDown_" + serviceRuleName;
+    const std::string dedicatedRuleQer   = "DedicatedQer_" + serviceRuleName;
+
+    Sft::ProcedureData optionalData =
+        createOptionalData(serviceRuleName, qci_, mbrUl_, mbrDl_, gbrUl_, gbrDl_, appId_, arp_);
+    std::vector<Sft::Bearer*>    flows    = Sft::Util::createQosFlowBearers(optionalData, session_);
+    TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, flows);
+
+    Sft::banner("Creating dedicated QoS flow UL");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarUl)
+                                                     .setNetworkInstance(Sft::UpfConstants::ApnNetworkInstance)
+                                                     .setTransportLevelMarking(qci_))
+                                   .addUpdateQer(Qer(predefinedRuleQer).setGbr(gbrUl_, gbrDl_)));
+        upf_.send(session_, upf_.sessionModificationResponse(session_));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionModificationResponseTempInstallOnDefaultFlow",
+                                                      "UpfReceiveSessionUlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    // jumping over UpfReceiveSessionUlModification (moving dedicated mqf UL from default bearer)
+
+    Sft::Procedures::createQosFlows.runActionsBetween("UpfSendSessionUlModificationResponse",
+                                                      "UpfReceiveSessionDlModificationRequest", optionalData,
+                                                      {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    Sft::banner("Create DL tunnel for dedicated QoS flow");
+    {
+        upf_.receive(session_, upf_.sessionModificationRequest(session_)
+                                   .addUpdatePdr(Sft::pfcp::Pdr(predefinedRulePdrDl)
+                                                     .setFarId(dedicatedRuleFarDl)
+                                                     .addQerId(predefinedRuleQer)
+                                                     .addQerId(dedicatedRuleQer))
+                                   .addCreateQer(Sft::pfcp::Qer(dedicatedRuleQer)
+                                                     .setQfi(flows[0]->qfi_)
+                                                     .setUplinkEnabled(true)
+                                                     .setDownlinkEnabled(true))
+                                   .addCreateFar(Sft::pfcp::FarHelper::forwardUplink(dedicatedRuleFarDl)
+                                                     .setNetworkInstance(Sft::UpfConstants::N3NetworkInstance)
+                                                     .setDestinationInterface(Pfcp::DestinationInterface::Access)
+                                                     .setTransportLevelMarking(qci_)));
+    }
+
+    Sft::Procedures::createQosFlows.runActionsAfter("UpfReceiveSessionDlModificationRequest", optionalData,
+                                                    {session_, flows}, {amf_, pcf_, upf_, lcdd_});
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, flows));
+    lit3_.receiveEtsiBasicRequestAndReply(session_, {Sft::Li::SessionTasks::Task6});
+
+    const ProcedureData optionalDataRelease{OptionalProcedureFlowRelease5gSession::ReleaseN2,
+                                            N1::Ie::SmCause::UserAuthenticationOrAuthorizationFailed, liSessionTask_};
+
+    Procedures::release5gSessionNetworkTriggered({optionalDataRelease});
+}
+
+
+
+
+Sft::X2::Message& EtsiDf2::pduSessionEstablishInterceptEventDeleteQosFlow(const Session&              session,
+                                                                          const std::vector<Bearer*>& bearers) const
+{
+    auto& x2Message = pduSessionModificationInterceptEvent(session, true);
+    auto& message   = x2Message.get<EtsiX2PduSessionModification>();
+
+
+    if (!message.locationInfo)
+    {
+        message.locationInfo = LocationInfo_t{};
+    }
+    message.locationInfo->ratType    = LiEtsiTest::X2::RatType::NR;
+    message.locationInfo->currentLoc = true;
+    message.ratType                  = LiEtsiTest::X2::RatType::NR;
+
+    message.fiveGsGtpTunnels_->dLRANTunnelInformation_ = LiEtsiTest::X2::DlRanTunnelInformation{};
+    message.fiveGsGtpTunnels_->dLRANTunnelInformation_->dLQOSFlowTunnelInformation_ =
+        LiEtsiTest::X2::QosFlowTunnelInformation{};
+    message.fiveGsGtpTunnels_->dLRANTunnelInformation_->dLQOSFlowTunnelInformation_->uPTunnelInformation_ =
+        Compare::MatchNotExist;
+
+    message.fiveGsGtpTunnels_->dLRANTunnelInformation_->dLQOSFlowTunnelInformation_->associatedQOSFlowList_ =
+        buildExpectedQosFlows(bearers, false);
+
+    return x2Message;
+}
+
+
+
+Sft::X2::Message& pduSessionEstablishInterceptEventDeleteQosFlow(const Session&              session,
+                                                                     const std::vector<Bearer*>& bearers) const;
+
+
+
+
+
+
+cd manualst/
+  1030	11:16	cd /proj/epg_st_sandbox/esimnaa/manualST
+  1032	11:16	source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc
+  1033	11:16	alias setup_st_environment 'source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc'
+  1034	11:23	cp
+  1036	11:24	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg34-5 -t TC37540.40.6.1 install all configure all start all NOT testMethod
+  1038	10:10	cd 2024-04-27_11.24_TC37540.40.6.1_Multi_Feature_LOCO_GWC_UPF_1_host_ETSI_stability_ssr-vIP-Pt2
+  1040	10:10	code .
+  1041	0:16	ssh vepg34-5
+  1044	9:58	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg33-13 -t TC37540.40.6.1 install all configure all start all NOT testMethod
+  1045	12:20	ssh vepg33-11
+  1046	12:21	ssh vepg33-13
+  1047	15:16	/lab/epg_ft_utils/logviewer/logviewer.sh
+  1048	14:22	clear
+  1050	14:22	cd ..
+  1051	14:22	ls
+  1052	14:23	cp /lab/epg_scm4_builds/program/ci/EPG_28R240YU1/vipp/test-tools.info paths
+  1053	14:23	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg34-9 -t TC37540.40.6.1 install all configure all start all NOT testMethod
+  1054	15:42	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg34-9 -t TC37540.40.6.1 start testMethod

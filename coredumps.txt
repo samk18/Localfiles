@@ -1,0 +1,112 @@
+  0x0000003b30426532 in __GI_abort () at abort.c:79
+#2  0x0000000001eea957 in CredentialAgentTx::onTrustedCertificatesRsp (this=<optimized out>, result=<optimized out>, certificateList=...) at ./application/PgwControlPlane/LawfulInterception/src/LiTls.cpp:83
+#3  0x0000000002f5b7cb in CredentialAgent::PendingReq::handleResponseMessage (this=<optimized out>, msg=..., privKey=..., symmetricKey=<optimized out>) at /proj/epg-tools/compilers/gcc13.2.0-wrlinux-v4.19.97-RCPL10-68-binutils2.38_1/x86_64-unknown-linux-gnu/include/c++/13.2.0/bits/stl_list.h:154
+#4  0x0000000002f5ba7a in CredentialAgent::Agent::onReceive (this=0x155551c88700, msg=Python Exception <class 'gdb.error'> There is no member or method named _M_head_impl.: 
+) at ./framework/SecurityManagement/CredentialIf/CredentialAgent/src/Agent.cpp:105
+#5  0x000000000319665d in AgentSupport::GenericAgent::receiveMsg (this=0x155551c76f00, msg=Python Exception <class 'gdb.error'> There is no member or method named _M_head_impl.: 
+) at ./framework/Support/ApplicationSupport/AgentSupport/src/GenericAgent.cpp:272
+#6  0x00000000031982b4 in AgentSupport::GenericAgent::state_18_handleEvent (this=0x155551c76f00, ev=...) at /proj/epg-tools/compilers/gcc13.2.0-wrlinux-v4.19.97-RCPL10-68-binutils2.38_1/x86_64-unknown-linux-gnu/include/c++/13.2.0/bits/unique_ptr.h:197
+#7  0x000000000319eb3b in AgentSupport::GenericAgent::Connected_Region2_processEvent (ev=..., this=0x155551c76f00) at ./framework/Support/ApplicationSupport/AgentSupport/src/GenericAgent.gen.cpp:131
+#8  AgentSupport::GenericAgent::Connected_processEvent (this=0x155551c76f00, ev=...) at ./framework/Support/ApplicationSupport/AgentSupport/src/GenericAgent.gen.cpp:201
+#9  0x000000000328ee1e in esc::Sm::processEvent (this=0x155551c76f00, event=...) at ./framework/Support/EscFramework/src/Esc.cpp:79
+#10 0x000000000328f463 in esc::Sm::processEvent (this=0x155551c76f00, event=Python Exception <class 'gdb.error'> There is no member or method named _M_head_impl.: 
+) at ./framework/Support/EscFramework/src/Esc.cpp:48
+#11 0x00000000027f9e60 in ReactorCoreBridge::coreEscEventCallback (data=0x15554ce14bc0) at ./framework/Support/CBinders/src/ReactorCoreBridge.cpp:407
+#12 0x000000000281b823 in std::function<void (void*)>::operator()(void*) const (__args#0=<optimized out>, this=0x15554ce2d248) at /proj/epg-tools/compilers/gcc13.2.0-wrlinux-v4.19.97-RCPL10-68-binutils2.38_1/x86_64-unknown-linux-gnu/include/c++/13.2.0/bits/std_function.h:591
+#13 timerRunTimers (fw=fw@entry=0x155551a36000, prio=prio@entry=TIMER_NORMAL_PRIORITY, runCount=runCount@entry=2) at ./application/PgwControlPlane/core/src/core_timer_framework.cpp:441
+#14 0x000000000281f8f8 in timerProcessTimers (maxNumTimers=500, pFrameWork=0x155551a36000) at ./application/PgwControlPlane/core/src/core_timer_framework.cpp:566
+#15 Core_TimerFramework_HandleTimers (pFrameWork=0x155551a36000, maxNumTimers=500) at ./application/PgwControlPlane/core/src/core_timer_framework.cpp:927
+#16 0x000000000283de41 in core_ProcessTimers () at ./application/PgwControlPlane/core/src/core_timer.cpp:247
+#17 Core_MainLoop () at ./application/PgwControlPlane/core/src/core_main.cpp:93
+#18 0x000000000104a620 in PgwcdProcess<Builder, GscContextBuilder, PscContextBuilder>::run (this=0x7fffffffe5a0) at ./application/PgwControlPlane/pgwcd/include/Pgwcd/PgwcdProcess.h:261
+#19 main (argc=<optimized out>, argv=<optimized ou
+
+
+
+
+
+No source file specified.
+(gdb) bt
+#0  __GI_raise (sig=sig@entry=6) at ../sysdeps/unix/sysv/linux/raise.c:49
+#1  0x00000034d0626532 in __GI_abort () at abort.c:79
+#2  0x000000000057a630 in SecD::CmdHandler::TrustedCertCommands::onStoreCertificateRsp (this=0xb81250, result=<optimized out>) at ./framework/SecurityManagement/SecdCommon/src/CmdHandler/TrustedCertCommands.cpp:175
+#3  0x000000000058b623 in CredentialRepository::StoreCertificateRepoCmd::processCmdEvent (this=0xc88bc0, event=<optimized out>) at ./framework/SecurityManagement/SecdCommon/src/CredentialRepository/StoreCertificateRepoCmd.cpp:94
+#4  0x00000000005955b5 in CredentialRepository::Cache::handleCurrentWork (this=0xb805b0, event=<optimized out>) at /proj/epg-tools/compilers/gcc13.2.0-wrlinux-v4.19.97-RCPL10-68-binutils2.38_1/x86_64-unknown-linux-gnu/include/c++/13.2.0/bits/unique_ptr.h:199
+#5  0x000000000063527b in PersistentDataStorageAgent::PendingReq::WaitForResponse_handleEvent (this=0xc8c930, ev=...) at /proj/epg-tools/compilers/gcc13.2.0-wrlinux-v4.19.97-RCPL10-68-binutils2.38_1/x86_64-unknown-linux-gnu/include/c++/13.2.0/bits/unique_ptr.h:197
+#6  0x00000000006b3eae in esc::Sm::processEvent (this=0xc8c930, event=...) at ./framework/Support/EscFramework/src/Esc.cpp:79
+#7  0x00000000006b44ff in esc::Sm::processEvent (this=0xc8c930, event=Python Exception <class 'gdb.error'> There is no member or method named _M_head_impl.: 
+) at ./framework/Support/EscFramework/src/Esc.cpp:48
+#8  0x00000000006a97f5 in IOReactor::dispatchEscEvent (this=<optimized out>, ev=<optimized out>) at ./framework/Support/Reactor/ReactorPkg/src/IOReactor.cpp:733
+#9  0x00000000006af391 in IOReactor::dispatchEscEvents (this=0x7fffeda15478, startTime=..., useQoS=true) at ./framework/Support/Reactor/ReactorPkg/src/IOReactor.cpp:808
+#10 0x00000000006b0f3a in IOReactor::run (this=0x7fffeda15478) at ./framework/Support/Reactor/ReactorPkg/src/IOReactor.cpp:154
+#11 0x0000000000577d2a in AppSupport::ProcessMgmt::Process<AppSupport::LpmaAdapter::LocalProcessMgmtAgentAdapter, SecD::Builder>::run (this=0x7fffeda15410) at ./framework/Support/ApplicationSupport/AppSupport/ProcessMgmt/include/ProcessMgmt/Process.h:259
+#12 0x000000000056656a in main (argc=<optimized out>, argv=<optimized out>) at ./framework/SecurityManagement/Secd/src/SecdMain.cpp:52
+(gdb) 
+
+
+
+Hi, Emil
+Here are my comments:
+1)	We should  have requirements also updated in T-REQs in ucs-handle-etsi-x1-client. I know that we don’t have a dedicated chapter there for targetDB related requirement. But I can suggest to add some thing under 1.6. @Bartek, I would like you to comment it as well. Maybe it is the same place you will update for your feature? We can have a chat about it tomorrow.
+2)	To my understanding, we will not have a CLI to switch on/off, have we thought of what happens if the upgrade fails and we have to fallback to old SW version? VZ is very picking on us now on feature switch on/off. For this reason, we need to have a better or more detailed descriptions about thought around back-wards compatibility risk assessment. I will help you with that. But I may need to ask you some more details when I am formulating an argument for ‘not supporting switch on-off’. We need to argue for the choice that we made to not offer a CLI. 
+3)	You have described on page that the Master and Replica will not be upgraded at the same time. Does it mean SMF will always keep the replica DB accessible while upgrading the Master? Or will it be in a way that both DBs are made non-accessible during the upgrade and under the time when ADMF is provisioning the targets towards SMF? Isn’t it better to have a call flow drawn to reflect the upgrade procedure itself? Though it will be a bit more white-boxish, but it will be very useful information. Have we done a handshake with ADMF (our LI PDU) product about what we expect them to do? How can we make ADMF understanding that it is time to re-provision all the targets? I see this feature is somehow related to Bartek’s feature of generating dynamic Key. Maybe I can find answers from his study, but I hope that you have considered all aspects related to ISSU. I attached the feature study of Bartek’s feature.
+
+
+  FS_-_LI_-_ETSI_-_Target_DB_encryption_ETSI_X1_-_generated_key_-_PCPB-17324.pptx
+
+4)	I have also checked whether the feature needs update SoC and the answer is No need to update the SoC. But I do see that Bartek’s feature needs to update the following soc: ETSI TS 103 221-1. When updating CPI, please remember to add an entry to NIR part.
+BR
+Elaine
+
+From: Emil Rosenberg <emil.rosenberg@ericsson.com> 
+Sent: Friday, 8 December 2023 14:21
+To: Elaine Jiehong Yang <elaine.jiehong.yang@ericsson.com>
+Cc: GW Team Ninja LN <PDLTEAMNIN@pdl.internal.ericsson.com>
+Subject: Review main FS mTLS Redis PCPB-18039
+
+Hi Elaine, 
+Please review our main FS for PCPB – 18039 – mTLS to Redis. I attached the link to the main FS that we have stored in our teams channel. It is easier for me to update the document in teams in case of comments but I will upload to ERIDOC when ready for approval.
+
+Let me know if you would prefer to have it in ERIDOC, or if you lack permissions to read it. Thanks!
+
+  FS_-_mTLS_towards_targetDB_for_PCC_-_PCPB-18039.pptx
+
+/Emil
+
+How to automatically create and distribute certificates to boards (SIPTLS not for vEPG)
+
+
+
+RE: Review main FS mTLS Redis PCPB-18039
+
+path to alarms
+application/HttpClient/InternalHttpClientIf/InternalHttpClientAgent/src/Agent.cpp
+
+
+
+Generate rootcakey and cert​
+
+   Security::CertificateKeyPair rootKeyPair("redistls", "cert1 company", "SE", "www.cert1.com", 2048, nullptr,​
+                                             Security::Certificate::TYPE_TRUSTED_CERTIFICATE);​
+
+ ​
+
+Generate Client certifictaes​
+
+   Security::CertificateKeyPair clientKeyPair("client", "clientorg", "SE", "Client", 2048, &rootKeyPair,​
+                                             Security::Certificate::TYPE_NODE_CREDENTIAL);​
+
+ ​
+
+Generate Server certifictaes​
+
+​
+   Security::CertificateKeyPair serverKeyPair("server", "Serverorg", "SE", "Server", 2048, &rootKeyPair,​
+                                             Security::Certificate::TYPE_NODE_CREDENTIAL);
+
+
+
+
+  paths
+
+  framework/Support/ApplicationSupport/ServiceSupport/src/GenericClientManager.cpp

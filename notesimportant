@@ -1,0 +1,36 @@
+It seems like you want to pass a value to the constructor of class `A` through the constructor of class `B`. In your current code, class `B` contains an instance of class `A`, and you want to initialize it with a value. However, there is a small issue in your code that needs to be addressed.
+
+Here's a corrected version of your code:
+
+```cpp
+class A {
+public:
+    int h;
+    
+    A(int x) {
+        h = x;
+    }
+};
+
+class B {
+public:
+    A k;
+    static B obj1;
+
+    B(int x) : k(x) {
+        // Constructor of B takes an integer value 'x'
+        // and initializes the member 'k' of class A with 'x'
+    }
+};
+
+int main() {
+    B myB(42); // Create an instance of class B with value 42
+    return 0;
+}
+```
+
+In this corrected code, I added a constructor to class `B` that takes an integer argument `x`. Inside this constructor, the member `k` of class `A` is initialized using the value of `x`.
+
+When you create an instance of class `B`, you provide an integer value as an argument to the constructor of `B`. This value is then used to initialize the member `k` of class `A`.
+
+Keep in mind that the relationship between class `A` and class `B` might need further refinement based on your specific requirements.

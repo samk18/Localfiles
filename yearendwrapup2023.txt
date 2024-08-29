@@ -1,0 +1,694 @@
+Achievements and Contributions in 2023:
+
+Accomplishments in 2023:
+
+Challenging Transaction Resolution:
+
+Successfully resolved a long-standing challenging trouble report related to transaction handling despite this is my first year since joined.
+Demonstrated expertise in ST knowledge and navigated complicated code associated with the transition queue in s1sesion.
+Enhanced the system by introducing two queues for handling transactions, receiving appreciation from the entire team.
+
+
+Feature Implementation Leadership:
+
+Transitioned from primarily working with testing to taking a role in feature implementation.
+Effectively contributed to feature development, showcasing adaptability and a proactive approach.
+
+
+ETSI Global Test Case:
+
+Pioneered the creation of the first-ever ETSI global test case in System Testing for our divison.
+Overcame challenges and hurdles, including the absence of existing ETSI global test cases in EPG (Evolved Packet Gateway).
+Developed necessary tools independently to set up and run System Testing for VEPG (Virtual Evolved Packet Gateway).
+
+Along the way, not only trying to focus on writing st test case but also resolved the production code bugs in production code that I came across while testing our feature with st test case . 
+
+Contributed to the overall stability and reliability of the system.
+Engaged in all testing areas, including UT, SFT, FT, and ST.
+
+QoS Flows Feature Development and Testing:
+
+Played a key role in the development and testing of a new feature (multiple QoS flows) from August to November.
+Delivered numerous SFT test cases, worked on internal production code for QoS flow information, and resolved bugs within production code, and  worked wiht complicated sceanries .
+I have found bugs in production code during working with sfts and fixed the  found problems.
+
+current feature(mtls)
+Actively participated in the development of the MTLS feature, stepping out of my comfort zone.
+Submitted multiple commits related to MTLS, gaining valuable experience in deployment technologies such as Docker, Kubernetes, and Helm.
+
+I have submitted few commits on mtls since our current feature started
+it is nice working on deployment side rather working developemnt all the time.
+
+Provided support to the team by assisting with doubts and queries.
+Demonstrated teamwork and collaboration.
+
+Key Takeaways:
+
+Problem Solving: Resolved complex issues and improved system functionality.
+Adaptability: Successfully transitioned from testing to feature implementation.
+Leadership: Took initiative in creating critical test cases and tools.
+Independence: Developed tools independently to address challenges.
+
+recently, getting strated with service desk as I am collabrating with other teams
+Working with customer tr's.
+
+Goals for 2024:
+
+I am extremely pleased to have been an integral part of the team's success throughout the year. From resolving complex issues to taking on new challenges in feature development and testing, my journey has been both rewarding and enlightening. I look forward to continued growth, collaboration, and contributing to the success of the team in the upcoming year.
+In the upcoming year, I aspire to transition into a Job Stage 6 role, having acquired the necessary knowledge. I am confident in my abilities and commit to developing a comprehensive plan outlining the skills and achievements expected at Job Stage 6. I am also dedicated to learning any additional skills required for this advancement
+
+
+Knowledge Sharing:
+
+Actively participate in knowledge-sharing sessions to disseminate insights gained from resolving challenging issues.
+Cross-Functional Collaboration:
+
+Strengthen collaboration with LI teams and other relevant departments to foster a more supportive environment for shared initiatives.
+Continuous Learning:
+
+Identify areas for continuous learning, particularly in ST knowledge and emerging technologies.
+Documentation:
+
+Contribute to the documentation of best practices, especially in the absence of existing ETSI global test cases.
+Team Recognition:
+
+Continue contributing to the team's success and seek opportunities for further recognition.
+Feel free to customize these points based on your specific goals and the context of your role within the organization. Congratulations on your achievements, and best of luck with your year-end wrap-up!
+
+
+
+
+User
+this is just overview about what I have done so far this year. can you make it good?
+
+Here are some things which i have done in 2023
+
+solved one of the challenging tr as this has been on board for a long time despite this is my first year since joined as it requires knowledge in st knowledge,  complicated code which we need to deal with transition queue in x1sesion as it was currently supporting single queues for handling transaction(target, alarm). 
+
+not only resolved the issue but also effectively handled these queues by adding two queues.
+got appreciation from the whole team.
+
+ever since the feature started, I have been involved in feature implementation rather than working with testing all the time.
+
+First ever li etsi global test case written in System testing for li
+there ware many challenges, and hurdles in writing the st test case as there were no existing etsi global test cases in EPG and I did not have much support since nobody from li worked with VEPG st which was a bit hard to understand everything from scratch. 
+I developed required tools by myself (tls, enable interfaces, implementing list)to be able to run st up and running 
+
+Along the way, not only resolved the bugs in production code that I came across while testing our feature with st test case . 
+
+bery happy for being part of this.
+
+worked in all areas(ut, sft, ft, st)
+
+I have found the bugs in production code while working with 
+
+During aug-nov, we had got a new feature (multiple qos flows) 
+I involved in development, and testing(worked with internal in production code to send qosflow information )
+I have delivederd many sft test cases and worked wiht complicated sceanries (verify qos rules, install rules)
+I have found bugs in production code during working with sfts and fixed the  found problems.
+
+this really helped me undertsnad sfts better and howit works.
+
+helping out team with doubts.
+
+current feature(mtls)
+I really like this feature as it made me work out of my comfort zone as it needs knowledge in the deployment side(docker, kubernetes, helm) which I havent worked before 
+
+I have submitted few commits on mtls since our current feature started
+it is nice working on deployment side rather working developemnt all the time.
+
+The team is also supportive and helpful.
+
+helping out team during this year.
+ChatGPT
+Achievements and Contributions in 2023:
+
+Challenging Trouble Report Resolution:
+
+Successfully addressed a long-standing, challenging trouble report in my first year.
+Applied expertise in system testing, navigated complex code involving transition queues in x1sesion, enhancing transaction handling.
+Implemented a solution introducing two queues and received team-wide appreciation.
+Transition to Feature Implementation:
+
+Transitioned from a primary testing role to active involvement in feature implementation.
+Demonstrated adaptability and proficiency in contributing to feature development.
+Pioneering ETSI Global Test Case:
+
+Spearheaded the creation of the first-ever ETSI global test case in System Testing for LI.
+Overcame challenges in the absence of existing test cases, independently developing tools for setting up and running System Testing for VEPG.
+Comprehensive Bug Resolution:
+
+Proactively resolved production code bugs discovered during feature testing and implementation.
+Contributed to the overall stability and reliability of the system.
+Versatile Contributions Across Testing Areas:
+
+Engaged in all testing areas, including UT, SFT, FT, and ST.
+Identified and fixed production code bugs during feature testing, showcasing a thorough understanding of various testing scenarios.
+QoS Flows Feature Development and Testing:
+
+Played a key role in the development and testing of a new feature (multiple QoS flows) from August to November.
+Delivered numerous SFT test cases, collaborated on internal production code for QoS flow information, and resolved bugs within production code.
+Expanded Understanding of SFTs:
+
+Enhanced understanding of System Functional Testing (SFT) through the identification and resolution of bugs in production code.
+Successfully verified QoS rules and installed rules, contributing to a deeper knowledge of SFT processes.
+Contribution to MTLS Feature:
+
+Actively participated in the development of the MTLS feature, stepping out of my comfort zone.
+Submitted multiple commits related to MTLS, gaining valuable experience in deployment technologies such as Docker, Kubernetes, and Helm.
+Support and Collaboration:
+
+Provided support to the team by assisting with doubts and queries.
+Demonstrated teamwork and collaboration during the development of the MTLS feature.
+Reflection on the Year:
+
+I am extremely pleased to have been an integral part of the team's success throughout the year. From resolving complex issues to taking on new challenges in feature development and testing, my journey has been both rewarding and enlightening. I look forward to continued growth, collaboration, and contributing to the success of the team in the upcoming year.
+
+User
+what I am supposed to add for my year ahead? can you give me what to fillout?
+ChatGPT
+Certainly! Here's a template to help you outline your goals and plans for the upcoming year:
+
+Goals for the Year Ahead (2024):
+
+Technical Excellence:
+
+Strive for continued technical excellence in C++, Kubernetes, and related technologies.
+Identify advanced topics or areas within these technologies for deeper exploration and mastery.
+Leadership and Mentorship:
+
+Seek opportunities to take on leadership roles within the team, particularly in guiding and mentoring junior developers.
+Share knowledge and insights through regular knowledge-sharing sessions.
+Innovative Feature Contributions:
+
+Actively participate in the planning and implementation of innovative features, contributing to the product's evolution.
+Propose and champion ideas that enhance the product's functionality and user experience.
+Test Case Standardization:
+
+Work towards standardizing test case creation processes, drawing from the experience of pioneering ETSI global test cases.
+Collaborate with team members to establish best practices in test case development.
+Continuous Learning and Certifications:
+
+Commit to continuous learning, staying abreast of industry trends and emerging technologies.
+Identify relevant certifications or training opportunities to enhance professional development.
+Documentation and Knowledge Sharing:
+
+Contribute to the documentation of processes, best practices, and solutions.
+Actively participate in knowledge-sharing initiatives to foster a culture of continuous learning within the team.
+Cross-Functional Collaboration:
+
+Strengthen collaboration with other departments, especially LI teams, to gain insights and contribute effectively to cross-functional projects.
+Efficiency in Troubleshooting:
+
+Set a goal to further enhance efficiency in troubleshooting and issue resolution.
+Explore and implement tools or methodologies that streamline the identification and resolution of production code bugs.
+Feature Ownership and Project Management:
+
+Express interest in taking ownership of a critical feature or project, demonstrating a commitment to project management and successful delivery.
+Deployment Side Mastery:
+
+Continue to explore and master deployment-side technologies, such as Docker, Kubernetes, and Helm.
+Contribute actively to the deployment aspects of ongoing and future projects.
+Recognition and Team Support:
+
+Strive to contribute in ways that lead to team recognition and success.
+Maintain a supportive role within the team, offering assistance and guidance to colleagues when needed.
+Personal Development Plan:
+
+Develop a personalized plan for professional growth, outlining specific milestones and objectives for the year.
+Feel free to tailor these points to align with your specific aspirations and the dynamics of your team and organization. Setting clear and measurable goals will help guide your efforts throughout the year and showcase your commitment to continuous improvement and professional development.
+
+User
+I would like to add one more as i am planning to switch my currentnnt role to job stage 6?
+ChatGPT
+Certainly! Adding a goal related to advancing to Job Stage 6 is a great addition. Here's a suggestion:
+
+Advancement to Job Stage 6:
+
+Leadership Impact:
+
+Strive to make a significant impact as a leader within the team, showcasing the qualities expected at Job Stage 6.
+Actively contribute to strategic discussions and decisions, demonstrating a comprehensive understanding of project goals and business objectives.
+Project Ownership and Accountability:
+
+Express a clear interest in taking ownership of critical projects or features, showing a commitment to end-to-end accountability.
+Demonstrate a proactive approach to project management, ensuring successful delivery and alignment with organizational priorities.
+Mentorship and Knowledge Transfer:
+
+Elevate mentorship efforts by guiding not only junior developers but also fostering knowledge transfer across the team.
+Seek opportunities to lead workshops or training sessions that contribute to the team's overall skill development.
+Strategic Thinking and Decision-Making:
+
+Develop and showcase strategic thinking in day-to-day activities, aligning individual and team efforts with overarching organizational goals.
+Enhance decision-making skills by considering long-term impacts and trade-offs in complex scenarios.
+Cross-Functional Collaboration and Communication:
+
+Strengthen collaboration not only within the immediate team but also across different departments.
+Improve communication skills to effectively convey technical concepts to non-technical stakeholders, contributing to better alignment between technical work and business objectives.
+Innovation and Process Improvement:
+
+Drive innovation within the team by proposing and implementing improvements to existing processes.
+Identify opportunities to introduce new technologies or methodologies that can positively impact project efficiency and outcomes.
+Visibility and Recognition:
+
+Increase visibility within the organization by actively participating in forums, presentations, or conferences related to your field.
+Seek opportunities for recognition, such as contributing to high-profile projects or initiatives.
+Professional Development Plan for Job Stage 6:
+
+Develop a personalized plan outlining specific skills, behaviors, and achievements expected at Job Stage 6.
+Regularly assess progress against the plan and make adjustments as needed.
+Remember to tailor these points to align with the specific expectations and criteria for Job Stage 6 in your organization. Demonstrating a commitment to leadership, strategic thinking, and continuous improvement will strengthen your case for advancement.
+
+User
+please make it simple ?
+ChatGPT
+Absolutely, let's simplify the goals for advancing to Job Stage 6:
+
+Advancement to Job Stage 6:
+
+Leadership Impact:
+
+Actively contribute to team leadership discussions and decisions.
+Show a strong understanding of project goals and business objectives.
+Project Ownership:
+
+Express interest in leading critical projects or features.
+Demonstrate proactive project management for successful delivery.
+Mentorship and Knowledge Sharing:
+
+Mentor junior developers and facilitate knowledge transfer.
+Lead workshops or training sessions to enhance team skills.
+Strategic Thinking:
+
+Align individual and team efforts with organizational goals.
+Consider long-term impacts and trade-offs in decision-making.
+Cross-Functional Collaboration:
+
+Strengthen collaboration with other departments.
+Improve communication to convey technical concepts effectively.
+Innovation and Process Improvement:
+
+Propose and implement improvements to existing processes.
+Identify opportunities for introducing new technologies or methodologies.
+Visibility and Recognition:
+
+Increase visibility by participating in forums or conferences.
+Seek recognition through contributions to high-profile projects.
+Professional Development Plan:
+
+Develop a plan outlining skills and achievements for Job Stage 6.
+Regularly assess progress and make adjustments as needed.
+Keep in mind that these simplified goals can be adjusted further based on the specific expectations and criteria set by your organization for Job Stage 6.
+
+User
+can you make this sentence better?
+i woule like to add that i am looking for job stage role in my upcoming year for which I have got required knowledge I believe and I will develop a plan outlining skills and achievements for Job Stage 6 and learn the required thing needed for this.
+ChatGPT
+Certainly! Here's a refined version of your statement:
+
+"In the upcoming year, I aspire to transition into a Job Stage 6 role, having acquired the necessary knowledge. I am confident in my abilities and commit to developing a comprehensive plan outlining the skills and achievements expected at Job Stage 6. I am also dedicated to learning any additional skills required for this advancement."
+
+7.2.0-sles-f3459d60
+
+
+
+
+
+
+
+  373  kubectl delete deployment  eric-pc-sm-target-database-master-rd  -n pcc
+  374  kubectl apply -f 1.yaml
+  375  kubectl get pods -n pcc
+  376  kubectl exec -it eric-pc-sm-target-database-master-rd-6dccd76777-lt95s -n pcc -- /bin/sh
+  377  kubectl logs  eric-pc-sm-target-database-master-rd-6dccd76777-lt95s -c eric-pc-sm-target-database-master-rd -n pcc
+  378  kubectl delete deployment  eric-pc-sm-target-database-master-rd  -n pcc
+  379  kubectl apply -f 1.yaml
+  380  kubectl get pods -n pcc
+  381  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc
+  382  kubectl get pods -n pcc
+  383  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc
+  384  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc | grep "mod"
+  385  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc
+  386  kubectl exec -it  eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9  -n pcc -- /bin/sh
+  387  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc
+  388  kubectl get pods -n pcc
+  389  kubectl delete deployment eric-pc-sm-target-database-replica-rd  -n pcc
+  390  kubectl get pods -n pcc
+  391  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-rjrb9 -c eric-pc-sm-target-database-master-rd -n pcc
+  392  kubectl delete deployment  eric-pc-sm-target-database-master-rd  -n pcc
+  393  kubectl get pods -n pcc
+  394  kubectl apply -f 1.yaml
+  395  kubectl get pods -n pcc
+  396  kubectl logs eric-pc-sm-target-database-master-rd-6dccd76777-pdzxv  -c eric-pc-sm-target-database-master-rd -n pcc
+  397  exit
+  398  kubectl get pods -n pcc
+  399  kubectl describe eric-pc-sm-target-database-master-rd-589667956f-ps95r -n pcc
+  400* kubectl desc
+  401* kubectl get secrets -n pcc 
+  402  kubectl logs eric-pc-sm-target-database-master-rd-589667956f-ps95r -c eric-pc-sm-target-database-master-rd -n pcc
+  403  kubectl get deployment eric-pc-sm-target-database-master-rd -n pcc -o yaml > 9.yaml
+  404  kubectl delete  deployment eric-pc-sm-target-database-master-rd -n pcc
+  405  kubectl apply -f 9.yaml
+  406  kubectl get pods -n pcc
+  407  kubectl describe pod eric-pc-sm-target-database-master-rd-589667956f-fm7xq -n pcc
+
+
+
+ - '[ $(pgrep -f "run.sh") ] && [ "$(/usr/local/bin/master-probe.sh)" -eq 0 ]'
+
+I have known you since I joined 
+
+
+attempts=0
+
+
+while [ $attempts -lt 10 ]; do
+    # Your code to be repeated goes here
+
+    # Increment the counter
+    ((counter++))
+done
+
+
+            response=$(timeout ${TIMEOUT} redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem \
+            CONFIG SET \
+            tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem \
+            tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+            )
+
+
+git log -- <filename>
+
+
+redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem CONFIG SET tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+
+            command:
+            - /bin/sh
+            - -c
+            - '/usr/local/bin/master-probe.sh && pgrep -f "run.sh"'
+            command:
+            - /usr/local/bin/master-probe.sh
+
+            command:
+            - /bin/sh
+            - -c
+            - |
+              pgrep -f "run.sh" && [ "$(/usr/local/bin/master-probe.sh)" -eq 0 ]
+
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running1");
+    
+    f_CLI_OP_LI__getNodeLawfulInterceptStatus();
+    
+
+    f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_LMISF_instance);
+
+     f_delay(pl_delay := 50.0);
+
+
+openssl x509 -in /var/run/secrets/client/targetdb/cert.pem -noout -text
+
+#!/bin/bash
+
+watched_directory="/var/run/secrets/client/targetdb/..data"
+current_modified=$(readlink -f "$watched_directory")
+last_modified=""
+TIMEOUT=0.2
+
+# Get the current time in seconds since the epoch
+#initial_time=$(date +%s)
+
+while true; do
+    
+    #current_modified=$(find "$watched_directory" -type f -name "" -exec stat -c %Y {} \; | sort | tail -n 1)
+    new_modified=$(readlink -f "$watched_directory")
+
+    #if [ "$current_modified" -gt "$initial_time" ] && [ "$current_modified" != "$new_modified" ]; then
+    if [ "$current_modified" != "$new_modified" ] && [ "$watched_directory" != "$new_modified" ]; then
+        attempts=0
+
+        response=""
+        exit_status=""
+        
+        sleep 5
+        while [ $attempts -lt 10 ]; do
+            echo "First attempt at $(date)"
+            response=$(timeout ${TIMEOUT} redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem \
+            CONFIG SET \
+            tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem \
+            tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+            )
+            exit_status=$?
+            sleep 4
+            ((attempts++))
+        done
+
+       
+        # Check the exit status of the timeout command
+        if [ $exit_status -eq 0 ]; then
+            # The command completed within the timeout
+            if [ "$response" = "OK" ]; then
+                echo "Certificates modified at $(date)"
+                current_modified=$new_modified
+            else 
+                echo "failed to update server certificates :$response"
+            fi 
+        else 
+            echo "Returned with exist status :$?"
+        fi
+    fi
+
+    sleep 5  
+done
+
+{{ .Values.targetdb.security.tls.certOverrideTtl | quote }}
+echo "sleep set to ${sleep_timer1} "
+
+	        <parameter name="helm.flags" value="
+	        eric-pc-sm.eric-pc-sm-ip-allocator.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-sgw-session.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-smf-pgw-session.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-target-database-master-rd.targetdb.security.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-target-database-replica-rd.targetdb.security.tls.certOverrideTtl=1800"/>
+
+
+
+            #!/bin/bash
+cert_ttl=$ERIC_PC_SM_TARGET_DB_CERT_TTL
+
+sleep_timer=$((cert_ttl/20))
+
+TIMEOUT=0.2
+echo "sleep set to ${sleep_timer} "
+while true; do
+
+    response=$(timeout ${TIMEOUT} redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem \
+    CONFIG SET \
+    tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem \
+    tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+    )
+    exit_status=$?
+
+    # Check the exit status of the timeout command
+    if [ $exit_status -eq 0 ]; then
+        # The command completed within the timeout
+        if [ "$response" = "OK" ]; then
+            echo "Certificates modified at $(date)"
+        else 
+            echo "failed to update server certificates :$response"
+        fi 
+    else 
+        echo "Returned with exit status :$?"
+    fi
+
+    sleep ${sleep_timer} 
+done
+
+
+
+ // Handles duplicated payload to LI-IMS
+    f_sr_Payload__eNodeB__PGW__uplink_downlink__LI__Payload_duplicated
+    (
+        pl_gtpv2_eps_key := vl_default_bearer_key,
+        pl_lirids        :=
+        {
+            cg_LIRID__IMSI,
+            cg_LIRID__NA,
+            cg_LIRID__NA
+        },
+        pl_eNodeB_TEID   := v_BEAST__TEID_and_GREkey.mme_enb_teids.u_teid[cl_IMS_instance],
+        pl_PGW_U_TEID    := v_BEAST__TEID_and_GREkey.pgw_teids.u_teid[cl_IMS_instance],
+        pl_x3_instance   := cl_IMS_instance
+    );
+
+    // Receive duplicated payload to LMISF
+    var MME__instance        vl_instance    := f_UTIL_BEAST__get_MME_instance(pl_imsi := vl_default_bearer_key.imsi);
+    var IP_version_transport vl_ip_version  := v_MME__DB[vl_instance].SIM_C__IP_version_transport;
+
+    var template Payload_Packet vtl_payload_packet;
+    vtl_payload_packet.ip := t_r_IPv4__PDU__Packet;
+    var template BEAST_GLIC vtl_glic;
+    var octetstring vl_correlation_ip := f_x_UTIL_DB_Verification__Correlation_number_ip_address
+    (
+        pl_access_key    := { eps := vl_default_bearer_key },
+        pl_access_point  := MME_eNB,
+        pl_ip_version    := vl_ip_version,
+        pl_x_version2    := true
+    )
+
+    // X3 for uplink payload LMISF
+    vtl_glic := t_r_X3__PDU__GLICv7__LI_SGW
+    (
+        pl_direction        := cg_X3__Direction__Uplink,
+        pl_lirids           :=
+        {
+            cg_LIRID__IMSI,
+            cg_LIRID__NA,
+            cg_LIRID__NA
+        },
+        pl_PGW_U_TEID       := v_BEAST__TEID_and_GREkey.pgw_teids.u_teid[cl_IMS_instance],
+        pl_ip_address       := vl_correlation_ip,
+        pl_payload_packet   := vtl_payload_packet
+    )
+
+    f_r_X3__GLIC
+    (
+        pl_glic     := vtl_glic,
+        pl_instance := cl_LMISF_instance
+    );
+
+    // X3 for downlink payload LMISF
+    vtl_glic := t_r_X3__PDU__GLICv7__LI_SGW
+    (
+        pl_direction        := cg_X3__Direction__Downlink,
+        pl_lirids           :=
+        {
+            cg_LIRID__IMSI,
+            cg_LIRID__NA,
+            cg_LIRID__NA
+        },
+        pl_PGW_U_TEID       := v_BEAST__TEID_and_GREkey.pgw_teids.u_teid[cl_IMS_instance],
+        pl_ip_address       := vl_correlation_ip,
+        pl_payload_packet   := vtl_payload_packet
+    )
+
+    f_r_X3__GLIC
+    (
+        pl_glic     := vtl_glic,
+        pl_instance := cl_LMISF_instance
+    );
+
+
+    // =====================================
+    f_CLI_LOG__log_banner(pl_message := "9. Ensure gauges: active = 1, apn = 1");
+    // =====================================
+    f_CLI_OP_LI__verify_targets
+    (
+        pl_sgw_active_targets      := 1,
+        pl_peak_sgw_active_targets := 1,
+        pl_bbiff_apn_targets       := 1,
+        pl_peak_bbiff_apn_targets  := 1
+    );
+
+
+
+2024-01-09 21:30:19,800 CET - Copying '/etc/apparmor.d/apparmor-pcc.bak' to '/etc/apparmor.d/apparmor-pcc' on 'pccc-252-13-worker-4'.
+2024-01-09 21:30:19,899 CET - Parsing AppArmor profile '/etc/apparmor.d/apparmor-pcc' on 'pccc-252-13-worker-4'.
+2024-01-09 21:30:20,873 CET - Deleting '/etc/apparmor.d/apparmor-pcc.bak' on 'pccc-252-13-worker-4'.
+2024-01-09 21:30:20,976 CET - Sub Test Step End: Restoring backed up AppArmor profiles - 0:0:4.982
+2024-01-09 21:30:21,016 CET - Test Step 117 End: Teardown - 0:0:5.665
+2024-01-09 21:30:21,020 CET - *** OVERALL TESTCASE RESULT ***
+2024-01-09 21:30:21,022 CET - Assertion Passed
+2024-01-09 21:30:21,123 CET - Saved test statistics in the file /lab/epg_st_sandbox/esimnaa/jcat_logs/202401/20240109141858/PccSmD_EricssonMbbA_Stability_LI_LoadNormal_Small_Mesos1B_6h_20240109_141859_562/PccSmD_EricssonMbbA_Stability_LI_LoadNormal_Small_Mesos1B_6h_20240109_213021_022_testStatistics.xml
+2024-01-09 21:30:21,176 CET - Exiting Testcase scope
+
+===============================================
+PccSmD_EricssonMbbA_Stability_LI_LoadNormal_Small_Mesos1B_6h
+Total tests run: 1, Passes: 1, Failures: 0, Skips: 0
+===============================================
+
+2024-01-09 21:30:22,395 CET - JCAT protocol logs link: cd 20240109141858/index.html#/protocols
+2024-01-09 21:30:22,561 CET - jcat.zipFile.enable is disabled.
+2024-01-09 21:30:23,442 CET - JCAT Lightning logs directory:cd 202401/20240109141858
+2024-01-09 21:30:23,473 CET - JSON Log: /lab/epg_st_sandbox/esimnaa/jcat_logs/202401/20240109141858/event-json.log
+2024-01-09 21:30:23,473 CET - Test execution stopped.
+2024-01-09 21:30:23,476 CET - JCAT console log: /lab/epg_st_sandbox/esimnaa/jcat_logs/202401/20240109141858/console.log
+2024-01-09 21:30:23,478 CET - Current logging level for Log4j2: INFO
+2024-01-09 21:30:23,478 CET - Current config file for Log4j2: jar:file:/home/esimnaa/.m2/repository/com/ericsson/pcc/pcc-framework/1.0.129/pcc-framework-1.0.129.jar!/log4j2.xml
+2024-01-09 21:30:23,478 CET - JCAT test execution is now finished
+2024-01-09 21:30:23,478 CET - JCAT console post log: /lab/epg_st_sandbox/esimnaa/jcat_logs/202401/20240109141858/console.post.log
+
+
+
+
+
+jenkins_job build_all -n elc-docker --arm --private-pcc
+
+
+
+
+# Calculate 5% of the certificate expiration time to ensure that
+# the client starts updating new certificates early enough (10% before expiry),
+# and we reload every 5% intervals to prevent missing the update window.
+reload_threshold=$((cert_expiry_time * 5 / 100))
+
+
+#!/bin/bash
+TIMEOUT=0.2
+cert_ttl=$ERIC_PC_SM_TARGET_DB_CERT_TTL
+# calculate 5% time of cert_ttl value
+sleep_timer=$((cert_ttl/20))
+echo "sleep set to ${sleep_timer}"
+
+# Reload certificates for every 5% interval of ttl
+while true; do
+
+    response=$(timeout ${TIMEOUT} redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem \
+    CONFIG SET \
+    tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem \
+    tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+    )
+    exit_status=$?
+
+    # Check the exit status of the timeout command
+    if [ $exit_status -eq 0 ]; then
+        # The command completed within the timeout
+        if [ "$response" != "OK" ]; then
+            echo "failed to update server certificates :"$response
+        fi
+    else
+        echo "Returned with exit status :"$?
+    fi
+
+    sleep ${sleep_timer}
+done
+
+
+
+
+
+            command:
+            - /bin/sh
+            - -c
+            - '/usr/local/bin/replica-probe.sh && pgrep -f "run.sh"'
+
+
+        - name: ERIC_PC_SM_TARGET_DB_CERT_TTL
+          value: {{ .Values.targetdb.security.tls.certOverrideTtl | quote }}
+
+Implement env variable for ttl and Supervision for run.sh
+
+pcc-redis will use this ttl env variable and probes will restart
+if run.sh process not running on pod.
+
+Change-Id: Ica912f79d67656d213f9d2039b61538130cc8966
+Activity: PCPB-18039
+
+
+
+kubectl delete deployment eric-pc-sm-target-database-replica-rd  -n pcc
+
+kubectl delete deployment  eric-pc-sm-target-database-master-rd  -n pcc
+
+kubectl apply -f timeshift.yaml
+
+kubectl apply -f timeshiftreplica.yaml

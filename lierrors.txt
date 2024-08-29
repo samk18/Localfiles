@@ -1,0 +1,84 @@
+/repo/esimnaa/epg/application/PgwControlPlane/gtpstack/src/gtpv2_message.cpp
+
+
+
+/lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230704_184647-esimnaa-epg-master-buildall/epgcats/tcdb/hooks/li_stability_etsi4G
+
+
+/lab/epg_st_portal_logs/esimnaa_230704_184656_518207282_28188979_esimnaa/2023-07-05_00.47_TC37542.1.1.2_BS_3.5_MBB_2x_cots_PGWC_UPF_1_host_stability_ssr-vIP-Px2/special/li_stability.log
+
+/proj/epg_test_logs/stability/epg3/cots/TC37554.8.1.4_BS_MBB_Dual_core_GWC_SMF_Basic_cots_1host_SRIOV_LI_stability_ssr-vIP-Pt2/EPG_28R189AC1/2023-06-16_17.22_TC37554.8.1.4_BS_MBB_Dual_core_GWC_SMF_Basic_cots_1host_SRIOV_LI_stability_ssr-vIP-Pt2/special/li_stability.log
+
+/lab/epg_st_sandbox/esimnaa/manualST
+
+/lab/epg_st_sandbox/esimnaa/manualST/2023-07-19_19.44_TC37540.1.6.1_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/debug_autott.log
+
+Stab__Log_Msg_Lines
+
+
+/lab/epg_st_sandbox/esimnaa/manualST/2023-07-20_18.47_TC37540.1.6.8_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/special/li_stability.log
+
+
+ /lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg79-5 -t TC37540.1.6.8 go --duration=5m
+
+
+ /lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230720_170038-esimnaa-epg-master-buildall/epgcats/tcdb/hooks/li_stability_etsi4G
+
+
+ /lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230720_170038-esimnaa-epg-master-buildall/epgcats/tcdb/LLV/Teams/Ninja/TC_TID_stability_Ninja.db
+
+
+
+
+
+#build output 
+/lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230724_131138-esimnaa-epg-master-buildall
+
+
+
+
+
+
+epg node logical-interface li-x1-if address 5.16.5.11
+epg node logical-interface li-x1-if ipv6-address 2a02:5:10:5::1
+epg node logical-interface li-x1-if routing-instance om_cn
+epg node interface li-x1 logical-interface li-x1-if
+epg node interface li-x1 port 31335
+epg node interface li-x1 admf admfID address 11.0.3.1  port 1996
+epg node logical-interface li-etsi-x2-if address 5.8.5.12
+epg node logical-interface li-etsi-x2-if ipv6-address 2a02:5:8:5::12
+epg node logical-interface li-etsi-x2-if routing-instance signaling
+epg node interface li-x2 logical-interface li-etsi-x2-if
+
+
+'epg node logical-interface li-x1-if address 5.16.5.11',
+'epg node logical-interface li-x1-if ipv6-address 2a02:5:10:5::1',
+'epg node logical-interface li-x1-if routing-instance om_cn',
+'epg node logical-interface li-x1-if vpn-gw false',
+'epg node interface li-x1 logical-interface li-x1-if',
+'epg node logical-interface li-x1 port 31335',
+'epg node logical-interface li-x1 admf admfID address 11.0.3.1',
+'epg node logical-interface li-x1 admf admfID port 1996',
+'epg node logical-interface li-etsi-x2-if address 5.8.5.12',
+'epg node logical-interface li-etsi-x2-if ipv6-address 2a02:5:8:5::12',
+'epg node logical-interface li-etsi-x2-if routing-instance signaling',
+'epg node logical-interface li-etsi-x2-if vpn-gw false',
+'epg node interface li-x2 logical-interface li-etsi-x2-if',
+
+
+        cmds_to_run = [
+        'epg node logical-interface li-x1-if address 5.16.5.11',
+            'epg node logical-interface li-x1-if ipv6-address 2a02:5:10:5::1',
+            'epg node logical-interface li-x1-if routing-instance om_cn',
+            'epg node interface li-x1 logical-interface li-x1-if',
+            'epg node interface li-x1 port 31335',
+            'epg node interface li-x1 admf admfID address 11.0.3.1 port 1996',
+            'epg node logical-interface li-etsi-x2-if address 5.8.5.12',
+            'epg node logical-interface li-etsi-x2-if ipv6-address 2a02:5:8:5::12',
+            'epg node logical-interface li-etsi-x2-if routing-instance signaling',
+            'epg node interface li-x2 logical-interface li-etsi-x2-if'
+        ]
+
+
+
+    util.run_config_commands_on_node(node_host, cmds_to_run)

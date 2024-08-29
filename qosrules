@@ -1,0 +1,856 @@
+<< static_cast<int>(packetFilter.getDirection().hasValue())<<"123 \n"
+
+Payload mismatch:
+dLRANTunnelInformation mismatch:
+  dLQOSFlowTunnelInformation mismatch:
+  associatedQOSFlowList_[0] mismatch:
+  QosRules mismatch:
+    Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:1
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:6
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.1"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.1"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+    Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:2
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:7
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.2"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.2"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:3
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:8
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.3"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.3"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:4
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:9
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.4"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.4"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:6
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:10
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.5"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.5"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:7
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:11
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.6"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.6"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:8
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:12
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.7"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.7"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:9
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:13
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.8"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.8"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+  Expected: not present
+
+QosRules mismatch:
+  Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:10
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:1
+        Segregation:0
+        Qfi:14
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.9"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+            [1]:
+                Packet filter identifier:1
+                Packet filter direction:Downlink
+                Packet filter components:
+                    [0]:
+                        type:Ipv4RemoteAddress
+                        address:
+                            ipv4:"1.1.1.9"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                        mask:
+                            ipv4:"255.255.255.255"
+                            ipv6:<not present>
+                            prefixLength:<not present>
+                    [1]:
+                        type:ProtocolIdentifierNextHeader
+                        protocolIdentifierNextHeader:Udp
+
+
+
+K;8epg/framework/Test/TestSupport/Types/test-src/TestSupportTypesTest/PacketFilterTest.cpp
+
+
+
+
+
+    banner("PCF init install new DCR rule andalso update session ambr");
+    auto                                                dcr5        = chargingRules_.rules_[4].definition_;
+    std::vector<const Sft::Gx::ChargingRuleDefinition*> ruleDefs    = {&chargingRules_.rules_[4].definition_};
+    auto                                                bearerQoses = Qos::generateBearerQos({dcr5});
+    const ProcedureData                                 optionalData{dcr5, bearerQoses};
+    std::vector<Bearer*> bearers = Sft::Util::createQosFlowBearers(optionalData, session_);
+
+
+
+
+
+    const auto& dcr1 = chargingRules_.rules_[0].definition_;
+
+    auto bearerQoses = Qos::generateBearerQos({dcr1});
+
+    const ProcedureData  optionalData{dcr1, bearerQoses};
+    std::vector<Bearer*> bearers = Sft::Util::createQosFlowBearers(optionalData, session_);
+
+
+
+
+etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlowsRules(session_, dedicatedQosBearers,optionalData.getQosRules().getQosRules()));
+
+
+
+
+
+epg/application/PgwControlPlane/signalflowtest/psci/framework/test-src/Asmf/Asmf.cpp
+
+
+    for (const auto* chargingRule : chargingRuleDefinitionsToBeUpdated)
+    {
+        ASSERT_TRUE(chargingRule->getQosInformation().has_value());
+        ASSERT_TRUE(chargingRule->getQosInformation().value().getQosClassIdentifier().has_value());
+        if (chargingRule->getQosInformation().value().getQosClassIdentifier().value() == bearer.qos_.qci_)
+        {
+            // Add QosRules
+            ::TestSupport::Types::QosRule qosRule;
+            qosRule.setQosRuleId(chargingRule->getQosRuleIdForIsmf());
+            qosRule.setQfi(bearer.qfi_);
+            qosRule.setRuleOperationCode(
+                ::TestSupport::Types::QosRule::RuleOperationCode::ModifyExistingQosRuleAndReplaceAllPacketFilters);
+            qosRule.setDefaultQosRule(false);
+            qosRule.setSegregation(0);
+            ASSERT_TRUE(chargingRule->getPrecedence().has_value());
+            qosRule.setPrecedence(chargingRule->getPrecedence().value());
+
+            for (const auto& flowInformation : chargingRule->getFlowInformation())
+            {
+                ::TestSupport::Types::PacketFilter packetFilter =
+                    SmfNasTft::convertFlowInformationToFilter(flowInformation);
+                qosRule.addPacketFilter(packetFilter);
+            }
+
+            qosRules.addQosRule(std::move(qosRule));
+        }
+    }
+
+
+
+    
+    for (const auto* chargingRule : chargingRuleDefinitionsToBeUpdated)
+    {
+        ASSERT_TRUE(chargingRule->getQosInformation().has_value());
+        ASSERT_TRUE(chargingRule->getQosInformation().value().getQosClassIdentifier().has_value());
+        if (chargingRule->getQosInformation().value().getQosClassIdentifier().value() == bearer.qos_.qci_)
+        {
+            // Add QosRules
+            ::TestSupport::Types::QosRule qosRule;
+            qosRule.setQosRuleId(chargingRule->getQosRuleIdForIsmf());
+            qosRule.setQfi(bearer.qfi_);
+            qosRule.setRuleOperationCode(
+                ::TestSupport::Types::QosRule::RuleOperationCode::ModifyExistingQosRuleAndReplaceAllPacketFilters);
+            qosRule.setDefaultQosRule(false);
+            qosRule.setSegregation(0);
+            ASSERT_TRUE(chargingRule->getPrecedence().has_value());
+            qosRule.setPrecedence(chargingRule->getPrecedence().value());
+
+            for (const auto& flowInformation : chargingRule->getFlowInformation())
+            {
+                ::TestSupport::Types::PacketFilter packetFilter =
+                    SmfNasTft::convertFlowInformationToFilter(flowInformation);
+                qosRule.addPacketFilter(packetFilter);
+            }
+
+            rules.addQosRule(std::move(qosRule));
+        }
+    }
+
+
+    epg/application/PgwControlPlane/signalflowtest/psci/framework/test-src/Gtpv2/MessageBuilder.cpp
+
+
+
+
+            std::cout<<chargingRules_.rules_.size()<<"esimnaa \n";
+                    auto& dcr1        = chargingRules_.rules_[1].definition_;
+           auto  bearerQoses1 = Qos::generateBearerQos({dcr1});
+
+          const ProcedureData  optionalData1{dcr1, bearerQoses1};
+          
+
+          if(optionalData1.getQosRules().getQosRules().empty())
+          {
+            std::cout<<"hello \n";
+          }
+          else
+          {
+            std::cout<<"hello 2\n";
+          }
+
+
+  //  ProcedureData optionalData1;
+
+        //  std::cout<<"hello123esimnaa \n"<<static_cast<int>(optionalData1.getChargingRuleDefinition(dedicatedQosBearers[0]->qos_)->getQosRuleIdForIsmf())<<"123 \n";
+
+
+        if(optionalData.getChargingRuleDefinition(dedicatedQosBearers[0]->qos_))
+        {
+            //std::cout<<"hello123 \n"<<static_cast<int>(optionalData.getChargingRuleDefinition(dedicatedQosBearers[0]->qos_)->getQosRuleIdForIsmf())<<"123 \n";
+         for (const auto& flowInformation : optionalData.getChargingRuleDefinition(dedicatedQosBearers[0]->qos_)->getFlowInformation())
+            {
+                ::TestSupport::Types::PacketFilter packetFilter = 
+                    SmfNasTft::convertFlowInformationToFilter(flowInformation);
+                    std::cout<<"hello123esimnaa \n";
+               //ASSERT_EQ(PacketFilter::Direction::Bidirectional, packetFilter.getDirection().getValue());
+               //std::cout<<"hello123 \n"<<static_cast<int>(packetFilter.getDirection())<<"123 \n"; 
+                  // std::cout<<"hello123 \n"<<static_cast<int>(packetFilter.)<<"123 \n"; 
+              //  qosRule.addPacketFilter(packetFilter);
+            }
+         for (int value : dedicatedQosBearers[0]->qosRuleIds_) 
+         {
+            std::cout << "Value: " << value << std::endl;
+         }
+            std::cout<<"hello1234 \n"<<static_cast<int>(optionalData.getChargingRuleDefinition(dedicatedQosBearers[0]->qos_)->getPrecedence().value())<<"1234 \n";
+        }
+
+
+        
+
+
+        
+         //TestSupport::Types::QosRules qosRules = createQosRuleDefinitions(optionalData, dedicatedQosBearers);
+         if(optionalData.getQosRules().empty())
+          {
+            std::cout<<"hello \n"<<optionalData.getQosRules().getQosRules().size();
+          }
+
+
+
+
+
+git grep -E 'first_word(?!.*second_word)'
+
+
+
+
+git grep -iE 'setIdentifier' | grep -E -v -i 'compare' 
+
+
+dLRANTunnelInformation mismatch:
+  dLQOSFlowTunnelInformation mismatch:
+  associatedQOSFlowList_[0] mismatch:
+  QosRules mismatch:
+    Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:5
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:true
+        Precedence:255
+        Segregation:0
+        Qfi:5
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:MatchAll
+
+    Expected: not present
+
+
+
+
+
+
+ 
+//         auto chargingRuleDefinition = BasicChargingRules().getGbrChargingRules()[0].definition_;
+//     auto bearerQoses1            = Qos::generateBearerQos({chargingRuleDefinition});
+
+//     const ProcedureData optionalData1{
+//         chargingRuleDefinition,
+//         bearerQoses1
+//     };
+// Sft::Bearer& defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+//  std::cout<<"hello1234 \n"<<static_cast<int>(optionalData1.getChargingRuleDefinition(defaultBearer.qos_)->getPrecedence().value())<<"1234 \n";
+        // Create the non-GBR dedicated flow
+
+
+
+
+
+
+std::vector<QosRules> buildQosRules(const std::vector<Sft::Bearer*>& bearers, const Sft::ProcedureData& procedureData, const bool isCreate,const bool isDefaultqosflow = false)
+{
+    std::vector<QosRules> qosRules1;
+    qosRules1.reserve(bearers.size());
+    for (const auto* bearer : bearers)
+    {
+        QosRules qosRules{};
+         for(Qri qri : bearer->qosRuleIds_)
+         {
+            auto* chargingRule = procedureData.getChargingRuleDefinition(bearer->qos_);
+            QosRule qosRule{};
+            qosRule.setQosRuleId(qri);
+            qosRule.setDefaultQosRule(isDefaultqosflow);
+            if(isCreate)
+            {
+              qosRule.setQfi(bearer->qfi_);
+              qosRule.setSegregation(0);
+              qosRule.setRuleOperationCode(::TestSupport::Types::QosRule::RuleOperationCode::CreateNewQosRule);
+              
+            }
+            if(isDefaultqosflow)
+            {
+                qosRule.setPrecedence(255);
+                ::TestSupport::Types::PacketFilter packetFilter;
+                packetFilter.setDirection(::TestSupport::Types::PacketFilterDirection::Uplink);
+                packetFilter.setIdentifier(0);
+                packetFilter.addComponent(::TestSupport::Types::PacketFilterComponent::MatchAll());
+                qosRule.addPacketFilter(packetFilter);
+            }
+
+            if(isCreate && !isDefaultqosflow)
+            {
+                qosRule.setPrecedence(chargingRule->getPrecedence().has_value());
+                    for (const auto& flowInformation : chargingRule->getFlowInformation())
+                    {
+                    ::TestSupport::Types::PacketFilter packetFilter = 
+                        SmfNasTft::convertFlowInformationToFilter(flowInformation);
+
+                        qosRule.addPacketFilter(packetFilter);
+                    }
+            }
+            if(!isCreate)
+            {
+                   qosRule.setRuleOperationCode(::TestSupport::Types::QosRule::RuleOperationCode::DeleteExistingQosRule);
+            }
+            
+                 
+
+            qosRules.addQosRule(std::move(qosRule));
+         }
+
+
+        qosRules1.push_back(qosRules);
+
+
+    }
+    return qosRules1;
+}
+
+
+        auto qosRule =  std::find_if(qosRules1.begin(), qosRules1.end(), [qri](const QosRule& qosRule) { return *qosRule.getQosRuleId() == qri; });
+Payload mismatch:
+dLRANTunnelInformation mismatch:
+  dLQOSFlowTunnelInformation mismatch:
+  associatedQOSFlowList_[0] mismatch:
+  QosRules mismatch:
+    Actual:   Qos rules:
+    [0]:
+        Qos rule identifier:254
+        Rule operation code:CreateNewQosRule
+        DefaultQosRule:false
+        Precedence:9
+        Segregation:0
+        Qfi:4
+        Packet filters:
+            [0]:
+                Packet filter identifier:0
+                Packet filter direction:Uplink
+                Packet filter components:
+                    [0]:
+                        type:SingleRemotePort
+                        port:9
+
+
+    TestSupportGtpV2
+
+
+
+        // Create QoS flows
+        constexpr auto numFlows = 2;
+        const auto [definitions, bearerQoses] =
+            Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numFlows));
+        // const auto rules                = Sft::Util::createChargingRules({1, 2, 3, 4});
+        // auto [definitions, bearerQoses] = Sft::Util::createDefinitionsAndQoses(rules);
+        //                                 std::cout<<"hello world esimnaa nightbefore\n";
+        optionalData=ProcedureData{definitions, bearerQoses};
+             std::cout<<"hello world esimnaa night123\n";
+        const auto          dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+         
+        Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+
+
+
+
+
+                constexpr auto numFlows = 2;
+        const auto [definitions, bearerQoses] =
+            Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numFlows));
+        // const auto rules                = Sft::Util::createChargingRules({1, 2, 3, 4});
+        // auto [definitions, bearerQoses] = Sft::Util::createDefinitionsAndQoses(rules);
+        //                                 std::cout<<"hello world esimnaa nightbefore\n";
+        optionalData=ProcedureData{definitions, bearerQoses};
+             std::cout<<"hello world esimnaa night123\n";
+        const auto          dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+         
+        Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+       
+       for (const auto* bearer : dedicatedQosBearers)
+      {
+            std::cout<<"hello world esimnaa night12356\n";
+               optionalData.getChargingRuleDefinition(bearer->qos_);
+
+      }
+      std::cout<<"hello world esimnaa night12345\n";
+
+etsiDf2_.receive(
+        etsiDf2_.pduSessionModificationInterceptEventSupiUnauthenticatedQoSFlow1(session_, dedicatedQosBearers,optionalData));
+
+
+
+        return dedicatedQosBearers;
+
+
+    qosRulesHelper(qosRules, optionalData);
+
+
+
+
+
+edQosBearers, Sft::Util::QosFlowRules::CreateQosRule
+Sft::Util::QosFlowRules::DeleteQosRule
+
+
+
+
+
+        uint64_t octetBuffer = stoull(createString(payloadValue));
+        std::array<uint8_t, 8> flags;
+
+ 
+
+    for(int i = 0; i < 8; ++i)    
+
+    {
+        uint8_t byte = (octetBuffer >> (56 - 8 * i) & 0xff);
+        flags[i] = byte;
+    }
+   
+
+     std::vector<uint8_t> encodedData{
+        toIntegral(Type::Indication),  // IE type
+        0x00, 0x01,                    // Ie length
+        0x80,                          // Spare instance
+    };
+
+    for(int i=0; i<8; i++)
+    {
+        encodedData.push_back(flags[i]);
+    }
+
+
+
+
+
+
+template <typename payloadValueT>
+void storeIfExists(std::optional<gtpv2::ie::IndicationFlags>& destination, const payloadValueT* const payloadValue)
+{
+    if (payloadValue)
+    {
+        using namespace gtpv2;
+        using namespace gtpv2::ie;
+
+        const uint64_t octetBuffer = stoull(createString(payloadValue));
+        std::vector<uint8_t> encodedData{
+        toIntegral(Type::Indication),  // IE type
+        0x00, 0x01,                    // Ie length
+        0x80,                          // Spare instance
+        };
+
+         for(int i = 0; i < 8; ++i)    
+         {
+           encodedData.push_back(octetBuffer >> (56 - 8 * i) & 0xff);
+         }
+
+        TreeBuffer treeBuffer(encodedData.data(), encodedData.size());
+        const auto indication = Indication(treeBuffer, treeBuffer.rawVector().size() - 4);
+
+        destination = indication.flags();
+    }
+}
+
+
+
+//*=============================================================================
+// test case: TC80978_N2HandoverAmfNoChange
+//
+//#Description#
+//     Verify that SMF sends an ETSI PDU Session Modification Request
+//     for a N2 Handover without AmfChange with all successful QoS flows.
+//
+//#Feature#
+//    PCPB-20230
+//
+//#Requirement#
+//    REQ21354
+//=============================================================================*
