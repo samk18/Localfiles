@@ -1,0 +1,125 @@
+In the 5G Core Network, the QoS Flow Setup Request is sent by the SMF (Session Management Function) to the UPF (User Plane Function) as part of the process of establishing a PDU (Packet Data Unit) session and configuring QoS flows for that session.
+
+Here's a breakdown of the process:
+
+UE (User Equipment) Initiates Communication: When the UE initiates communication that requires specific QoS requirements, it requests the establishment of a PDU session. The UE specifies its QoS preferences for the data flow.
+
+Initial PDU Session Setup Request: The initial PDU Session Setup Request is sent from the UE to the AMF (Access and Mobility Management Function). This request includes information about the UE's requested QoS parameters.
+
+AMF Interaction: The AMF interacts with the PCF (Policy Control Function) to determine the appropriate policies and QoS rules for the requested QoS parameters. The PCF provides the necessary information to the AMF.
+
+SMF Initiates QoS Flow Setup: Based on the policies and rules provided by the PCF, the SMF initiates the QoS Flow Setup Request. The SMF communicates with the UPF to configure the QoS flows in the data plane based on the QoS requirements of the UE.
+
+QoS Flow Setup Response: The UPF receives the QoS Flow Setup Request from the SMF and configures the QoS flows in the data plane accordingly. The UPF then sends a QoS Flow Setup Response back to the SMF to indicate the successful configuration of QoS flows.
+
+Completion of PDU Session Setup: Once the QoS flows are set up and confirmed, the AMF completes the PDU session setup process. The UE is now ready to exchange data with the network, and the data packets will receive the appropriate QoS treatment as configured 
+
+
+In this process, the SMF plays a key role in initiating the QoS Flow Setup Request and coordinating with the UPF to configure the QoS flows in the data plane. The UPF is responsible for configuring the actual data forwarding paths and ensuring that the data packets receive the appropriate QoS treatment based on the QoS requirements specified by the UE and managed by the network policies.
+
+
+In a 5G network, the creation and installation of QoS (Quality of Service) flows are managed by the network elements responsible for handling the user's data traffic and ensuring that it receives the appropriate treatment based on QoS parameters. The primary network elements involved in creating and installing QoS flows are the SMF (Session Management Function) and the UPF (User Plane Function).
+
+SMF (Session Management Function): The SMF is responsible for managing the session establishment, modification, and release in the 5G Core Network. It is also responsible for creating and configuring QoS flows for user data based on the QoS parameters requested by the UE (User Equipment). The SMF communicates with other network elements, such as the PCF (Policy Control Function), to determine the appropriate QoS policies and rules. Once the policies and rules are established, the SMF initiates the setup of QoS flows in the UPF.
+
+UPF (User Plane Function): The UPF is responsible for the data forwarding and processing in the user plane of the 5G network. It receives the QoS Flow Setup Request from the SMF and configures the actual data paths and treatment based on the QoS parameters. The UPF ensures that data packets are forwarded and treated according to the specified QoS requirements, including priority, latency, and bandwidth.
+
+In summary, the SMF initiates the creation and installation of QoS flows by sending QoS Flow Setup Requests to the UPF. The UPF configures the data forwarding paths and applies QoS treatments based on the QoS parameters defined by the SMF and the policies established by the network.
+
+It's important to note that the QoS flow setup process involves coordination between various network elements, including the SMF, UPF, and potentially other functions like the PCF and the AMF (Access and Mobility Management Function). This coordination ensures that the network resources are efficiently allocated to meet the desired QoS requirements for different types of data traffic.
+
+
+
+
+
+In 5G networking, QoS (Quality of Service) flows are managed to ensure different levels of service for different types of data traffic. QoS flows control how data packets are treated in terms of priority, latency, bandwidth, and other parameters.
+
+QoS flows are typically installed and managed by the SMF (Session Management Function) in the 5G Core Network. The SMF is responsible for handling the establishment, modification, and release of PDU (Packet Data Unit) sessions, which are logical connections for data transmission.
+
+The process of installing QoS flows involves several steps:
+
+PDU Session Establishment: When a UE (User Equipment) initiates communication that requires specific QoS requirements, such as real-time video streaming or low-latency gaming, it requests the establishment of a PDU session.
+
+QoS Parameters: The UE specifies the desired QoS parameters for the PDU session. These parameters define the characteristics of the data flow, including data rate, latency, and reliability requirements.
+
+QoS Flows Setup Request: The SMF receives the PDU session establishment request along with the specified QoS parameters. The SMF processes the request and creates QoS flow setup requests based on the QoS parameters.
+
+Policy and Charging Control (PCC): The SMF interacts with the PCF (Policy Control Function) to determine the appropriate policies and rules for the QoS flows. The PCF provides the necessary information to ensure that the network resources are allocated according to the specified QoS requirements.
+
+QoS Flows Installation: Once the PCF provides the necessary policies and rules, the SMF initiates the installation of QoS flows in the network. This involves configuring routers, switches, and other network elements to prioritize, route, and manage the data packets according to the specified QoS parameters.
+
+Data Transmission: With the QoS flows installed, data packets are transmitted through the network according to the defined QoS parameters. QoS mechanisms ensure that the packets receive the appropriate treatment to meet the desired service level.
+
+It's important to note that the process of installing QoS flows involves coordination between various network elements, including the SMF, PCF, and network infrastructure. The goal is to ensure that the network resources are efficiently utilized to provide the best possible quality of service for different types of traffic.
+
+In summary, QoS flows in 5G are installed by the SMF in coordination with the PCF and other network elements. The installation process ensures that data packets receive the appropriate treatment based on the specified QoS requirements, allowing the network to efficiently handle different types of traffic with varying service levels.
+
+
+
+
+The testing of this feature covers the PGW lawful interception functionalities.
+
+
+
+Certainly, let's break down the concept of connectionless protocols like UDP in simpler terms:
+
+Imagine you want to send a series of letters to a friend using regular mail. In a connection-oriented approach:
+
+1. **Connection Setup**: You would first call your friend to agree on a specific time to start sending letters. This is like establishing a connection.
+
+2. **Sending Letters**: Once the connection is set up, you send each letter one by one in a specific order. Your friend acknowledges receiving each letter and asks for any missing ones. This ensures that all letters are delivered, and they arrive in order.
+
+Now, let's look at how connectionless communication, like UDP, works:
+
+1. **No Connection Setup**: You decide to send letters to your friend without any prior arrangement. You just start sending them when you want.
+
+2. **Sending Letters**: You send each letter individually, but you don't worry too much about the order or whether your friend gets them all. You're not even sure if your friend is there to receive them. You just keep sending letters as you please.
+
+3. **No Guarantees**: Some letters might get lost or arrive out of order. Your friend might not even be home to receive them. It's a bit chaotic, but it's faster because you're not waiting to set up a connection or getting confirmation for each letter.
+
+In essence, connectionless communication, like UDP, is like sending postcards without calling ahead or worrying too much about whether they all arrive. It's faster because it doesn't involve the overhead of setting up a connection or ensuring perfect delivery order. However, it's less reliable than connection-oriented communication, like TCP, where you carefully establish a connection and track each piece of data to make sure it arrives correctly.
+
+
+
+
+
+
+/workspace/git/esimnaa/epg_internal/internal/SessionEventTracing/X2If/src/X2Multiplexer.cpp 611
+
+    N11esimnaaa
+
+
+
+
+
+
+toda
+
+
+run all suites 
+
+build -D && run_test
+
+8169-5,825 554 285-7
+
+
+
+
+
+
+pcf_.send(
+            session_,
+            N7::MessageBuilder(pcf_.policyUpdateResponse(session_, TestSupport::StatusCode::Ok))
+                .addPccRule(N7::PccRule(dcr1.getName())
+                                .setPrecedence(dcr1.getPrecedence().value())
+                                .addFlowInfo(N7::FlowInfo{}
+                                                 .setDescription(dcr1.getFlowInformation().at(0).getFlowDescription())
+                                                 .setDirection(N7::FlowDirection::Uplink))
+                                .addFlowInfo(N7::FlowInfo{}
+                                                 .setDescription(dcr1.getFlowInformation().at(1).getFlowDescription())
+                                                 .setDirection(N7::FlowDirection::Downlink))));
+
+
+
+
+                                                 

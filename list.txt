@@ -1,0 +1,1222 @@
+1
+source /lab/epg_st_utils/lao/etc/tcshrc    
+2
+    cp /lab/epg_scm4_builds/program/ci/EPG_28R152SE1/vipp/test-tools.info paths 
+ // we only need to change the build output path for any major build and we copy it to our directory as above. Take build with test tools. Info or it will not work.  Change the bold directory according to the new build output.
+then we run the command after changing for the new node ID as in the bold font below
+  /lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg79-14 -t TC37515.1.3.1.51 install all configure all start all stop all  // to continue to the end as stop all presented, not used
+3
+
+dallas_
+
+ /lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg79-16 -t TC37512.4.6.1.51 install all configure all stop all --force-install
+
+export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.14+ninjabyervgora.1.g7d69a4f/bin
+
+export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.14+ninjabyervgora.1.g7d69a4f/bin
+/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg31-13 -t TC37515.1.3.1.51 install all configure all start all NOT testMethod  // this is the standard command we need to run
+After the build completed, we connect to the node according to the guide below 
+LIST (Lawful Interception Simulation Tool) - GW LI teams - PDU Packet Core Confluence (ericsson.com)
+ssh vepgXX-YY          <- The node will be added as host
+ssh epgtool10XX-YY0    <- This is the tool-machine we take only the number from the node ID and we put 10 before and 0 after
+like this node vepg34-9. It will be converted to ssh epgtool1034-90
+after this step we will be connected as root. 
+  Call with Göran and 2 others-20230112_154035-Meeting Recording.mp4 
+Now we are ready to start with the manual system test, we follow these steps from our meeting with Göran Sandheden 2023.01.12
+We begin with opening 4 terminals, 3 of them for ssh epgtool10XX-YY0 and the fourth ssh vepgXX-YY . note that all the 3 terminals with ssh epgtool10XX-YY0 are all like one terminal we can work with any of them. We use exit if the ssh was wrong and then we do it again with the correct node numbers.  
+Then we take this command from the guide, and we change the /<LIST release> to the latest one 1.5.13 in this case and we use it at terminal from the 3
+export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/<LIST release>/bin
+We can paste it
+then
+cd /root/
+then
+cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.13/lib/python3.8/site-packages/list/config/list.cfg .
+If we want to see what’s happening during the simulation that is simulating the Li telecom running we change the list running to Debug. We can use the Debug by editing the config file, however by default it comes with Debug: False.
+vim list.cfg   then we set the debug mode = True //esc :!x to save quite
+cat list.cfg  // it will show the debug as true if we have changed it.
+list -c list.cfg start  //this will start the list in manual mode
+then we take another terminal from the 3 with ssh epgtool10XX-YY0
+tail -F /var/log/list/x1handler.log  // this is X1 log it will show us the debug of the list and we can change it to X2 or X3 if we want that
+then we take last terminal from the 3 with ssh epgtool10XX-YY0
+lts_log -t  // it will show us the debug of the Dallas simulator
+then we ctrl+c and continue with the same terminal and we write
+tail -F /var/log/dallas_msg.log  //this is dallas log and it is the same as lts_log -t  but it is the original location
+then we go to the terminal with the ssh vepgXX-YY or the local and we type
+epg node lawful-intercept status //we can see the counters and information
+then we take the terminal from 3 that it is not the log of dallas nor the log of X1 and we type
+less /autott/dallas/dallas.mobile  // this is the dallas mobile file were different UE user equipment are configured, dallas is simulating MME
+after it was running we quit this process by q+enter and we will start some dallas sessions
+lts_help  // we see list of commands related to dallas like MME simulators, counters ..
+Now we want to add 32000 sessions to the node, which is similar to 32000 users
+lts_run_load '1,32000,[104],2000' // we can also write lts_run_mobile. We will run dallas load case for the performance test, as we start with mobile1 and end with 32000 mobiles, as this is the limit for the Li if we reach it will get the alarm. 104 is the dallas internal test case which mean to create session, we have many different test cases in dallas for different use. 2000 at the end is the rate per second.
+The above command is to add 32000 sessions with rate of 2000 per second.
+As soon as we run this command the terminal with dallas log will show test finished because we are not running in debug mode, which mean that we have already put 32000 sessions on the node.
+Now we need to give IMSI of those 32000 users, and we take the same non log terminal from the 3 ->
+lts_get_subscriber 1  // this is for user number1 and it will show us one session or one UE we can see the IMSI if we scroll up and we copy IMSI only, 100100000000001 in this case, and then we want to add this IMSI with list as intercepted IMSI
+list -c list.cfg add 100100000000001- 100100000032000 // -c is the config file, we have added range to IMSI of 32000 targets to the target database of the node for the Li, if we remove all the dallas sessions then we will not get any active targets as we have listed all these 32000 as targets to the target database, but we do not have sessions to trace any of them.
+after running this command we wait until it reach the 32000 UE then we can see the alarm at the terminal of the X1 log it will say: ist.imssim.x1.X1Handler [ALARM] b'Alarm: 1, sequence num: 7 - Maximum number of interception cases reached.
+We can also check the terminal for the ssh vepgXX-YY, if we scroll up, we will see also maximum target limit reached: True.
+Now we will remove one target from the range and keep the other targets 32000-1 target in order to remove the maximum target limit alarm, and we type
+list -c list.cfg remove 100100000000001 // we can see after executing this command that the alarm is not showing in the terminal of X1 log and the local of ssh vepgXX-YY, we see active-target-limit-reached: FALSE, we can also see that if we run the command at local terminal 
+epg node lawful-intercept status 
+now we will add again this target which it was removed before, we use this command
+list -c list.cfg add 100100000000001
+now we see that the alarm is coming again to the local terminal active-target-limit-reached: TRUE and the X1 terminal Maximum number of interception cases reached
+//The size of the target database is 160000 target, but the size of the active targets for the basic license is 32000 target.
+Now we will take the terminal from 3 not related to the X1 log nor the dallas log and we change the range as below
+list -c list.cfg add 100100000000001- 100100000032000
+after executing this command at the terminal of 3 we get error at the terminal for X1 log like this
+----------------------------------------------------------------------------------
+result, reply = self._rpc_dialog(command(add_target(target,
+  File "/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.13/lib/python3.8/site-packages/list/imssim/x1.py", line 236, in _rpc_dialog
+    raise RPCError(err)
+list.common.exceptions.RPCError: RPCError: no reply received for sequence number: 46776
+2023-01-16 14:06:32,777: list.imssim.x1.X1Handler [CRITICAL] b'Exception: No active exception to reraise'
+2023-01-16 14:06:32,778: list.imssim.x1.X1Handler [CRITICAL] [TRACE]Traceback (most recent call last):
+  File "/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.13/lib/python3.8/site-packages/list/imssim/x1.py", line 1217, in _main_loopLI_LOG(Log::Notice, LI_ID, "%s: Alarmid: %d with SeqNum: %d", getLogId(NICE_FUNCTION).c_str(), t->getAlarmId(),
+           t->seq);
+
+
+
+           LI_LOG(Log::Notice, LI_ID, "%s: Alarmid: %d with SeqNum: %d", getLogId(NICE_FUNCTION).c_str(), t->getAlarmId(),
+           t->seq);
+    raise # socket closed
+RuntimeError: No active exception to reraise
+2023-01-16 14:06:32,778: list.imssim.x1.X1Handler [DEBUG] b"'The given function is not scheduled in this scheduler'"
+2023-01-16 14:06:32,778: list.imssim.x1.X1Handler [ERROR] b'Connection unexpectedly closed'
+2023-01-16 14:06:32,778: list.imssim.x1.X1Handler [ERROR] [TRACE]NoneType: None
+2023-01-16 14:06:34,780: list.imssim.x1.X1Handler [INFO] b'Attempting to reconnect...'
+-----------------------------------------------------------------------------------
+From this error we get that the node cannot handle alarm response at the same time handle add target and list doesn’t get the add response and the node think that it did not get the alarm response, and after 60 seconds it will remove the list as client, while the list will reconnect to the node
+Now we will check the log node, and we go to the terminal for the local of the ssh vepgXX-YY and we execute this command
+start sh
+tail -F /md/loggd_persistent.log
+in order we see the error in the log node of the local terminal, we run the list again at the terminal of the 3 others than the 2 logs terminals 
+list -c list.cfg add 100100000040000-100100000100000
+
+//in this test we have manually added sessions and targets
+Diagnose to the problem of the TR
+*we have alarm at the list log every 10th seconds
+*The node is sending alarm to the list in the list log this is happen at the same time list is sending the add target to the node at this point we have the problem of the TR which is 
+When list send add target and at the same time answer with reply on the alarm which is happen every 10th second and it require to be answered with response and if it did not get the answer with 60 second then the socket will be closed and X1 will reconnect.
+This is because the node cannot handle the alarm and at the same time add target.
+
+<rpc-reply sequence="168404">
+  <result>0</result>
+</rpc-reply>
+<rpc sequence="120">
+  <command>
+    <notify>
+      <alarm>1</alarm>
+    </notify>
+  </command>
+</rpc>
+<rpc-reply sequence="120">
+  <result>0</result>
+</rpc-reply>
+<rpc sequence="168405">
+  <command>
+    <add-target>
+      <target-object>
+        <target-imsi>100100000045326</target-imsi>
+        <cc-interception>off</cc-interception>
+        <LIRID>0</LIRID>
+        <df2p-address>11.0.3.1</df2p-address>
+        <df2p-port>2222</df2p-port>
+                        <cookie>defa</cookie>
+      </target-object>
+    </add-target>
+  </command>
+</rpc>
+<rpc-reply sequence="168405">
+  <result>0</result>
+</rpc-reply>
+
+
+Hi Emil,
+
+Here are the materials I summarized from PCPB-16692.
+1.	Feature Docs
+    The feature study describes system in the view of PCC, but after discussing with APO, we decide to focus on EPG setup as the customer's requirement. PCC and EPG have some differences in testing and design, so in DP and TA we only consider EPG setup. Later we find out that ETSI LI configurations are disabled in EPG CLI, so we add a task to enable it on EPG. 
+    
+•	Feature Study:
+https://erilink.ericsson.se/eridoc/erl/objectId/09004cffcae45da8?docno=1/0363-745/FCP111601/2Uen&action=current&format=ppt12
+•	Test Analysis:
+https://erilink.ericsson.se/eridoc/erl/objectId/09004cffcae43974?docno=1/1597-745/FCP111601/2Uen&action=current&format=msw12
+•	Design Proposal:
+https://erilink.ericsson.se/eridoc/erl/objectId/09004cffcccc6a52?docno=15941-745/FCP111601/2Uen&action=current&format=ppt12
+ 
+ 
+2.	Dependency, reference, external requirement
+The external requirement  tickets for testing are based on our view of the test analysis,  if some of these was not necessary after your evaluation, please feel free to change it.
+ 
+a.	PCPB-13949(in progress), depend on the configurations(x3-interface-name, lawful-intercept etsi pgw-enabled),  and ETSI X1 related functions(4G target, target matching) , some code for reference:
+https://selngerrit.mo.sw.ericsson.se/#/c/1018693/
+https://selngerrit.mo.sw.ericsson.se/#/c/988237/
+https://selngerrit.mo.sw.ericsson.se/#/c/995167/
+b.	PCPB-16565(done), for new PGW IRI flow reference, this feature needs to follow the new PGW IRI flow style. 
+Also the sharing on design forum about IRI flow helps: Design Forum Presentations - GW LI teams - PDU Packet Core Confluence (ericsson.com).
+c.	For ST testing, List tool needs to support ETSI 4G (x1 and x2 ), we have synced with designer Göran Sandheden, this would require actual ETSI 4G msg, so it needs a private build from this feature. No ticket raised for this.
+d.	For FT testing, TTCN3 needs to support ETSI X2 IRI based on 3gpp 33.108, following tickets are opened for this:
+1. Titan(done): https://eteamproject.internal.ericsson.com/browse/TSD-29911
+2. TTCN(in progress): https://pdupc-jira.internal.ericsson.com/browse/PCGW-32387
+ 
+3.	Some code for solution verification debugging for this feature, might help
+ 
+selngerrit.mo Code Review (ericsson.se) IRI POI, 4G ETSI LI configuration on EPG
+selngerrit.mo Code Review (ericsson.se) 4g etsi li t3 message builder
+Change Ie920e3ce: asn.1 x2 build | selngerrit.mo Code Review (ericsson.se) asn.1 x2 build
+
+ontrSendAlarmToMultipleClientsUnconfigured
+
+
+
+/workspace/git/esimnaa/epg/application/ConfigManagement/CliDefinitions
+
+
+
+	module add ripgrep
+  1210	14:22	rg -z "useradd" /lab/epg_ft_portal/cims/log/EPG_28R164HE1_230223_190250_TTCN_LI_26646310_ftportal-LI/
+  1211	14:23	rg -z "useradd" application/
+  1212	14:23	ssh erv@epg789-4
+  1213	14:33	fs -h
+  1214	14:33	fs help
+  1215	14:33	man fs
+  1217	14:35	lsa
+  1219	14:43	man ssh
+  1220	14:51	lks
+  1222	14:52	cd application/ConfigManagement/CliDefinitions/
+  1226	14:52	./confd_starter.py
+  1230	14:52	vim README
+  1233	14:54	make
+  1237	16:16	python3 yang/confd_starter.py
+  1238	16:22	pwd
+  1239	16:22	ls yang/test_epg_pgw.py
+  1240	16:22	python3 -m unittest yang/test_epg_pgw.py
+  1241	16:22	cd yang/
+  1242	16:22	python3 -m unittest test_epg_pgw.py
+  1245	16:22	cd ..
+  1247	16:23	cd -
+  1248	16:23	ls
+    // expectedMessage.imei_              =
+    // pdnAddressAllocationHarvestAsHexString(addressTypeToPdnType(DataAddr_GetAddressType(&session)),
+    //                                                convertToNetworkAddressPair(getPdnAddress(session)));
+    // initiatorHarvest(session.getDefaultBearer()->isDefaultBearer());
+
+show running-config epg pgw node.
+
+
+liSessionTasks
+liSessionTasksliSessionTasksliSessionTasks
+liSessionTasksliSessionTasks
+
+liSessionTasks
+
+
+show running-config epg pgw node.
+ epg node interface li-x1 logical-interface li-x1 port 31335
+
+
+   epg routing-instances routing-instance signaling
+
+Time: 2023/Feb/24 00:11:06.237676. CLI:  epg li interface li-x2 routing-instance om_cn ipv4-address 5.16.5.2. Component: MTC_mtc. StartOffset: 723343. EndOffset: 724200. Port: 0. Children: []
+ epg node interface li-x1 logical-interface li-x1 port 31335
+epg node interface li-x1 admf admf1 address 123.123.124.11 port 8080
+Time: null. CLI: illegal reference \"epg li secm trusted-category name\. Component: MTC_mtc. StartOffset: 862125. EndOffset: 862863. Port: 0. Children: []
+
+epg node feature-activation li-oam
+Time: 2023/Feb/24 00:11:08.628809. CLI:  commit. Component: MTC_mtc. StartOffset: 862125. EndOffset: 862863. Port: 0. Children: []
+epg node interface li-x2 logical-interface li-x2 
+
+ epg node interface li-x2 keepalive-p2-response-timeout 90
+epg node interface li-x2 keepalive-p1-interval 30 
+
+
+    def test_LI_x3_interface_name(self):
+        global last_func, last_result
+        last_func = sys._getframe().f_code.co_name
+        cmd_list = ["epg node feature-activation li-oam"]
+        print("hello world123")
+        last_result = check_config_with_commit(self, log_file, cmd_list)
+        cmd_list = ["epg node logical-interface li-x1","address 123.123.123.123","routing-instance signaling"]
+        print("hello world1234")
+
+        last_result = check_config_with_commit(self, log_file, cmd_list)
+        cmd_list = ["epg node interface li-x1 logical-interface li-x1 port 31335","epg node interface li-x1 admf admf1 address 123.123.124.11 port 8080"]
+        print("hello world12345")
+show running-config epg pgw node.
+
+show running-config epg pgw node.
+
+
+
+Time: 2023/Feb/24 00:11:03.285935. CLI:  show running-configg. Component: MTC_mtc. StartOffset: 495624. EndOffset: 496331. Port: 0. Children: []
+
+Time: 2023/Feb/24 00:11:03.458288. CLI:  epg li li-x1 time-p1 60 time-p2 180. Component: MTC_mtc. StartOffset: 522139. EndOffset: 522849. Port: 0. Children: []
+
+
+
+		print(testchannel_info)
+		print(node_name_pattern)
+		print(node_name_pattern)
+		print(dallas_pattern)
+		print(dallas_pattern)
+		print(dallas_master_pattern)fki
+		print(dallas_list)
+		print(content)
+
+hello1
+hello2
+
+
+
+
+
+ cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.14+ninjabyervgora.1.g7d69a4f/lib/python3.8/site-packages/list/config/list.cfg .
+
+
+ export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.14+ninjabyervgora.1.g7d69a4f/bin
+
+ cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/lib/python3.8/site-packages/list/config/list.cfg .
+lts_control start -c /autott/dallas/
+
+spell it correctly
+
+ cp 31 .
+Reply
+ export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+Quote
+ 
+ lts_log -t 
+
+ ls /var/log/dallas_msg.log
+ls /var/log/dallas_msg.log
+
+list -c list.cfg ActivateTask 100201000037111 --type imsi 
+
+grep rock /var/log/dallas_msg.log
+  
+// ms groug get that is our mobiles all the configuration 
+  less /autott/dallas/dallas.mobile
+
+
+
+  lts_help tc_mme
+lts_help tc_mme
+
+
+list -c list.cfg start5G x1 x2
+
+
+TC37542.1.1.1 2x_cots_1_host.
+
+
+source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc
+   596	10:16	alias setup_st_environment 'source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc'
+   597	10:16	cp /lab/epg_scm4_builds/program/ci/EPG_28R188H1/vipp/test-tools.info paths
+   598	10:16	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg30-16 -t TC37512.4.6.1.51 install all configure all start all NOT testMethod --force-install
+
+debug_autott.log
+
+ less /autott/dallas/dallas.mobile
+
+
+
+
+
+commit
+ tail -F /var/log/list/etsix1handler.log
+ 
+
+reload card all
+
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/node_tool_certificate_key_scp";
+
+lts_run_mobiles '1,1,[104]' 
+[Wednesday 15:19] Sai Manikanta Munukoti
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_5G_ISMF --start5G --config __epgcats__/tools/list/config/list_ETSI.cfg";
+TC37542.1.1.1 +: post_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_5G_ISMF --stop5G  --config __epgcats__/tools/list/config/list_ETSI.cfg";
+epg pgw lawful-intercept etsi smf-enabled true
+
+
+should this following be run as it is mentioned under smf in tls file?
+
+---------------------- SMF ---------------------
+
+epg node feature-activation lawful-intercept-expansion-1 
+
+epg node feature-activation li-oam 
+
+epg pgw node neID
+
+ 
+ to make it more general
+
+
+start shell
+
+su -
+
+root
+
+su li
+
+config
+
+epg li status enabled 
+
+epg li interface li-x1 routing-instance om_cn ipv4-address 5.16.5.1 port 31335
+
+epg li interface li-x2 routing-instance om_cn ipv4-address 5.16.5.2
+
+epg li li-x1 k1 1234 time1 30 time-p1 60 time-p2 180
+
+epg li li-x1 admf name admfID ipv4-address 11.0.3.1 port 1996
+
+epg li li-x2 time-p1 60 time-p2 180
+
+commit
+
+exit
+
+
+lts_run_mobiles '1,1,[104]' 
+
+
+epgcats/tcdb/LIB_general/tcdb/hooks/li_enable_tls_gwcu_x3.py
+
+
+ps -ef | grep "handler"
+
+
+TC21430_prepare__config_basic_standalone
+
+TC37542.1.1.1 +: pre_testmethod_cmd  += "__epgcats__/tcdb/hooks/li_enable_tls_gwcu";
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/node_tool_certificate_key_scp";
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_5G_ISMF --start5G --config __epgcats__/tools/list/config/list_ETSI.cfg";
+TC37542.1.1.1 +: post_testmethod_cmd += "__epgcats__/tcdb/hooks/li_stability_5G_ISMF --stop5G  --config __epgcats__/tools/list/config/list_ETSI.cfg";
+
+
+cp /lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230613_161250-esimnaa-epg-master-buildall/vipp/test-tools.info paths 
+
+
+lts_run_mobiles '37109,1,[165,106]'
+
+
+ lts_run_mobiles '37109,1,[104,{158,cont}]'
+
+
+
+714  lts_get_ms_distribute -h
+  715  lts_get_ms_distribute help
+  716  lts_info lts_get_ms_distribute
+  717  lts_help lts_get_ms_distribute
+  718  lts_get_ms_groups_range -h
+  719  lts_get_ms_groups_range help
+  720  lts_get_ms_groups_range type
+  721  history
+  722  lts_get_subscriber 100201000037109
+  723  lts_get_subscriber 37109
+  724  history
+  725  lts_get_subscriber 37109
+  726  history
+  727  lts_info tc_mme
+  728  lts_info mme
+  729  lts_help tc_mme
+  730  lts_help tc_upf
+  731  lts_help tc_lte
+  732  lts_help tc
+  733  lts_help tc_payload
+  734  lts_run_mobiles '37109,1,[158]'
+  735  less /autott/dallas/dallas.mobile 
+  736  lts_get_subscriber 37109
+  737  less /autott/dallas/dallas.mobile 
+  738  lts_get_subscriber 37109
+  739  lts_help tc_payload
+  740  less /autott/dallas/dallas.mobile 
+  741  lts_help tc
+  742  lts_help mobiles
+  743  lts_info mobiles
+  744  lts_info mobile
+  745  lts_info
+  746  lts_help
+  747  lts_help mobile
+  748  lts_get_subscriber 37109
+  749  lts_run_mobiles '37109,1,[{157,1}]'
+  750  lts_help tc_payload
+  751  lts_run_mobiles '37109,1,[{158, [{pdp_id, 1}]}]'
+  752  list -c list.cfg -h
+  753  history
+  754  cat list.cfg
+  755  q
+  756  list -c list.cfg -h --cc 
+  757  cat list.cfg
+
+epg user-plane internal-debug data-plane tracing session show
+
+
+epg user-plane internal-debug data-plane tracing manager show | include "Packets forwarded"
+
+
+show running-config epg user-plane network-instance 
+
+epg user-plane internal-debug data-plane tracing session show
+
+
+TC37554.8.2.4
+
+TC37554.8.2.48
+
+
+lts_run_mobiles '37109,1,[165,106]'
+
+
+ lts_run_mobiles '37109,1,[104,{158,cont}]'
+
+lts_run_mobiles '1,1,[104]' 
+lts_run_mobiles '37109,1,[{158,1}]'
+lts_run_mobiles '37109,1,[104]' 
+
+
+  662  lts_control start -c /autott/dallas/
+  663  list -c list.cfg start5G x1 x2 x3
+  664  list -c list.cfg -h
+  665  list -c list.cfg CreateDestination
+  666  list -c list.cfg ActivateTask 37109 --type imsi
+  667  lts_run_mobiles '37109,1,[104,{158,cont}]'
+  668  lts_get_subscriber 37109
+  669  list -c list.cfg ActivateTask 100201000037109 --type imsi
+  670  lts_run_mobiles '37109,1,[{157,1}]'
+  671  lts_run_mobiles '37109,1,[{158,1}]'
+  672  list -c list.cfg show5G counters
+  673  history
+[root@epgtool1038-50 ~]# cat list.cfg 
+
+
+/lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230630_011209-esimnaa-epg-master-buildall/epgcats/tcdb/hooks/li_stability_etsi4G
+
+yes I think so. so far it is good but it would be nice if we can have some time to confirm it as I am doing some testing on it.
+
+
+I tried running 
+
+
+
+294-9
+
+config
+# epg node node-name neID  ?????????? NEEDED ???????????
+epg pgw node neID
+commit
+epg node interface li-x1 port 31335 logical-interface li-x1-if admf admfID address 11.0.3.1 port 1996
+epg node interface li-x2 logical-interface li-x2-if
+commit
+epg pgw lawful-intercept etsi pgw-enabled true
+commit
+
+
+
+341-9
+
+git reset --soft HEAD^
+
+
+
+find / -name "*partial_name1*" -a -name "*partial_name2*"
+
+
+find / -name "*partial_name1*" -a -name "*partial_name2*"
+
+
+
+lts_get_ms_groups_range type
+
+import java.util.Arrays;
+
+createXmlAttributeUeLocation
+46-13 
+
+
+
+RUN apk --no-cache add vim nano
+# Install additional tools
+RUN apt-get update && \
+    apt-get install -y vim nano && \
+    rm -rf /var/lib/apt/lists/*
+
+
+
+RUN apt-get update && apt-get install -y vim nano && rm -rf /var/lib/apt/lists/*
+
+elc-docker
+
+
+find / -name "*filename*"
+
+createXmlAttributeUeLocation
+
+oot job build_all
+
+  749	8:36	source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc
+   750	8:36	alias setup_st_environment 'source /lab/epg_st_utils/lao/etc/tcshrc ; source ~/.cshrc'
+
+
+
+list  -c /root/list1_5G.cfg GetTaskDetails 100201000000001-100201000000012
+
+
+
+Stab__Log_LI_X1_KeepaliveResponseRecvNumbers  
+
+KeepaliveResponse-recv-in1sec 0000
+
+Stab__Log_LI_X2_KeepAliveRequestNumbers 
+fexport
+
+TC37540.1.6.1
+
+
+
+ --duration=3h
+
+
+
+
+
+
+
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_ERROR";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Destination_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_NE_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Task_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X1_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_Etsi_X1_KeepaliveResponseRecvNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveAckNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerActivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerModificationNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerDeactivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationResponseNumbers";
+
+
+epgcats/tools/verdict/verdict/user_checkpoints/stability_checkpoints/stability_li.py
+epgcats/tools/verdict/user_checkpoints/stability_checkpoints/stability_li.py
+
+
+
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_ERROR";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Destination_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_NE_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Task_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X1_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_Etsi_X1_KeepaliveResponseRecvNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveAckNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerActivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerModificationNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerDeactivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationResponseNumbers";
+
+
+
+
+
+[GENERAL]
+log_path = /root/ims1
+keepalive = 0
+keepalive_x1_etsi = 60
+x3_transport_protocol = 1
+
+[SSL]
+enabled = True
+cert = list.pem
+cert_ca = ca.pem
+tls_protocol = TLSv1.2
+dtls_protocol = DTLS
+ciphers = DEFAULT
+
+[VERSIONS]
+x1_version = 1.4
+x2_version = 1.6
+x3_version = 1.7
+etsi_x1_version = v1.7.1
+etsi_x2_x3_version = v1.3.1
+erp_version = 0.1
+
+[NETWORK]
+li_t3_port = 8808
+li_t3_userplane_simulators = neId@8.66.0.3
+li_t3_controlplane_address = 107.2.2.161
+li_t3_controlplane_simulator = 8.66.0.3
+li_t3_userplane_address = 108.2.0.1
+li_t3_om_address = auto
+li_t3_om_port = auto
+li_t3_erp_address = auto
+li_t3_erp_port = 3738
+li_x1_address = 5.16.5.1
+li_x1_port = 31335
+li_x1_server_address = auto
+li_x1_server_port = 1996
+li_x2_address = auto
+li_x2_port = 4444
+li_x3_address = auto
+li_x3_port = 5555
+x1_address = 5.16.5.1
+x1_port = 31330
+x1_dscp = AF11
+x2_address = auto
+x2_port = 2221
+x2_dscp = AF21
+x3_address = auto
+x3_port = 3331
+x3_dscp = CS5
+om_address = 127.0.0.1
+om_port = 3737
+erp_address = 5.19.0.1
+erp_port = 4444
+
+[MQTT]
+mqtt_host = localhost
+mqtt_port = 0
+
+[MISC]
+socket_path = /root/ims1
+cookie = ims1
+s8hr_cookie = ims1
+li_t3_etsi_admf_identifier = admfID
+etsi_admf_identifier = admfID
+etsi_ne_identifier = neID
+etsi_x1_activate_task_rate = 0
+etsi_x1_modify_task_rate = 0
+etsi_x1_deactivate_task_rate = 0
+etsi_x1_activate_task_container_size = 1
+etsi_x1_modify_task_container_size = 1
+etsi_x1_deactivate_task_container_size = 1
+etsi_http2_timeout = 0
+x1_add_target_rate = 0
+x1_update_target_rate = 0
+x1_remove_target_rate = 0
+li_t3_extended_debug = False
+etsi_x1_extended_debug = False
+etsi_x2_extended_debug = False
+debug_mode = False
+
+
+
+
+
+ no epg node interface x1
+vepg33-9(config)# commmit
+------------------^
+syntax error: unknown command
+vepg33-9(config)# no epg node interface x2
+
+
+
+TC37540_1_6_51_X3_Payload = Check_log(
+     description = 'Check if there expected traffic is FWD on X3 UPF',
+     prerequisites = p_name('NOT'),
+     pass_criterion = verdict.config.field.search_and_check('Packets forwarded:\s+(\d+)', [1], verdict.config.field.greaterThan(600000)),
+     fields = ['Text'],
+     log = verdict.config.tc.raw_log('li_up_statistics.txt_tmp.raw'),
+     pass_if_contain = False,
+    pass_if_contain = PASS,
+     show_matches = 'LAST',
+ )  
+
+
+
+
+ x3 destination -error
+
+ Hi, I have encountered some problems. sometimes I am getting this kind of errors when running automated testcase 
+
+
+
+
+
+2023-07-03 02:09:36,043.043 li_stability_etsi4G:162 INFO: LIST command: 'list  -c /root/list1_5G.cfg CreateDestination' with result: 
+ETSI: CreateDestination to be sent 
+CreateDestination Error! For details analyze: etsiX1handler.log 
+CreateDestination Error! For details analyze: etsiX1handler.log
+
+
+
+cmd='killall -9 etsix3handler'
+        self.tool_command(cmd)
+
+
+cmd='killall -9 etsix1handler'
+        self.tool_command(cmd)
+        cmd='killall -9 etsix2handler'
+        self.tool_command(cmd)
+
+
+esimnaa_230703_004443_899659637
+
+
+esimnaa_230630_011215_726346626
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28165960
+
+
+esimnaa_230703_114919_577410639 - not tls
+
+
+
+
+esimnaa_230630_011215_726346626
+
+
+
+remove epg..crt from enable_config_etsi
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28173888
+
+
+
+
+no relaod card all with no no epg.crt
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28173898
+
+
+
+
+reload acrd all after
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28173926
+
+
+
+
+keep epg.csr and crt and reload card all 
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28177494
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28177532
+
+
+
+
+
+
+
+[SSL]
+ENABLED     = True
+
+[MISC]
+DEBUG_MODE  = True
+
+# ETSI X1 Keepalive interval in seconds (0 is off)
+KEEPALIVE_X1_ETSI = 0
+
+
+
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28188400
+
+
+
+
+
+tls 
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28140509
+
+
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28188636
+
+
+
+
+
+
+sudo sed -i 's/ENABLED = False/ENABLED = True/' /root/x3_only/list1_5G.cfg
+
+
+
+
+esimnaa_230704_184656_518207282
+
+7hr without tls 
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28188979
+
+
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28188988
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+without tls and dtls
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28194729
+
+
+
+
+
+if(type == "imsi" || type == "msisdn" || type == "imei") { 
+            LOG_TDB(GtlNotice, getId() << "Missing lirid in DB response.");
+            LOG_TDB_NOTICE_SECRET(getId() << "Missing lirid in DB response:" << targetReplyMapToString(targetDbReplyMap, ss).str());
+            return false;
+            }
+
+
+if (type == "imsi" || type == "msisdn" || type == "imei")
+            {
+                LOG_TDB(GtlNotice, getId() << "Missing lirid in DB response.");
+                LOG_TDB_NOTICE_SECRET(getId() << "Missing lirid in DB response:" << targetReplyMapToString(targetDbReplyMap, ss).str());
+                return false;
+            }
+
+
+48hrs
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28215656
+
+
+
+
+
+Hello,
+
+I have this checkpoint(Stab__Feature_CDR_PGW) failing continuously for my every run. Can you help me to have a fix for this as I have checked with the team that Li has nothing to do with pcrf .
+Here are the last three runs in which you can find it
+TV 28205452 [] | EPG Integration Portal (ericsson.com) (6hrs run)
+TV 28216182 [] | EPG Integration Portal (ericsson.com)
+TV 28214110 [] | EPG Integration Portal (ericsson.com)
+Thanks,
+
+Br,
+Sai.
+
+
+
+epg pgw node neID
+
+epg node logical-interface li-x1
+
+routing-instance signaling
+
+address 5.16.5.1
+
+epg node interface li-x1 logical-interface 5.16.5.1 port 31335
+
+epg node interface li-x1 port 31335 logical-interface li-x1-if admf admfID address 11.0.3.1 port 1996
+
+epg node interface li-x2 logical-interface li-x2-if
+
+epg pgw lawful-intercept etsi pgw-enabled true
+
+
+
+
+cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/lib/python3.8/site-packages/list/config/list.cfg .
+lts_control start -c /autott/dallas/
+
+spell it correctly
+
+ cp 31 .
+Reply
+ export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+
+
+
+
+
+ TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_No_ERROR";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_No_Report_Destination_Issue";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_No_Report_NE_Issue";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_No_Report_Task_Issue";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_X1_KeepAliveRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_Etsi_X1_KeepaliveResponseRecvNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveAckNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerActivation";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerModificationNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerDeactivation";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_Etsi_CreateDestinationRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_Etsi_CreateDestinationResponseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_Etsi_GetDestinationDetailsRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_Etsi_GetDestinationDetailsResponseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationResponseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_ActivateTaskRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_ActivateTaskResonseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_GetTaskDetailsRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_GetTaskDetailsResponseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_DeactivateTasksRequestNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_DeactivateTasksResponseNumbers";
+TC37540.1.6.1 +: checkpoints += "Stab_TC37542_1_1_2_X1_ActiveTargetsNumbers";
+TC37540.1.6.1 +: M_Log_LI_Common_UPs;
+
+
+
+LI_LOG2(Log::Notice, LI_ID, __FUNCTION__ << "esimnaa 1 indicationFlagsHarvest ");
+
+        if (gtpRequest->getType() == 18)
+        {
+            LI_LOG2(Log::Notice, LI_ID, __FUNCTION__ << "esimnaa 1 indicationFlagsHarvest 18");
+            return "";
+        }
+        else
+        {
+            const auto* indication =
+                reinterpret_cast<const Gtpv2_IE_Indication_t*>(Gtpv2_Message_find(*gtpRequest, RIT_INDICATION));
+            if (!indication)
+            {
+                LI_LOG2(Log::Notice, LI_ID, __FUNCTION__ << "esimnaa 1 indicationFlagsHarvest 18 empty");
+            }
+
+            return indication ? std::to_string(indication->_flags) : "";
+        }
+
+
+
+
+
+
+          713  list -c list.cfg start5G x1 x2
+  714  list -c list.cfg CreateDestination
+  715  lts_get_ms_groups_range type
+  716  list -c list.cfg ActivateTask lts_run_mobiles '1,1,[104]' 
+  717  lts_run_mobiles '41611,1,[104]' 
+  718  lts_run_mobiles '41612,100,[104]' 
+  719  lts_get_subscriber 41612
+  720  list -c list.cfg ActivateTask 100008000041612 --type imsi
+  721  list -c list.cfg show5G counters
+  722  list -c list.cfg ActivateTask 100008000041613 --type imsi
+  723  list -c list.cfg show5G counters
+  724  lts_run_mobiles '41622,100,[104]' 
+  725  list -c list.cfg ActivateTask 100008000041615 --type imsi
+  726  list -c list.cfg show5G counters
+  727  list -c list.cfg ActivateTask 100008000041615-100008000041720 --type imsi
+  728  list -c list.cfg show5G counters
+  729  list -c list.cfg ActivateTask 100008000041721-100008000042721 --type imsi
+  730  list -c list.cfg show5G counters
+  731  lts_run_mobiles '41722,600,[104]' 
+  732  list -c list.cfg show5G counters
+
+
+
+
+
+-----BEGIN TTCN-3 LICENSE FILE-----
+AABbtFNhaSBNYW5pa2FudGEgTXVudWtvdGkAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAHNhaS5tYW5pa2FudGEubXVudWtvdGlAZXJpY3Nzb24uY29tAAAAAAAAAAAA
+AAAAAEVyaWNzc29uIFN3ZWRlbgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAEVBQgAAAAAAAAAAAAAAAABjBp9gZOkkXwAAAABlc2ltbmFhAAAAAAEAAAAB
+AAAAAAAAAAEAAABjAAAAYwAAP/8AAAACAAAnEDAsAhQXYh2bLjTfD6rmLWDjkgwr
+TqvGCgIUYcqOhczqs7QqlGGvouAywLO0w9UAAA==
+-----END TTCN-3 LICENSE FILE-----
+
+
+
+No viable overloaded '='clang(ovl_no_viable_oper)
+EtsiX2MessageParseHelper.h(660, 5): In instantiation of function template specialization 'LiEtsiTest::X2::parseIfExists1<OCTET_STRING, classA>' requested here
+optional(832, 7): Candidate function not viable: no known conversion from 'classA' to 'nullopt_t' for 1st argument
+optional(846, 2): Candidate template ignored: requirement '__and_v<std::__not_<std::is_same<std::optional<classA>, classA>>, std::__not_<std::__and_<std::is_scalar<classA>, std::is_same<classA, classA>>>, std::is_constructible<classA, classA>, std::is_assignable<classA &, classA>>' was not satisfied [with _Up = classA]
+optional(892, 2): Candidate template ignored: could not match 'optional<_Up>' against 'classA'
+optional(705, 11): Candidate function (the implicit copy assignment operator) not viable: no known conversion from 'classA' to 'const std::optional<classA>' for 1st argument
+param parseFunc
+Type: ParsedType (*)(const Asn1Type &)
+
+// In parseIfExists1
+ParsedType (*parseFunc)(const Asn1Type&)
+No quick fixes available
+
+
+
+
+
+
+
+template <typename Asn1Type, typename ParsedType>
+void parseIfExists1(const Asn1Type* src, std::optional<ParsedType>& dest, ParsedType (*parseFunc)(const Asn1Type&))
+{
+    if (src)
+    {
+      // here I am encountering the error
+        dest = parseFunc(*src);
+    }
+}
+
+
+ parseIfExists1(classB.indicationFlags, classB.indication, parseIndicationFlags);
+class classB{
+std::optional<classA>             &indication;
+}
+
+
+
+[[nodiscard]] inline classA parseIndicationFlags(const PDNConnectionIndicationFlags_t& payloadValue)
+{
+
+
+        return (classA(treeBuffer, treeBuffer.rawVector().size() - 4));
+    
+}
+
+
+
+
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMultipleQosFlowUpDeactivation, TC80978_N2HandoverAmfNoChange)
+{
+        const std::string  networkInstanceN3   = "n3-ni.com";
+    const std::string  networkInstanceN6   = "n6-ni.com";
+    const std::string  networkInstanceN3_2 = UpfConstants::N3NetworkInstance;
+    const std::string  networkInstanceN6_2 = UpfConstants::ApnNetworkInstance;
+    const std::string  snssai1             = "2-d143a4";
+    const std::string  emptyNetworkInstance;
+
+    auto& configuration = CurrentConfiguration::getInstance().getConfigurationBuilder();
+    
+    //configuration.getPgw().getSbi().getSmfServices().getIndirectDataForwarding().setIdftReleaseTimer(7);
+
+            configuration.getPgw().setNetworkSlice(TestSupport::Configuration::NetworkSlice(snssai1));
+        configuration.getPgw().getNetworkSlice(snssai1).addDataNetwork("apn1.com");
+        configuration.getPgw()
+            .getApn("apn1.com")
+            .setIncludeN3OverN2(true)
+            .setN3ApnNetworkInstance(networkInstanceN3)
+            .setNetworkInstance(networkInstanceN6)
+            .addApnSnssai(snssai1, TestSupport::Configuration::ApnSnssai().setNetworkInstances(networkInstanceN3_2, networkInstanceN6_2,
+                                                                   emptyNetworkInstance));
+          configuration.getPgw().getSbi().getSmfServices().setTn2hoc(2);
+    configuration.getPgw().getSbi().getSmfServices().getIndirectDataForwarding().setIdftReleaseTimer(7);
+
+    configuration.getPgw()
+        .getUserPlane()
+        .getNodeName(upf_.getNodeName())
+        .setN3(TestSupport::Configuration::NodeNameN3().setNetworkInstance("user-plane-default"));
+
+           session_.n3CommonNetworkInstance_ = networkInstanceN3_2;
+
+    ConfigurationUtil::commit(lcmd_, configuration);
+        
+        addTaskToRedis(Li::SessionTasks::Task6);
+
+        SftCore::Logger::banner("Pdu Session establishment");
+
+        create5gSession(Li::SessionTasks::Task6);
+
+        verifyLiT3(Li::SessionTasks::Task6);
+        etsiDf2_.receive(etsiDf2_.pduSessionEstablishInterceptEvent(session_));
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithDefaultQosInActiveList(session_));
+
+
+        // Create the non-GBR dedicated flow
+        constexpr auto numFlows = 2;
+        const auto [definitions, bearerQoses] =
+            Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numFlows));
+        optionalData        = ProcedureData{definitions, bearerQoses, Li::SessionTasks::Task6};
+        dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+        banner("createQosFlows");
+        Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+        const auto qosRules = Sft::Util::createQosRuleDefinitions(
+            optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(
+            session_, dedicatedQosBearers, qosRules, Sft::Li::QosFlowInfo::FullInfo));
+        lit3_.dontReceive();
+// configuration.getPgw()
+//         .getUserPlane()
+//         .getNodeName(upf_.getNodeName())
+//         .setN3(TestSupport::Configuration::NodeNameN3().setNetworkInstance("user-plane-default"));
+           // const std::string  networkInstanceN3_2 = UpfConstants::N3NetworkInstance;
+        //       configuration.getPgw().getFeatureActivation().setSmfMultipleSlices();
+
+ConfigurationUtil::commit(lcmd_, configuration);
+
+ //session_.n3CommonNetworkInstance_ = networkInstanceN3_2;
+
+    Procedures::n2HandoverIndirectDataForwardingWithMultipleQos(optionalData, {session_, dedicatedQosBearers});
+    //etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptN2HandoverEvent(session_));
+
+}
+
+
+
+ auto& defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+
+
+
+ [[nodiscard]] inline gtpv2::ie::Indication parseIndicationFlags(const PDNConnectionIndicationFlags_t& payloadValue)
+{
+
+        using namespace gtpv2;
+        using namespace gtpv2::ie;
+
+        const uint64_t       octetBuffer = stoull(createString(&payloadValue));
+        std::vector<uint8_t> encodedData{
+            toIntegral(Type::Indication),  // IE type
+            0x00, 0x01,                    // Ie length
+            0x80,                          // Spare instance
+        };
+
+        for (int i = 0; i < 8; ++i)
+        {
+            encodedData.push_back(octetBuffer >> (56 - 8 * i) & 0xff);
+        }
+
+        TreeBuffer treeBuffer(encodedData.data(), encodedData.size());
+        return Indication(treeBuffer, treeBuffer.rawVector().size() - 4);
+    
+}
+
+
+
+
+
+
+
+[[nodiscard]] inline gtpv2::ie::IndicationFlags parseIndicationFlags(const PDNConnectionIndicationFlags_t& payloadValue)
+{
+    const uint64_t       octetBuffer = stoull(createString(&payloadValue));
+    std::vector<uint8_t> encodedData{
+        toIntegral(gtpv2::ie::Type::Indication),  // IE type
+        0x00, 0x01,                               // Ie length
+        0x80,                                     // Spare instance
+    };
+
+    for (int i = 0; i < 8; ++i)
+    {
+        encodedData.push_back(octetBuffer >> (56 - 8 * i) & 0xff);
+    }
+
+    TreeBuffer treeBuffer(encodedData.data(), encodedData.size());
+    const auto indication = gtpv2::ie::Indication(treeBuffer, treeBuffer.rawVector().size() - 4);
+
+    return indication.flags();
+}
+
+parseIfExists(ePSPDNConnectionModification.indicationFlags, epsPdnConnectionModification.indicationFlags, parseIndicationFlags);
+
+
+
+/workspace/git/esimnaa/epg/application/PgwControlPlane/signalflowtest/psci/helpers/test-src/procedures/Actions/ServingNodeGtpv2Actions.cpp

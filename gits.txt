@@ -1,0 +1,584 @@
+git clean -fd 3pp/sources/net-snmp/  
+
+git rm -fd 3pp/sources/net-snmp  
+
+git rm 3pp/sources/net-snmp  
+
+git restore --staged .   
+
+git restore .
+
+
+
+remove untracked files
+git clean --ffdx
+
+
+
+
+
+tc32537
+
+
+
+Windows Key + Shift + Left Arrow: Moves the window to the monitor on the left.
+Windows Key + Shift + Right Arrow: Moves the window to the monitor on the right.
+Windows Key + Shift + Up Arrow: Maximizes the window on the current monitor.
+Windows Key + Shift + Down Arrow: Restores the window to its previous state or minimizes it.
+
+
+
+Win + P: Opens the "Project" menu, allowing you to choose how you want to use your multiple monitors. You can switch between duplicate, extend, or second screen only modes.
+
+Win + Shift + Left or Right Arrow: If you have multiple virtual desktops, this allows you to move the current window between desktops.
+
+Win + Tab: Opens the Task View, which allows you to see all open windows on all virtual desktops. You can then drag and drop windows between desktops.
+
+Alt + Space, M, Arrow Keys: Press Alt + Space to open the window's system menu, then press M to select "Move." You can then use the arrow keys to move the window, press Enter to drop it onto the current monitor, and then move it to the desired location.
+
+Win + Shift + M: Restores windows that have been minimized by Win + D or other shortcuts.
+
+Win + Home: Minimizes all windows except the currently active one. Press it again to restore the windows.
+
+Ctrl + Win + Left or Right Arrow: Switches between virtual desktops.
+
+Alt + Tab: Switches between open applications on all monitors.
+
+Win + Number (1-9): Opens the application pinned to the taskbar at that position. For example, Win + 1 opens the first pinned app.
+
+Win + Ctrl + D: Creates a new virtual desktop.
+
+Win + Ctrl + F4: Closes the current virtual desktop.
+
+Win + Ctrl + Left or Right Arrow: Moves between virtual desktops.
+
+Remember that the availability of these shortcuts can vary depending
+
+hmm yeah I have seen that before... keep then :)
+
+Keyboard Shortcut: Use the keyboard shortcut Win + Up Arrow. This keyboard shortcut maximizes the currently active window.
+
+
+
+       uint64_t value = static_cast<uint64_t>(std::stoull("576460752303423488"));
+       uint64_t value1 = static_cast<uint64_t>(MyEnum::Value2);
+
+
+Emil comments
+cross-check to be sure.
+nvm it make sense, its a failure from upf
+not sure this make sense, why have a bearer and then use default bearer to build gtpTunnelInfo?
+need to rename to match the purpose of the test
+std::string gtp2IndicationToString(MyEnum value) {
+    switch (value) {
+        case MyEnum::Value1:
+            return "0x12345";
+        case MyEnum::Value2:
+            return "0x8000000000000000";
+        case MyEnum::Value3:
+            return "0x987654";
+        default:
+            return "Unknown";
+    }
+}
+
+
+Hello, hope you are having a good day.
+
+I am working on verify indication flag through sft for which I need your help as I see in harvester file that code written by you to get indicationflag. may be you might have an idea to get the value through sft ? can we have a quick call ?
+
+
+
+
+
+
+
+        auto& x2Message     = etsiDf2_.unsuccessfulSmfProcedureEvent(session_, std::nullopt);
+        auto& modifyMessage = x2Message.get<LiEtsiTest::X2::PduUnsuccessfulProcedureIEs>();
+        
+        return x2Message;
+
+
+//*=============================================================================
+// test case: TC81637_XnHandoverFailedDedicatedQosFlows
+//
+//#Description#
+//    Verify that when a dedicated QoS flow is included in the QoS Flow Failed
+//    Setup List during Xn Handover, the SMF initiated a PDU session modification to remove failed
+//    QoS flows, that triggers a PDU Session modification.
+//
+//#Feature#
+//    PCPB-20230
+//
+//#Requirement#
+//    REQ21354
+//=============================================================================*
+
+
+
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureN2HandoverDedicatedQoSFlowsFailure, TC81637_XnHandover)
+{
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+    const auto [numSuccessfulFlows, numFailedFlows] = GetParam();
+    const auto numChargingRules                     = numSuccessfulFlows + numFailedFlows;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numChargingRules));
+    const ProcedureData optionalData{definitions, bearerQoses, task};
+    const auto&         dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    // Setup which flows that should be successful or failed.
+    std::vector<Bearer*> associatedQosFlowList    = {};
+    std::vector<Bearer*> qosFlowFailedToSetupList = {};
+
+    associatedQosFlowList.push_back(&session_.getDefaultBearer());
+
+    std::copy(dedicatedQosBearers.begin(), dedicatedQosBearers.begin() + numSuccessfulFlows,
+              std::back_inserter(associatedQosFlowList));
+    std::copy(dedicatedQosBearers.begin() + numSuccessfulFlows, dedicatedQosBearers.end(),
+              std::back_inserter(qosFlowFailedToSetupList));
+
+    ASSERT_GE(associatedQosFlowList.size(), 1);  // Mandatory IE and must have at least one bearer.
+
+    Procedures::xnHandover.runActionsBefore("upfReceiveSessionModificationRequestXnHandover",optionalData, {session_, associatedQosFlowList});
+    
+    upf_.receive(session_,
+                 upf_.sessionModificationRequest(session_).setVerificationLevel(VerificationLevel::OnlySpecified));
+    
+    Procedures::xnHandover.runActionsAfter("upfReceiveSessionModificationRequestXnHandover",optionalData, {session_, associatedQosFlowList});
+
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, associatedQosFlowList, {},
+                                                                               Sft::Li::QosFlowInfo::OnlyQfi));
+
+    if (numFailedFlows > 0)
+    {
+        banner("SMF initiate delete flows for failed QoS flows");
+        auto                definitionsGbr = std::vector(definitions.begin() + numSuccessfulFlows, definitions.end());
+        auto                bearerQosesGbr = std::vector(bearerQoses.begin() + numSuccessfulFlows, bearerQoses.end());
+        const ProcedureData optionalDataGbr{definitionsGbr, bearerQosesGbr, task};
+
+        N11::Message& n11Message = buildN11Message(qosFlowFailedToSetupList);
+
+        amf_.receive(session_, n11Message);
+        amf_.send(session_,
+                    amf_.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+                                                    TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+        Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+                                                    {session_, qosFlowFailedToSetupList});
+        
+        
+        verifyLiT3(task);
+        const auto deleteQosRules =
+            Sft::Util::createQosRuleDefinitions(optionalData, qosFlowFailedToSetupList,
+                                                TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventDeleteQosFlow(session_, qosFlowFailedToSetupList,
+                                                                                    deleteQosRules));
+    }
+
+    SftCore::Logger::banner("Pdu Session Release");
+    Procedures::release5gSession.runActionsBefore("Df2ReceivePduSessionReleaseEventNoUeLoc");
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+//*=============================================================================
+// test case: TC81662_N2HandoverCancelOnPreparedHoState
+//
+//#Description#
+//     Verify that N2 Handover is cancelled in prepared hoState
+//     and SMF sends an PDU Session Modification Handover Cancelled with qosflows.
+//
+//#Feature#
+//    PCPB-20230
+//
+//#Requirement#
+//    REQ21354
+//=============================================================================*
+TEST_F(LawfulInterceptionEtsiMultipleQosFlowFailure, TC81662_N2HandoverCancelOnPreparedHoState)
+{
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+    SftCore::Logger::banner("PDU Session establishment");
+    Procedures::establish5gSession({task});
+
+    banner("Create Qos Flows");
+    constexpr auto numFlows = 9;
+    createQosFlows(numFlows);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+
+    banner("Start N2 HO DirectDataForwarding");
+    Procedures::n2HandoverDirectDataForwardingWithMultipleQos.runActionsBefore("AmfSendUpdateSmContextRequestHandoverComplete", optionalData, {session_, dedicatedQosBearers});
+
+    banner("Cancel Request");
+    auto& amfSmContextUpdateRequest = amf_.updateSmContextRequest(session_);
+    amfSmContextUpdateRequest.getJsonBuilder().setHoState(TestSupport::Types::HoState::Cancelled).build();
+
+    amf_.send(session_, amfSmContextUpdateRequest);
+    amf_.receive(session_, amf_.updateSmContextResponse_HandoverCancel(session_, TestSupport::StatusCode::Ok));
+
+    // Need the non const defaultBearer
+    auto& defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+
+    std::vector<Bearer*> movedBearers({&defaultBearer});
+    movedBearers.insert(movedBearers.end(), dedicatedQosBearers.begin(), dedicatedQosBearers.end());
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventN2HandoverWithQosFlows(
+        session_, movedBearers, LiEtsiTest::X2::HandoverState::Cancelled));
+
+    Procedures::release5gSession();
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+
+//=============================================================================*
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureServiceRequest,
+TC81665_MobilityRegistrationUpdateWithAmfChangeWithUpCnxstatusallDefaultQosFlowsareunsuccessful)
+{
+
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+    constexpr auto numFlows = 9;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numFlows));
+    optionalData =
+        ProcedureData{definitions, bearerQoses, Li::SessionTasks::Task6, EventTrigger::ServingCnNodeLocationChange};
+
+    dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    banner("AN Release");
+    Procedures::anRelease(optionalData, {session_, dedicatedQosBearers});
+
+    banner("Dedicated Qos Flows Mobility Registration Update with AMF change");
+    Sft::Amf newAmf(TestSupport::Types::IpAddressFamily::Ipv6);
+    newAmf.setUp();
+    session_.amf_.amfAddress_ = newAmf.getEndpoint().ipAddress_;
+    session_.amf_.servingNfId = TestSupport::Types::Uuid("0f6c7c06-88a3-11e8-9761-00163e007eff");
+    session_.amf_.amfId_      = "Aff678";
+    session_.ue_.mccMnc_      = TestSupport::Types::MccMnc("311013");
+
+    newAmf.send(session_,
+                newAmf.updateSmContextRequest_TauAmfChange(session_, TestSupport::Types::UpCnxState::Activating));
+    newAmf.receive(session_,
+                   newAmf.updateSmContextResponse_ContextStateActivating(session_, TestSupport::StatusCode::Ok));
+
+    auto& updateSmContextRequest = newAmf.updateSmContextRequest_ResourceSetupResponseTransferWithFailedQosFlow(
+        session_, dedicatedQosBearers, {&session_.getDefaultBearer()});
+    newAmf.send(session_, updateSmContextRequest);
+    auto& response = newAmf.updateSmContextResponse(session_, TestSupport::StatusCode::Ok);
+    response.getJsonBuilder().setUpCnxState(TestSupport::Types::UpCnxState::Deactivated).build();
+    
+    banner("Session Release with New AMF");
+    Procedures::release5gSession({}, {session_}, {piafGsc_, newAmf, pcf_, upf_, udm_});
+  
+
+    //Procedures::release5gSessionNetworkTriggered({}, {session_}, {piafGsc_, newAmf, upf_, pcf_, udm_});
+       
+  
+
+    //// // =======================
+    //// // === Session Release ===
+    //// // =======================
+    //Procedures::release5gSession({}, {session_}, {piafGsc_, newAmf, upf_, pcf_, udm_});
+    //etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+
+}
+
+
+
+
+TEST_F(LawfulInterceptionEtsiMultipleQosFlowFailure,
+       TC81667_MobilityRegistrationUpdateWithAmfChangeDedicatedQosFails)
+{
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+    SftCore::Logger::banner("PDU Session establishment");
+    Procedures::establish5gSession({task});
+
+    banner("Create Qos Flows");
+    constexpr auto numFlows = 9;
+    createQosFlows(numFlows);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+
+    banner("AN Release");
+    Procedures::anRelease(optionalData, {session_, dedicatedQosBearers});
+
+    banner("Dedicated Qos Flows Mobility Registration Update with AMF change");
+    Sft::Amf newAmf(TestSupport::Types::IpAddressFamily::Ipv6);
+    newAmf.setUp();
+    session_.amf_.amfAddress_ = newAmf.getEndpoint().ipAddress_;
+    session_.amf_.servingNfId = TestSupport::Types::Uuid("0f6c7c06-88a3-11e8-9761-00163e007eff");
+    session_.amf_.amfId_      = "Aff678";
+    session_.ue_.mccMnc_      = TestSupport::Types::MccMnc("311013");
+
+    Procedures::ueTriggeredserviceRequestWithAmfChange(optionalData, {session_, dedicatedQosBearers},
+                                                       {piafGsc_, nrfd_, newAmf, upf_, pcf_});
+
+    auto&                defaultBearer = session_.getBearerByBearerId(session_.getDefaultBearer().bearerId_);
+    std::vector<Bearer*> movedBearers({&defaultBearer});
+    movedBearers.insert(movedBearers.end(), dedicatedQosBearers.begin(), dedicatedQosBearers.end());
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, movedBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::OnlyQfi));
+
+    banner("UE triggered Service Request with multiple QoS flows");
+    Procedures::ueTriggeredServiceRequest.runActionsBefore(
+        "AmfSendUpdateSmContextRequest_ResourceSetupResponseTransfer2", optionalData, {session_, dedicatedQosBearers},
+        {piafGsc_, newAmf, upf_});
+
+    newAmf.send(newAmf.updateSmContextRequest_ResourceSetupResponseTransferWithFailedQosFlow(
+        session_, dedicatedQosBearers, {&session_.getDefaultBearer()}));
+
+    
+
+
+        auto& response = newAmf.updateSmContextResponse(session_, TestSupport::StatusCode::Ok);
+            response.getJsonBuilder().setUpCnxState(TestSupport::Types::UpCnxState::Deactivated).build();
+
+    newAmf.receive(session_, response);
+
+    
+        etsiDf2_.receive(etsiDf2_.unsuccessfulSmfProcedureEvent_InitialReq(
+        session_, LiEtsiTest::X2::FailedProcedureType::PDU_SESSION_ESTABLISHMENT,
+        N1::Ie::SmCause::RequestRejectedUnspecified));
+
+        // std::stringstream ss;
+        // ss << std::hex << newAmf.amfRegionId_;
+        // ss >> std::hex >> newAmf.amfId->amfRegionId;
+
+
+
+
+
+ Procedures::release5gSessionNetworkTriggered({}, {session_}, {piafGsc_, newAmf, upf_, pcf_, udm_});
+
+    SftCore::Logger::banner("Pdu Session Release");
+   // Procedures::release5gSession({}, {session_}, {piafGsc_, newAmf, upf_, pcf_, udm_});
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+
+
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureN2HandoverDedicatedQoSFlowsFailure, TC81637_XnHandover)
+{
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+    const auto [numSuccessfulFlows, numFailedFlows] = GetParam();
+    const auto numChargingRules                     = numSuccessfulFlows + numFailedFlows;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numChargingRules));
+    const ProcedureData optionalData{definitions, bearerQoses, task};
+    const auto&         dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    // Setup which flows that should be successful or failed.
+    std::vector<Bearer*> associatedQosFlowList    = {};
+    std::vector<Bearer*> qosFlowFailedToSetupList = {};
+
+    associatedQosFlowList.push_back(&session_.getDefaultBearer());
+
+    std::copy(dedicatedQosBearers.begin(), dedicatedQosBearers.begin() + numSuccessfulFlows,
+              std::back_inserter(associatedQosFlowList));
+    std::copy(dedicatedQosBearers.begin() + numSuccessfulFlows, dedicatedQosBearers.end(),
+              std::back_inserter(qosFlowFailedToSetupList));
+
+    ASSERT_GE(associatedQosFlowList.size(), 1);  // Mandatory IE and must have at least one bearer.
+
+    Procedures::xnHandover.runActionsBefore("upfReceiveSessionModificationRequestXnHandover",optionalData, {session_, associatedQosFlowList});
+    
+    upf_.receive(session_,
+                 upf_.sessionModificationRequest(session_).setVerificationLevel(VerificationLevel::OnlySpecified));
+    
+    Procedures::xnHandover.runActionsAfter("upfReceiveSessionModificationRequestXnHandover",optionalData, {session_, associatedQosFlowList});
+
+
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, associatedQosFlowList, {},
+                                                                               Sft::Li::QosFlowInfo::OnlyQfi));
+
+    if (numFailedFlows > 0)
+    {
+        banner("SMF initiate delete flows for failed QoS flows");
+        auto                definitionsGbr = std::vector(definitions.begin() + numSuccessfulFlows, definitions.end());
+        auto                bearerQosesGbr = std::vector(bearerQoses.begin() + numSuccessfulFlows, bearerQoses.end());
+        const ProcedureData optionalDataGbr{definitionsGbr, bearerQosesGbr, task};
+
+        N11::Message& n11Message = buildN11Message(qosFlowFailedToSetupList);
+
+        amf_.receive(session_, n11Message);
+        amf_.send(session_,
+                    amf_.n1n2MessageTransferResponse(session_, TestSupport::StatusCode::Ok,
+                                                    TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+        Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+                                                    {session_, qosFlowFailedToSetupList});
+        
+        
+        verifyLiT3(task);
+        const auto deleteQosRules =
+            Sft::Util::createQosRuleDefinitions(optionalData, qosFlowFailedToSetupList,
+                                                TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+        etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventDeleteQosFlow(session_, qosFlowFailedToSetupList,
+                                                                                    deleteQosRules));
+    }
+
+    SftCore::Logger::banner("Pdu Session Release");
+    Procedures::release5gSession.runActionsBefore("Df2ReceivePduSessionReleaseEventNoUeLoc");
+    etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}
+
+
+
+    session_.amf_.amfSetId_     = "3d9";
+    session_.amf_.amfPointerId_ = 57;
+
+
+
+class LawfulInterceptionEtsiMultipleQosFlowFailureXnhandover : public LawfulInterceptionEtsiMultipleQosFlowFailure,
+                                                               public ::testing::WithParamInterface<std::pair<int, int>>
+{
+};
+
+INSTANTIATE_TEST_SUITE_P(, LawfulInterceptionEtsiMultipleQosFlowFailureXnhandover,
+                         ::testing::Values(std::pair{0, 9}, std::pair{4, 4}, std::pair{9, 0}));
+
+
+TEST_P(LawfulInterceptionEtsiMultipleQosFlowFailureXnhandover, TC81749_XnHandoverFailedDedicatedQosFlows1)
+{
+    //session_.isEpsIwki_ = TestSupport::Types::EpsInterworkingInd::WithN26;
+    // ========================
+    // === Task added to DB ===
+    // ========================
+    const auto task = Li::SessionTasks::Task6;
+    addTaskToRedis(task);
+
+    SftCore::Logger::banner("Pdu Session establishment");
+    Procedures::establish5gSession({task});
+
+    // Create the non-GBR dedicated flow
+
+    const auto numChargingRules = 9;
+    const auto [definitions, bearerQoses] =
+        Sft::Util::createDefinitionsAndQoses(Sft::Util::createNonGbrChargingRules(numChargingRules));
+    const ProcedureData optionalData{definitions, bearerQoses, task};
+    const auto&         dedicatedQosBearers = Sft::Util::createQosFlowBearers(optionalData);
+
+    banner("createQosFlows");
+    Procedures::createQosFlows(optionalData, {session_, dedicatedQosBearers});
+    const auto qosRules = Sft::Util::createQosRuleDefinitions(
+        optionalData, dedicatedQosBearers, TestSupport::Types::QosRuleRuleOperationCode::CreateNewQosRule);
+    etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, dedicatedQosBearers, qosRules,
+                                                                               Sft::Li::QosFlowInfo::FullInfo));
+    lit3_.dontReceive();
+
+    // Setup which flows that should be successful or failed.
+    std::vector<Bearer*> associatedQosFlowList    = {};
+    std::vector<Bearer*> qosFlowFailedToSetupList = {};
+
+    associatedQosFlowList.push_back(&session_.getDefaultBearer());
+
+    ASSERT_GE(associatedQosFlowList.size(), 1);  // Mandatory IE and must have at least one bearer.
+    std::cout << "esimnaa 2\n";
+    Procedures::xnHandover.runActionsBefore("pcfReceivePolicyUpdateRequest_TriggerReport", optionalData,
+                                            {session_, dedicatedQosBearers});
+
+    // Procedures::ismfXnHandoverMultipleQosWithIupfChange.runActionsBefore("UpfReceiveSessionEstablishmentRequestNewIupfWithMultipleQos", optionalData,
+    //                                        {session_, dedicatedQosBearers});
+
+
+    auto& response = amf_.updateSmContextResponse_PathSwitchRequestUnsuccessfulTransfer(
+        session_, TestSupport::StatusCode::Forbidden,
+        N2::Cause(N2::RadioNetworkCause::NoRadioResourcesAvailableInTargetCell));
+    amf_.receive(session_, response);
+    session_.tac_ = 1;
+    // Procedures::release5gSessionNetworkTriggered.runActionsBefore("EbmPfcpSessionDeletionEventNetworkTriggeredReleaseSession");
+    // Procedures::release5gSessionNetworkTriggered();
+    //  upf_.receive(session_,
+    //               upf_.sessionModificationRequest(session_).setVerificationLevel(VerificationLevel::OnlySpecified));
+
+    // Procedures::xnHandover.runActionsBetween("upfReceiveSessionModificationRequestXnHandover",
+    //                                          "EtsiDf2ReceivePduSessionModificationEventRequest", optionalData,
+    //                                          {session_, associatedQosFlowList});
+
+
+    // etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithQosFlows(session_, associatedQosFlowList, {},
+    //                                                                            Sft::Li::QosFlowInfo::OnlyQfi));
+
+    // if (numFailedFlows > 0)
+    // {
+    //     banner("SMF initiate delete flows for failed QoS flows");
+    //     auto                definitionsGbr = std::vector(definitions.begin() + numSuccessfulFlows,
+    //     definitions.end()); auto                bearerQosesGbr = std::vector(bearerQoses.begin() +
+    //     numSuccessfulFlows, bearerQoses.end()); const ProcedureData optionalDataGbr{definitionsGbr, bearerQosesGbr,
+    //     task};
+
+    //     N11::Message& n11Message = buildN11Message(qosFlowFailedToSetupList);
+
+    //     amf_.receive(session_, n11Message);
+    //     amf_.send(session_, amf_.n1n2MessageTransferResponse(
+    //                             session_, TestSupport::StatusCode::Ok,
+    //                             TestSupport::Types::N1N2MessageTransferCause::N1N2TransferInitiated));
+    //     Procedures::smfDeleteQosFlows.runActionsAfter("AmfSendN1n2MessageTransferResponse", optionalDataGbr,
+    //                                                   {session_, qosFlowFailedToSetupList});
+
+
+    //     verifyLiT3(task);
+    //     const auto deleteQosRules =
+    //         Sft::Util::createQosRuleDefinitions(optionalData, qosFlowFailedToSetupList,
+    //                                             TestSupport::Types::QosRuleRuleOperationCode::DeleteExistingQosRule);
+    //     etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventDeleteQosFlow(session_,
+    //     qosFlowFailedToSetupList,
+    //                                                                                 deleteQosRules));
+    // }
+
+    // SftCore::Logger::banner("Pdu Session Release");
+    // Procedures::release5gSession.runActionsBefore("Df2ReceivePduSessionReleaseEventNoUeLoc");
+    // etsiDf2_.receive(etsiDf2_.pduSessionReleaseInterceptEvent(session_));
+}

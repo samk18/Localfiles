@@ -1,0 +1,1389 @@
+./application/EventNotificationHandler/EventNotificationHandler/EventNotificationHandlerConfiguration/src/ConfigurationManager.cpp
+./application/LawfulInterception/LiSrc/LiCommand/src/LiCommandBuilder.cpp
+./application/LawfulInterception/LiSrc/LiConfiguration/src/LiConfig.cpp
+./application/LawfulInterception/LiSrc/LiMessages/src/ConfigureInd.cpp
+./application/LawfulInterception/LiSrc/LiRedisAdapter/src/DataConverter.cpp
+./application/LawfulInterception/LiSrc/LiRedisAdapter/src/TargetDbConsumer.cpp
+./application/LawfulInterception/LiSrc/LiRedisAdapter/src/TargetDbOam.cpp
+./application/LawfulInterception/LiSrc/LiRedisInfoCollector/src/RedisInfoCollector.cpp
+./application/LawfulInterception/LiSrc/LiTargetIdEncryption/src/TargetIdEncryptionAdmin.cpp
+./application/PgwControlPlane/li/src/Data/auxiliary.cc
+./application/PgwControlPlane/li/src/PgwSetcAdapterTx.cpp
+./application/PgwControlPlane/li/src/li.cc
+./application/PgwControlPlane/li/src/Oam/li_conf.cc
+./application/PgwControlPlane/li/src/Oam/StatusXmlBuilder.cc
+./application/PgwControlPlane/li/src/Oam/Config.cc
+./application/PgwControlPlane/li/src/X1/Server.cppf
+./application/PgwControlPlane/li/src/X1Proxy/ProxyServer.cpp
+./application/PgwControlPlane/li/src/X1Proxy/ProxySession.cpp
+./application/PgwControlPlane/li/src/X2/SessionAdapter.cc
+./application/PgwControlPlane/li/src/li_license.cc
+./application/PgwControlPlane/li/src/LiService.cpp
+./application/PgwControlPlane/li/src/LiCommandSend.cpp
+./application/PgwControlPlane/li/src/LiConfigMonitor.cpp
+./application/PgwControlPlane/li/src/etsi_li_init.cc
+./application/PgwControlPlane/li/src/li_sgw_conn.cc
+./application/PgwControlPlane/li/src/TargetDbLiConfigHelper.cpp
+./application/PgwControlPlane/li/src/li_init.cc
+./application/PgwControlPlane/li/src/li_x1.cc
+./application/PgwControlPlane/oamv2/src/node_xml.cc
+./application/PgwControlPlane/oamv2/src/oam_cfg_api.cc
+./application/PgwControlPlane/oamv2/src/pgw_xml.cc
+./application/UserReportManagement/SessionTracing/LiFacade/LiFacadeImpl/src/Sgw/SgwTargetDbOam/SgwTargetDbOamAdapter.cpp
+./application/UserReportManagement/SessionTracing/SessionEventTracer/SessionEventTracerControlCBinder/src/SetcApp.cpp
+./application/UserReportManagement/SessionTracing/SessionEventTracer/SessionEventTracerControlCBinder/src/SetcAgentFacade.cpp
+
+
+TC37554.8.1.4
+TEST_F(X2MultiplexerSuite, RefactoredMainFlow) // NOLINT(cppcoreguidelines-special-member-functions)
+{
+    X2MultiplexerTxStub x2MultiplexerTxStub;
+    X2If::IX2SessionTx* setTx_tx_default = nullptr;
+    X2SessionRxStub*    x2SessionDefault = nullptr;
+    X2SessionRxStub*    x2Session2       = nullptr;
+
+    LiConfig            liConfig;
+    liConfig.setNegotiatedX2Version(Li::XProtocolVersion { 1, 1 });
+    liConfig.setUliInIriEnabled(false);
+
+    Li::Sky            Ninja;
+    Ninja.setNegotiatedX2Version(Li::XProtocolVersion { 1, 1 });
+    Ninja.setUliInIriEnabled(false);
+
+    // These are the end-points matching the Events that we will transfer through the multiplexer
+    const Df2EpXver defaultRemoteEndpoint { Network::IpSocketEndpoint { "192.168.1.1:8080" }, Li::XProtocolVersion { 1, 1 } };
+    const Df2EpXver remoteEndpoint2 { Network::IpSocketEndpoint("192.168.1.2:8080"), Li::XProtocolVersion { 1, 2 } };
+
+    Ninja.setX2RemoteEndpoint(defaultRemoteEndpoint.getDf2EndPoint()); // This is the default
+    const Network::IpAddress localX2AddressIpv4 { "127.0.0.3" };
+    Ninja.addBoardIpAddressPair(Ninja.getMyBoardIndex(), Network::IpAddressPair(localX2AddressIpv4.toString()));
+    Ninja.setX2LocalAddressIpv4(localX2AddressIpv4);
+
+    //const LiCommand       liCommand = LiCommandBuilder::createConnectX2SessionCommand(Ninja);
+    const LiCommand       liCommand = LiCommandBuilder::createConnectX2SessionCommand(Ninja);
+    X2StackFactoryStub    x2StackFactoryStub;
+
+    X2If::X2Multiplexer   x2Multiplexer { x2MultiplexerTxStub, x2StackFactoryStub };
+
+    X2If::ConnectionState connectionState;
+
+    std::cout << "*** Connecting default session and verifying that it is active" << std::endl;
+    {
+        x2Multiplexer.handleLiCommand(liCommand);
+        x2SessionDefault = x2StackFactoryStub.getX2Session(defaultRemoteEndpoint.getDf2EndPoint());
+
+        EXPECT_TRUE(x2SessionDefault->waitForSetTx());
+        setTx_tx_default = x2SessionDefault->setTx_tx_;
+        setTx_tx_default->onActive(connectionState); // Verify that Tx calls are  passed on to the Mux Tx I/F
+        EXPECT_TRUE(x2MultiplexerTxStub.waitForActive());
+
+        // Verify that Multiplexer sends these on to the rxStub;
+        auto connectionStateVector = x2Multiplexer.getConnectionStateVector();
+        EXPECT_EQ(1, connectionStateVector.size()); // Only the default  should be set up.
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getOperationalState());
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getTcpOperationalState());
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getTlsOperationalState());
+        EXPECT_FALSE(x2SessionDefault->getX2InternalConfig().isUliInIriEnabled());
+    }
+}
+
+
+lass Sky 
+{
+private:
+ void                                         setNegotiatedX2Version(const Li::XProtocolVersion& version);
+ void                                         setUliInIriEnabled(bool enabled);
+
+ Li::XProtocolVersion        negotiatedX2Version_;
+ 
+
+    
+};
+
+
+LiCommand createConnectX2SessionCommandExperiment1(const Sky& liConf)
+{
+    std::unique_ptr<rapidjson::Document> jsonDocument = createNewDocument();
+    if (liConf.getX2RemoteEndpoint().getIpAddress().isValidAndNonZero())
+    {
+        addConnectX2SessionCommand(*jsonDocument, liConf);
+    }
+    else
+    {
+        LOG_LIUTIL(GtlDebug, "ConnectX2Session command was not created, X2RemoteEndpoint = " << liConf.getX2RemoteEndpoint().toString());
+    }
+    return LiCommand { std::move(jsonDocument) };
+}
+
+
+
+
+
+onSetcInd - called from this following path
+epg/application/UserReportManagement/SessionTracing/SessionEventTracer/SessionEventTracerControlAgent/src/Agent.cpp
+
+
+epg/application/UserReportManagement/SessionTracing/SessionEventTracer/SessionEventTracerControlCBinder/include/SessionEventTracerControlCBinder/SetcRxAdapterEvents.gen.h
+
+SetcRxAdapterEvents.gen.h sends lievents to x2Multiplexer through different cpp files
+
+
+
+epg/framework/Support/Reactor/ReactorPkg/src/ReactorEscSm.cpp---- sendevent function
+
+
+
+
+
+
+class Sky //  
+{
+public:
+ void                                         setNegotiatedX2Version(const Li::XProtocolVersion& version)
+ {
+    negotiatedX2Version_ = version;
+}
+;
+ void                                         setUliInIriEnabled(bool enabled){
+    isUliInIriEnabled_ = enabled;
+};
+void setX2RemoteEndpoint(const Network::IpSocketEndpoint& ipSocketEndpoint)
+{
+    x2RemoteEndpoint_= ipSocketEndpoint;
+}
+bool addBoardIpAddressPair(const BoardId& board, const Network::IpAddressPair& ipAddressPair)
+{
+    return itsBoardAddressIndexTable.addBoardIpAddressPair(board, ipAddressPair);
+}
+
+void setX2LocalAddressIpv4(const Network::IpAddress& addr)
+{
+    x2LocalV4Address_ = addr;
+}
+
+BoardId getMyBoardIndex() const
+{
+    return Environment::instance().getBoard();
+}
+
+const Network::IpSocketEndpoint& getX2RemoteEndpoint() const
+{
+    return x2RemoteEndpoint_;
+}
+
+const Li::XProtocolVersion& getNegotiatedX2Version() const
+{
+    return negotiatedX2Version_;	
+}
+
+const Security::PrivateKey& getPrivateKey() const
+{
+    return privateKey_;
+}
+
+const Security::Certificate& getCertificate() const
+{
+    return certificate_;
+}
+uint8_t getX2Dscp() const
+{
+    return x2Dscp_;
+}
+const Network::IpAddress getX2LocalIpAddress() const
+{
+    Network::IpAddress localIpAddress;
+    if (getX2RemoteEndpoint().getIpAddress().hasAddressV4())
+    {
+        localIpAddress = isEtsi_ ? x2LocalV4Address_ : Network::IpAddress(getBoardIpAddressPair(getMyBoardIndex()).getAddressIpv4());
+    }
+    else if (getX2RemoteEndpoint().getIpAddress().hasAddressV6())
+    {
+        localIpAddress = isEtsi_ ? x2LocalV6Address_ : Network::IpAddress(getBoardIpAddressPair(getMyBoardIndex()).getAddressIpv6());
+    }
+    else
+    {
+        return Network::IpAddress();
+    }
+
+    return localIpAddress;
+}
+
+Network::IpAddressPair getBoardIpAddressPair(const BoardId& board) const
+{
+    if (Environment::instance().isElc() && !isX2VpnGwEnabled()) // Get the pod IP
+    {
+        static_cast<void>(board);
+        return Network::IpAddressPair(Environment::instance().getIpAddress().getAddressIpv4());
+    }
+    else // SSR deployment
+    {
+        static const BoardId singleIpBoardIndex(0);
+
+        // return singleIpAddress if it exists, else lookup by board index
+        return itsBoardAddressIndexTable.getBoardIpAddressPair(isX2SingleIp() ? singleIpBoardIndex : board);
+    }
+}
+bool isX2SingleIp() const
+{
+    if (Environment::instance().isElc()) // Get the pod IP
+    {
+        return true;
+    }
+    else
+    {
+        static const BoardId                singleIpBoardIndex(0);
+        static const Network::IpAddressPair zeroIpAddress;
+
+        // Don't use getBoardIpAddressPair in "this" since it checks for single IP (i.e. causes infinite loop).
+        return itsBoardAddressIndexTable.getBoardIpAddressPair(singleIpBoardIndex) != zeroIpAddress;
+    }
+}
+
+bool isX2VpnGwEnabled() const
+{
+    return isX2VpnGwEnabled_;
+}
+
+bool isTlsValid() const
+{
+    return (privateKey_.getRsaLength() > 0) && (certificate_.getX509Length() > 0);
+}
+
+bool isTlsEnabled() const
+{
+    return isTlsEnabled_;
+}
+
+bool isMsInX2EventEnabled() const
+{
+    // Requires X2 version >= 1.6
+    return negotiatedX2Version_ >= Li::XProtocolVersion(1, 6);
+}
+
+bool isUliInIriEnabled() const
+{
+    return isUliInIriEnabled_;
+}
+
+bool isIriBufferingEnabled() const
+{
+    return iriBufferingEnabled_;
+}
+
+bool                                         isEtsiConfig() const { return isEtsi_; }
+bool isX2KeepAliveEnabled() const
+{
+    if (isEtsiConfig())
+    {
+        return true;
+    }
+
+    // Requires X2 version >= 1.5
+    return negotiatedX2Version_ >= Li::XProtocolVersion(1, 5);
+}
+
+uint32_t getX2TimeP1() const
+{
+    return x2TimeP1_;
+}
+
+uint32_t getX2TimeP2() const
+{
+    return x2TimeP2_;
+}
+
+const std::string& getNodeName() const
+{
+    return nodeName_;
+}
+
+const Security::CertificateList& getTrustedCategories() const
+{
+    return trustedCategories_;
+}
+
+bool isLiStatusEnabled() const
+{
+    return liStatusEnabled_;
+}
+
+Li::LicenseMode getLicense() const
+{
+    return liLicenseMode_;
+}
+
+const BoardAddressIndexTable& getItsBoardAddressIndexTable() const
+{
+    return itsBoardAddressIndexTable;
+}
+
+const Network::RoutingInstance& getX2RoutingInstance() const
+{
+    return x2RoutingInstance_;
+}
+const std::string& getX2RoutingInstanceName() const
+{
+    return x2RoutingInstanceName_;
+}
+
+private:
+ Li::XProtocolVersion        negotiatedX2Version_;
+ bool                        isUliInIriEnabled_;
+ BoardAddressIndexTable      itsBoardAddressIndexTable;
+ Network::IpAddress          x2LocalV4Address_;
+ Network::IpSocketEndpoint   x3RemoteEndpoint_;
+ Network::IpSocketEndpoint   x2RemoteEndpoint_;
+ Network::IpAddress          x2LocalV6Address_;
+ Security::PrivateKey        privateKey_;
+ bool                        isTlsEnabled_; 
+ Security::Certificate       certificate_;
+ bool                        isEtsi_;
+ bool                        isX2VpnGwEnabled_;
+ bool                        iriBufferingEnabled_;
+ uint32_t                    x2TimeP1_;
+ uint32_t                    x2TimeP2_;
+ std::string                 nodeName_;
+ Security::CertificateList   trustedCategories_;
+ bool                        liStatusEnabled_;
+ Li::LicenseMode             liLicenseMode_;
+ Network::RoutingInstance    x2RoutingInstance_;
+ std::string                 x2RoutingInstanceName_;
+ uint8_t                     x2Dscp_;
+};
+
+
+
+void addConnectX2SessionCommand(rapidjson::Document& jsonDocument, const Sky& liConf)
+{
+    rapidjson::Value&                   commandVal = addJsonCommand(LiCommandType::ConnectX2Session, jsonDocument);
+    rapidjson::Document::AllocatorType& alloc      = jsonDocument.GetAllocator();
+    ByteBuffer                          buf;
+
+    addParameter(commandVal, LiCommandParamType::NegotiatedX2Version, liConf.getNegotiatedX2Version().toString(), alloc);
+    addParameter(commandVal, LiCommandParamType::PrivateKey, liConf.getPrivateKey(), alloc, buf);
+    addParameter(commandVal, LiCommandParamType::Certificate, liConf.getCertificate(), alloc, buf);
+    addParameter(commandVal, LiCommandParamType::X2LocalIpAddress, liConf.getX2LocalIpAddress().toString(), alloc);
+    if (liConf.getX2RoutingInstance().getRtid() > 0)
+    {
+        addParameter(commandVal, LiCommandParamType::X2RoutingInstance, liConf.getX2RoutingInstance().getRtid(), alloc);
+    }
+    addParameter(commandVal, LiCommandParamType::X2RoutingInstanceName, liConf.getX2RoutingInstanceName(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2RemoteEndpoint, liConf.getX2RemoteEndpoint().toString(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2Dscp, liConf.getX2Dscp(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2VpnGwEnabled, liConf.isX2VpnGwEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::TlsValid, liConf.isTlsValid(), alloc);
+    addParameter(commandVal, LiCommandParamType::TlsEnabled, liConf.isTlsEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::MsInX2EventEnabled, liConf.isMsInX2EventEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::UliInIriEnabled, liConf.isUliInIriEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::IriBufferingEnabled, liConf.isIriBufferingEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2KeepAliveEnabled, liConf.isX2KeepAliveEnabled(), alloc);
+
+    addParameter(commandVal, LiCommandParamType::X2TimeP1, liConf.getX2TimeP1(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2TimeP2, liConf.getX2TimeP2(), alloc);
+
+    addParameter(commandVal, LiCommandParamType::NodeName, liConf.getNodeName(), alloc);
+    addParameter(commandVal, LiCommandParamType::TrustedCategories, liConf.getTrustedCategories(), alloc, buf);
+    addParameter(commandVal, LiCommandParamType::LiStatusEnabled, liConf.isLiStatusEnabled(), alloc);
+    addParameter(commandVal, LiCommandParamType::LiLicenseMode, toIntegral(liConf.getLicense()), alloc);
+    addParameter(commandVal, LiCommandParamType::LicenseOff, Li::LicenseMode::Off == liConf.getLicense(), alloc);
+    addBoardAddressIndexTableParameter(commandVal, LiCommandParamType::BoardAddressTable, liConf.getItsBoardAddressIndexTable(), alloc);
+}
+
+
+LiCommand createConnectX2SessionCommandwithoutLiConfig(const Sky& noliConf)
+{
+    std::unique_ptr<rapidjson::Document> jsonDocument = createNewDocument();
+    if (noliConf.getX2RemoteEndpoint().getIpAddress().isValidAndNonZero())
+    {
+        addConnectX2SessionCommand(*jsonDocument, noliConf);
+    }
+    else
+    {
+        LOG_LIUTIL(GtlDebug, "ConnectX2Session command was not created, X2RemoteEndpoint = " << noliConf.getX2RemoteEndpoint().toString());
+    }
+    return LiCommand { std::move(jsonDocument) };
+}
+
+
+TEST_F(X2MultiplexerSuite, RefactoredMainFlowwithoutLiconfigNinja) // NOLINT(cppcoreguidelines-special-member-functions)
+{
+    X2MultiplexerTxStub x2MultiplexerTxStub;
+    X2If::IX2SessionTx* setTx_tx_default = nullptr;
+    X2SessionRxStub*    x2SessionDefault = nullptr;
+    //X2SessionRxStub*    x2Session2       = nullptr;
+
+    LiConfig            liConfig;
+    liConfig.setNegotiatedX2Version(Li::XProtocolVersion { 1, 1 });
+    liConfig.setUliInIriEnabled(false);
+
+
+    LiCommandBuilder::Sky            Ninja;
+    Ninja.setNegotiatedX2Version(Li::XProtocolVersion { 1, 1 });
+    Ninja.setUliInIriEnabled(false);
+
+    // These are the end-points matching the Events that we will transfer through the multiplexer
+    const Df2EpXver defaultRemoteEndpoint { Network::IpSocketEndpoint { "192.168.1.1:8080" }, Li::XProtocolVersion { 1, 1 } };
+    const Df2EpXver remoteEndpoint2 { Network::IpSocketEndpoint("192.168.1.2:8080"), Li::XProtocolVersion { 1, 2 } };
+
+    Ninja.setX2RemoteEndpoint(defaultRemoteEndpoint.getDf2EndPoint()); // This is the default
+    const Network::IpAddress localX2AddressIpv4 { "127.0.0.3" };
+    Ninja.addBoardIpAddressPair(Ninja.getMyBoardIndex(), Network::IpAddressPair(localX2AddressIpv4.toString()));
+    Ninja.setX2LocalAddressIpv4(localX2AddressIpv4);
+
+    std::cout<<" Passed till now";
+
+   const LiCommand       liCommand = LiCommandBuilder::createConnectX2SessionCommandwithoutLiConfig(Ninja);
+
+   X2StackFactoryStub    x2StackFactoryStub;
+
+    X2If::X2Multiplexer   x2Multiplexer { x2MultiplexerTxStub, x2StackFactoryStub };
+
+    X2If::ConnectionState connectionState;
+
+    std::cout << "*** Connecting default session and verifying that it is active" << std::endl;
+    {
+        x2Multiplexer.handleLiCommand(liCommand);
+        x2SessionDefault = x2StackFactoryStub.getX2Session(defaultRemoteEndpoint.getDf2EndPoint());
+
+        EXPECT_TRUE(x2SessionDefault->waitForSetTx());
+        setTx_tx_default = x2SessionDefault->setTx_tx_;
+        setTx_tx_default->onActive(connectionState); // Verify that Tx calls are  passed on to the Mux Tx I/F
+        EXPECT_TRUE(x2MultiplexerTxStub.waitForActive());
+
+        // Verify that Multiplexer sends these on to the rxStub;
+        auto connectionStateVector = x2Multiplexer.getConnectionStateVector();
+        EXPECT_EQ(1, connectionStateVector.size()); // Only the default  should be set up.
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getOperationalState());
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getTcpOperationalState());
+        EXPECT_EQ(OperationalState::OPERATIONAL_STATE_UP, connectionStateVector[0].getTlsOperationalState());
+        EXPECT_FALSE(x2SessionDefault->getX2InternalConfig().isUliInIriEnabled());
+    }
+} 
+
+
+
+
+bool isX2SingleIp(const BoardAddressIndexTable& itsBoardAddressIndexTable)
+{
+    if (Environment::instance().isElc()) // Get the pod IP
+    {
+        return true;
+    }
+    else
+    {
+        BoardAddressIndexTable itsBoardAddressIndexTable;
+        static const BoardId                singleIpBoardIndex(0);
+        static const Network::IpAddressPair zeroIpAddress;
+
+        // Don't use getBoardIpAddressPair in "this" since it checks for single IP (i.e. causes infinite loop).
+        return itsBoardAddressIndexTable.getBoardIpAddressPair(singleIpBoardIndex) != zeroIpAddress;
+    }
+}
+Network::IpAddressPair getBoardIpAddressPair(const BoardId& board, bool x2VpnGwEnabled, const BoardAddressIndexTable& itsBoardAddressIndexTable) 
+{
+    if (Environment::instance().isElc() && !x2VpnGwEnabled) // Get the pod IP
+    {
+        static_cast<void>(board);
+        return Network::IpAddressPair(Environment::instance().getIpAddress().getAddressIpv4());
+    }
+    else // SSR deployment
+    {
+        static const BoardId singleIpBoardIndex(0);
+
+        // return singleIpAddress if it exists, else lookup by board index
+        return itsBoardAddressIndexTable.getBoardIpAddressPair(isX2SingleIp(itsBoardAddressIndexTable) ? singleIpBoardIndex : board);
+    }
+}
+
+/*Network::IpAddress getX2LocalIpAddress(Network::IpSocketEndpoint x2RemoteEndpoint, bool etsiConfig, Network::IpAddress x2LocalV4Address, Network::IpAddress x2LocalV6Address, bool x2VpnGwEnabled)
+{
+    Network::IpAddress localIpAddress;
+    BoardId            boardIndex = Environment::instance().getBoard();
+    if (x2RemoteEndpoint.getIpAddress().hasAddressV4())
+    {
+        localIpAddress = etsiConfig ? x2LocalV4Address : Network::IpAddress(getBoardIpAddressPair(boardIndex, x2VpnGwEnabled).getAddressIpv4());
+    }
+    else if (x2RemoteEndpoint.getIpAddress().hasAddressV6())
+    {
+        localIpAddress = etsiConfig ? x2LocalV6Address : Network::IpAddress(getBoardIpAddressPair(boardIndex, x2VpnGwEnabled).getAddressIpv6());
+    }
+    else
+    {
+        return Network::IpAddress();
+    }
+
+    return localIpAddress;
+}*/
+
+
+
+/*
+void addConnectX2SessionCommand(rapidjson::Document& jsonDocument, const LiCommandBuilder::ConnectX2Params& infoWithOutLiConfig)
+{
+    rapidjson::Value&                   commandVal = addJsonCommand(LiCommandType::ConnectX2Session, jsonDocument);
+    rapidjson::Document::AllocatorType& alloc      = jsonDocument.GetAllocator();
+    ByteBuffer                          buf;
+
+    addParameter(commandVal, LiCommandParamType::NegotiatedX2Version, infoWithOutLiConfig.negotiatedX2Version_.toString(), alloc);
+    addParameter(commandVal, LiCommandParamType::PrivateKey, infoWithOutLiConfig.privateKey_, alloc, buf);
+    addParameter(commandVal, LiCommandParamType::Certificate, infoWithOutLiConfig.certificate_, alloc, buf);
+    addParameter(commandVal, LiCommandParamType::X2LocalIpAddress, infoWithOutLiConfig.getX2LocalIpAddress().toString(), alloc);
+    if (infoWithOutLiConfig.x2RoutingInstance_.getRtid() > 0)
+    {
+        addParameter(commandVal, LiCommandParamType::X2RoutingInstance, infoWithOutLiConfig.x2RoutingInstance_.getRtid(), alloc);
+    }
+    addParameter(commandVal, LiCommandParamType::X2RoutingInstanceName, infoWithOutLiConfig.x2RoutingInstanceName_, alloc);
+    addParameter(commandVal, LiCommandParamType::X2RemoteEndpoint, infoWithOutLiConfig.x2RemoteEndpoint_.toString(), alloc);
+    addParameter(commandVal, LiCommandParamType::X2Dscp, infoWithOutLiConfig.x2Dscp_, alloc);
+    addParameter(commandVal, LiCommandParamType::X2VpnGwEnabled, infoWithOutLiConfig.isX2VpnGwEnabled_, alloc);
+    addParameter(commandVal, LiCommandParamType::TlsValid, (infoWithOutLiConfig.privateKey_.getRsaLength() > 0) && (infoWithOutLiConfig.certificate_.getX509Length() > 0), alloc);
+    addParameter(commandVal, LiCommandParamType::TlsEnabled, infoWithOutLiConfig.isTlsEnabled_, alloc);
+    addParameter(commandVal, LiCommandParamType::MsInX2EventEnabled, (infoWithOutLiConfig.negotiatedX2Version_ >= Li::XProtocolVersion(1, 6)), alloc);
+    addParameter(commandVal, LiCommandParamType::UliInIriEnabled, infoWithOutLiConfig.isUliInIriEnabled_, alloc);
+    addParameter(commandVal, LiCommandParamType::IriBufferingEnabled, infoWithOutLiConfig.iriBufferingEnabled_, alloc);
+    addParameter(commandVal, LiCommandParamType::X2KeepAliveEnabled, ((infoWithOutLiConfig.isEtsi_) ? true : (infoWithOutLiConfig.negotiatedX2Version_ >= Li::XProtocolVersion(1, 5))), alloc);
+
+    addParameter(commandVal, LiCommandParamType::X2TimeP1, infoWithOutLiConfig.x2TimeP1_, alloc);
+    addParameter(commandVal, LiCommandParamType::X2TimeP2, infoWithOutLiConfig.x2TimeP2_, alloc);
+
+    addParameter(commandVal, LiCommandParamType::NodeName, infoWithOutLiConfig.nodeName_, alloc);
+    addParameter(commandVal, LiCommandParamType::TrustedCategories, infoWithOutLiConfig.trustedCategories_, alloc, buf);
+    addParameter(commandVal, LiCommandParamType::LiStatusEnabled, infoWithOutLiConfig.liStatusEnabled_, alloc);
+    addParameter(commandVal, LiCommandParamType::LiLicenseMode, toIntegral(infoWithOutLiConfig.liLicenseMode_), alloc);
+    addParameter(commandVal, LiCommandParamType::LicenseOff, Li::LicenseMode::Off == infoWithOutLiConfig.liLicenseMode_, alloc);
+    addBoardAddressIndexTableParameter(commandVal, LiCommandParamType::BoardAddressTable, infoWithOutLiConfig.itsBoardAddressIndexTable, alloc);
+}
+*/
+
+
+
+/*LiCommand createConnectX2SessionCommand(const LiCommandBuilder::ConnectX2Params& infoWithOutLiConfig)
+{
+    std::unique_ptr<rapidjson::Document> jsonDocument = createNewDocument();
+    if (infoWithOutLiConfig.x2RemoteEndpoint_.getIpAddress().isValidAndNonZero())
+    {
+        addConnectX2SessionCommand(*jsonDocument, infoWithOutLiConfig);
+    }
+    else
+    {
+        LOG_LIUTIL(GtlDebug, "ConnectX2Session command was not created, X2RemoteEndpoint = " << infoWithOutLiConfig.x2RemoteEndpoint_.toString());
+    }
+    return LiCommand { std::move(jsonDocument) };
+}*/
+
+
+
+hellen
+TC37554.8.1.4
+
+
+test analysis
+    TC37542.1.1.1   
+
+
+
+
+TC37554.8.2.4 
+ 
+
+ less /autott/dallas/dallas.mobile
+epgcats/tcdb/TS_general/TS_lts_run_tm_all_stb_1.py
+
+TS_lts_run_tm_all_stb_1.py
+
+TC37542.1.1.2 +: M_li_gwcu_common;
+
+
+
+
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/node_tool_certificate_key_scp";
+TC37542.1.1.1 +: pre_testmethod_cmd += "__epgcats__/tcdb/hooks/li_enable_dtls_on_x3_up --enable_destination_monitoring";
+
+
+/workspace/git/esimnaa/epg_internal/epg/ttcn3/scripts/delivery_check.plI have a another doubt. when gsc board from node 2 sends internalcredrequest to board
+run ttcn binaries
+
+
+--filter-testcases 'TC53480' --run-until 5
+roadrunner -l /lab/epg_ft/users/esimnaa/targetdb --filter-testcases 'TC53480' --run-until 5 --skip-restore
+roadrunner -l /lab/epg_ft/users/esimnaa/targetdb --filter-suites 'Testcases__etsi_li_x1' --run-until 3 --skip-restore
+/workspace/git/esimnaa/epg/ttcn3/scripts/official/compile_ttcn.sh clean
+
+/workspace/git/esimnaa/epg/ttcn3/scripts/official/compile_ttcn.sh build
+
+/workspace/git/esimnaa/epg/ttcn3/scripts/official/copy_ttcn3.sh -create_env_file -dest /lab/epg_ft/users/esimnaa/testpcrfrequest
+/lab/epg_design5_builds/esimnaa/fixbbiffisfplease1
+/lab/epg_ft/users/esimnaa/testiriparameters4
+
+/workspace/git/esimnaa/epg/ttcn3/scripts/delivery_check.pl
+source ttcn3_env.tcsh
+roadrunner -l /lab/epg_ft/users/esimnaa/targetdb --filter-tags 'LI&&ONLY_CEPG&&SMF_SA_EXTENDED' --extra-timeout "240" --rerun-failed --filter-suites 'li_etsi_li_x2_vpngw' --filter-testcases 'TC41527' --node-diagnostics '3 LI' --node-traces 'li' --run-until 100
+ roadrunner -l /lab/epg_ft/users/esimnaa/bbifftr --filter-testcases 'TC47970' --node-diagnostics '3 LI' --node-traces 'li'
+
+roadrunner -l /lab/epg_ft/users/esimnaa/testpcrf --filter-tags 'CUPS_T2_INT&&EXTENDED&&!ONLY_SSRHW' --filter-testcases 'TC32777' --node-diagnostics '3 LI' --node-traces 'li' --run-until 3
+
+epg node lawful 
+f_CLI_OP_LI__clearPeakActiveTargets();
+
+roadrunner -l /lab/epg_ft/users/esimnaa/testpasstrail --filter-testcases 'TC32777' --run-until 2
+
+
+epgcats/tcdb/TID_general/TID_stability.db
+
+
+ow.. now I get it. didn't understand before, my bad.
+
+
+
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_ERROR";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Destination_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_NE_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_No_Report_Task_Issue";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X1_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_Etsi_X1_KeepaliveResponseRecvNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_X2_KeepAliveAckNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerActivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerModificationNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_ETSI_X2_BearerDeactivation";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CreateDestinationResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_GetDestinationDetailsResponseNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationRequestNumbers";
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_RemoveDestinationResponseNumbers";
+
+TC37542.1.1.1 +: checkpoints += "Stab__Log_LI_CheckPayloadX3";
+
+
+I have observed a noticeable increase in CPU usage, approximately 15-20%, for the pgwc-node. Additionally, there seems to be a degradation in the user plane performance.
+
+
+
+    f_CLI_LOG__log_banner( pl_message := "tc_prepare Connect LI-IMS1");
+    var charstring vl_ipTableComment := "defaultFTRules";
+    f_CLI_OP_DELETE__iptableRulesDeleteAllButComment
+    (
+        pl_comment      := vl_ipTableComment,
+        pl_use_ipv6     := false,
+        pl_tables       := {"filter"},
+        pl_ruleChains   := {"INPUT", "OUTPUT"}
+    );
+    f_CLI_OP_DELETE__iptableRulesDeleteAllButComment
+    (
+        pl_comment      := vl_ipTableComment,
+        pl_use_ipv6     := true,
+        pl_tables       := {"filter"},
+        pl_ruleChains   := {"INPUT", "OUTPUT"}
+    );
+
+
+
+
+killall codekillall code
+
+
+killall code
+
+
+
+#!/usr/bin/env python3
+
+'''
+Created on May 20, 2021
+@author: exsxhhn
+This script is responsible for start list before test method and stop list after test method, and activateTask/
+deactivateTask/listalldetails/infoquery/createDestination/removeDestination
+'''
+
+from __future__ import absolute_import
+import configparser
+import sys
+import os
+import logging.handlers
+import logging
+import re
+import argparse
+from multiprocessing import Process
+
+LIST_VERSION = '1.5.17'
+LIST_PATH    = '/lab/epg_st_utils/testtools/lawful_intercept/list/release/'+LIST_VERSION
+LIST_MODULES = LIST_PATH+'/lib/python3.8/site-packages/'
+CONFIGFILE   = LIST_PATH+'/lib/python3.8/site-packages/list/config/list_ETSI4G.cfg'
+sys.path.insert(0, '/lab/gw_test_framework/epglib2/release/5.0.17/lib/python3.8/site-packages/')
+
+
+
+
+/lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230627_144813-esimnaa-epg-master-buildall/epgcats/tcdb/hooks/li_stability_etsi
+
+
+#!/usr/bin/env python2
+from __future__ import absolute_import
+import configparser
+import sys
+import os
+import logging.handlers
+import logging
+import re
+import argparse
+from multiprocessing import Process
+
+#print('##############hello-esimnaa""""""""""')
+LIST_VERSION = '1.5.17'
+LIST_PATH    = '/lab/epg_st_utils/testtools/lawful_intercept/list/release/'+LIST_VERSION
+LIST_MODULES = LIST_PATH+'/lib/python3.8/site-packages/'
+CONFIGFILE   = LIST_PATH+'/lib/python3.8/site-packages/list/config/list.cfg'
+sys.path.insert(0, '/lab/gw_test_framework/epglib2/release/2.11.14/lib/python3.8/site-packages')
+#sys.path.append("/lab/epg_st_utils/testtools/autott/python/python2.7.4/lib/python2.7/site-packages/")
+#sys.path.insert(0, '/lab/gw_test_framework/epglib2/release/2.11.17/lib/python3.5/site-packages')
+#sys.path.insert(0, '/lab/gw_test_framework/epglib2/release/5.0.17/lib/python3.8/site-packages/')
+
+
+
+
+
+
+
+TC37542.1.1.2 +: node2_checkpoints += "Node__Check_inter_UP_frwd_ratio_BS_3_5_stab";
+#TSGenerator
+#TC37542.1.1.2 +: Document==="tcdb/documentation/stability/TC3542.1.1.1.txt";
+#TC37542.1.1.2 +: TC_template==="tcdb/documentation/stability/tctemplate_stability.txt";
+####workaround of GGSN00153785
+TC37542.1.1.2 +: checkpoints -= "Stab__Reached_BH_With_No_Failure_node1_node2";
+TC37542.1.1.2 +: checkpoints += "Stab__Reached_BH_With_No_Failure_GWC_node1";
+TC37542.1.1.2 +: checkpoints += "Stab__Reached_BH_With_No_Failure_UPF_node2";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_No_ERROR";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_No_Report_Destination_Issue";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_No_Report_NE_Issue";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_No_Report_Task_Issue";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_X1_KeepAliveRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_Etsi_X1_KeepaliveResponseRecvNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_X2_KeepAliveRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_X2_KeepAliveAckNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_ETSI_X2_BearerActivation";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_ETSI_X2_BearerModificationNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_ETSI_X2_BearerDeactivation";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_Etsi_CreateDestinationRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_Etsi_CreateDestinationResponseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_Etsi_GetDestinationDetailsRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_Etsi_GetDestinationDetailsResponseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_RemoveDestinationRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab__Log_LI_RemoveDestinationResponseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_ActivateTaskRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_ActivateTaskResonseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_GetTaskDetailsRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_GetTaskDetailsResponseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_DeactivateTasksRequestNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_DeactivateTasksResponseNumbers";
+TC37542.1.1.2 +: checkpoints += "Stab_TC37542_1_1_2_X1_ActiveTargetsNumbers";
+TC37542.1.1.2 +: M_Log_LI_Common_UPs;
+
+
+
+
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Contexts_Pgwc_node1";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__CPU_Usage_Pgwc_node1";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Memory_Usage_Pgwc_node1";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__RPSW_CPU_Usage_node1";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__RPSW_Memory_Usage_node1";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Session_Upf_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__CPU_Usage_Upf_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Memory_Usage_Upf_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Throughput_Upf_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__Packet_Loss_Upf_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__RPSW_CPU_Usage_node2";
+TC37542.1.1.2 +: checkpoints += "TC37542_1_1_1__RPSW_Memory_Usage_node2";
+
+
+
+
+li-7hrs
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28239744
+
+
+
+
+no-li 7hrs
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/28239745
+
+
+
+
+5mins tls
+/lab/epg_st_portal_logs/erosemi_fix_log_spam_28239056_esimnaa
+
+
+
+
+ssh fs@lc-2
+The authenticity of host 'lc-2 (127.3.1.1)' can't be established.
+ECDSA key fingerprint is SHA256:O3Ov/J4H206yo/YDiC81qpuy5FGutIcPLcIqXQhYJrs.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'lc-2' (ECDSA) to the list of known hosts.
+fs@lc-2's password: 
+fs@vsfo-2[]:/home/fs> ps aux | grep "pgwcd"
+fs       14641  0.0  0.0   6620   764 pts/3    S+   14:19   0:00 grep pgwcd
+root     17218  1.1  0.6 1403760 216616 ?      Sl   Jul06  13:41 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 0 -p 9 board2:pgwcd:10:1073872896 ProcessColdStart
+root     17219  1.1  0.6 1403760 216400 ?      Sl   Jul06  14:01 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 1 -p 9 board2:pgwcd:11:1073872897 ProcessColdStart
+root     17220  1.1  0.6 1404020 217692 ?      Sl   Jul06  13:48 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 2 -p 9 board2:pgwcd:12:1073872898 ProcessColdStart
+root     17221  1.1  0.6 1403760 216696 ?      Sl   Jul06  13:48 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 3 -p 9 board2:pgwcd:13:1073872899 ProcessColdStart
+root     17222  1.1  0.6 1404020 217856 ?      Sl   Jul06  13:57 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 4 -p 9 board2:pgwcd:14:1073872900 ProcessColdStart
+root     17223  1.1  0.6 1404020 216832 ?      Sl   Jul06  13:39 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 5 -p 9 board2:pgwcd:15:1073872901 ProcessColdStart
+root     17224  1.1  0.6 1404020 216940 ?      Sl   Jul06  13:47 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 6 -p 9 board2:pgwcd:16:1073872902 ProcessColdStart
+root     17225  1.1  0.6 1404020 217240 ?      Sl   Jul06  13:54 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 7 -p 9 board2:pgwcd:17:1073872903 ProcessColdStart
+root     17226  1.1  0.6 1404020 217148 ?      Sl   Jul06  13:51 /opt/services/epg/bin/pgwcd_IPOS_ssc -s 8 -p 9 board2:pgwcd:18:1073872904 ProcessColdStart
+root     17227  0.5  0.2 405296 71360 ?        Sl   Jul06   6:57 /opt/services/epg/bin/pgwcd_IPOS_ssc -m -p 9 board2:pgwcd:19 ProcessColdStart
+fs@vsfo-2[]:/home/fs> exit                  
+logout
+Connection to lc-2 closed.
+bash-4.3$ exit
+
+ssh fs@lc-3
+vi /etc/sysctl.conf
+
+/sbin/sysctl –p
+
+date; tcpdump -i any port 2222 -w tool.pcap
+
+date; tcpdump -i any port 2222 -w vsfo3.pcap
+
+
+
+date; netstat -tnp|grep 2222
+
+show clock ;  
+
+epg node lawful-intercept status level detail | include "setd|Identity"
+
+
+date;iptables -A INPUT -p tcp --dport 2222 -j REJECT;iptables -L
+
+
+date; netstat -tnp|grep 2222
+
+
+date;iptables -D INPUT 1;iptables -L
+
+ssh fs@lc-3
+
+    - '.*ASESDK-5-NOTICE: pgwcd.*deleteSession.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*onConnectRsp:.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*doConnect:.*'
+
+    - '.*ASESDK-5-NOTICE: pgwcd.* getX2SessionWithCreate*'
+    - '.*ASESDK-5-NOTICE: pgwcd.* onTlsConnectRsp.*TLS connected.*'
+
+
+
+
+
+/workspace/git/esimnaa/epg/epgcats/tools/logstrip/rules/TC37547_1_1_1.yml
+epg node lawful-intercept status level detail | include "setd|Identity"
+
+
+
+
+
+
+vi /etc/sysctl.conf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+##################################
+#### Special rule for TC37540.1.6.1 ###
+###################################
+#In order to make clean in CI hourly scope so that CI daily can run it on latest candidate build, so we skip those
+#error prints firstly,we will remove it after the TR is fixed.
+
+- rule_id: GGSN00153444
+  match:
+    - '.*%ASESDK-4-WARNING: .*libperformancemgmthandler.PmJob.*Statistics rsp.*'
+  line_start: date
+
+- rule_id: GGSN00154524
+  match:
+    - '.*%ASESDK-6-INFO: metrics-collector.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.* getX2SessionWithCreate.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*doTlsConnect.*Connecting TLS.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*onTlsConnectRsp.*TLS connected.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*Creating Session with admfID.*Number of Sessions.*[1-9]'
+    - '.*ASESDK-5-NOTICE: pgwcd.*ProxySession.*Number of remaining sessions.*[1-9]'
+    - '.*ASESDK-5-NOTICE: pgwcd.*ProxyServer.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*ProxySession.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*sendDisconnect:.*'
+    - '.*%ASESDK-4-WARNING: pgwcd.*Poll error on socket*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*deleteSession.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*disconnectReq:.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*onConnectRsp:.*'
+    - '.*ASESDK-5-NOTICE: pgwcd.*doConnect:.*'
+  line_start: date
+
+- rule_id: PCTR-48114
+  match:
+    - '.*%ASESDK-5-NOTICE: etfd.*libetfservice.PcapSlice.*generating itc file:/var/log/services/epg/itc/ITC.*'
+  line_start: date
+
+
+
+
+TC37547.2.1.6  +: logstrip_rule === "TC37547_2_1_6.yml";
+
+
+
+
+
+
+    log( cg_Typhon__log_prefix & %definitionId & ": Expecting to receive LI_X2_X3 ASP: ", vtl_asp_expected );
+
+    var ASP_LI_X2_X3__IPL4 vl_received;
+    T_simIMS_LI_X2[pl_instance].start(pl_receive_timeout);
+    log( cg_Typhon__log_prefix & %definitionId & ": Expecting to receive before: ");
+    alt
+    {
+        [] as_TR_simIMS_LI_X2__autobehavior( pl_instance := pl_instance );
+        [] PCO_simIMS_LI_X2[pl_instance].receive(vtl_asp_expected) -> value vl_received;
+        {
+            log( cg_Typhon__log_prefix & %definitionId & ": Expecting to receive I am just trying ASP: ", vl_received );
+            T_simIMS_LI_X2[pl_instance].stop;
+        }
+        [] as_TR_simIMS_LI_X2__fault_handling
+        (
+            pl_instance := pl_instance
+        );
+    }
+    log( cg_Typhon__log_prefix & %definitionId & ": Expecting to receive I am just trying ASP afyer: ", vl_received );
+
+
+
+
+    /workspace/git/esimnaa/epg/ttcn3/GW_Typhon/5gc_ttcn_fw/Typhon_framework/07_Transmission/simIMS/Typhon_Transmission__simIMS_LI_X2.ttcn
+
+
+
+     23476
+
+
+import from Delay_Functions all;
+
+
+
+38.75
+
+
+37.8
+
+
+
+
+    f_CLI_LOG__log_banner( pl_message := "before Receive CCR Initial");
+    f_delay(pl_delay := 20.0);
+
+
+
+
+    redundant
+
+
++    //========================================================================
++    // Configuration
++    //========================================================================
++
++    f_CLI_OP_APN__block(pl_apn := cg_Internet_APN1__NI);
++
++    f_CLI_CFG_APN_apnAccess
++    (
++        pl_apnName               := cg_Internet_APN1__NI,
++        pl_selectionMode         := "from-network"
++    );
++
++    f_CLI_OP_APN__unblock(pl_apn := cg_Internet_APN1__NI); // commit performed in this function
++
++
+     f_CLI_sendReceive(pl_command := f_CLI_showConfigurationEpgPgw());
+ 
+     //#################################################
+@@ -4718,17 +4734,21 @@ testcase TC32777__LI_LTE__Combined_Emercency_call_unauthenticated_IMSI
+     // Remove Configuration of Emergency call
+     //=================================================
+ 
+-    f_CLI_OP_APN__block( pl_apn := cg_Internet_APN1__NI );
++    //f_CLI_OP_APN__block( pl_apn := cg_Internet_APN1__NI );
+ 
+-    f_CLI_CFG_IMS_configureEmergencyCall
+-    (
+-        pl_imsBasedTelephonyMmtel := true,
+-        pl_apnName                := cg_Internet_APN1__NI,
+-        pl_inactivityTimeout      := "20",
+-        pl_cliOperation           := "COM-DELETE:"
+-    );
++    //f_CLI_CFG_IMS_configureEmergencyCall
++    //(
++    //    pl_imsBasedTelephonyMmtel := true,
++    //    pl_apnName                := cg_Internet_APN1__NI,
++    //    pl_inactivityTimeout      := "20",
++    //    pl_cliOperation           := "COM-DELETE:"
++    //);
+ 
+-    f_CLI_OP_APN__unblock( pl_apn := cg_Internet_APN1__NI );
++    //f_CLI_OP_APN__unblock( pl_apn := cg_Internet_APN1__NI );
++
++    
++
++    f_CLI_OP_APN__unblock(pl_apn := cg_Internet_APN1__NI);
+
+
+
+
+1)  without 
+
+
+
+
+    f_CLI_OP_APN__block(pl_apn := cg_Internet_APN1__NI);
+
+    f_CLI_CFG_APN_apnAccess
+    (
+        pl_apnName               := cg_Internet_APN1__NI,
+        pl_selectionMode         := "from-network"
+    );
+
+    f_CLI_OP_APN__unblock(pl_apn := cg_Internet_APN1__NI); // commit performed in this function
+
+
+
+std::cout<<"esimnaa 1\n";
+
+message.indicationFlags = gtp2IndicationToString(session.ue_.indicationFlags);
+
+session.ue_.setIndicationFlags(gtpv2::ie::IndicationFlags::OperationIndication);
+
+ session_.ue_.setIndicationFlags(gtpv2::ie::IndicationFlags::FiveGsInterworkingIndication);
+//    2023-10-17  esimnaa     - Removed f_CLI_CFG_IMS_configureEmergencyCall
+
+ session_.ue_.clearIndicationFlags();
+session.ue_.clearIndicationFlags();
+session.ue_.setIndicationFlags();
+
+//    2023-10-17  esimnaa     - Removed f_CLI_CFG_IMS_configureEmergencyCall
+
+
+--gtest_filter=LawfulInterceptionEtsi4G.TC64484_ETSI4G_SessionModifyFailure
+session_.ue_.setIndicationFlags(gtpv2::ie::IndicationFlags::OperationIndication);
+"The test case is removing some configuration during the post-step, and there is no step to restore the removed configuration from the previous run during the pre-configuration step. This is why the test is failing. As a solution, we removed the function during the post-configuration step in the test case and added it to the 'restore test case' step."
+
+test results 
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/31114060
+
+build_internal_all -t -s -n vipp
+ 
+--rerun-failed --filter-tags EXTENDED&&LI&&CUPS_T2_INT
+ 
+PCC:
+ 
+--filter-tags 'LI&&ONLY_CEPG' --extra-timeout "240" --rerun-failed
+ 
+--filter-tags 'LI&&PCCSM' --extra-timeout 240
+ 
+--filter-tags 'LI&&ONLY_CEPG' --rerun-failed
+ 
+ 
+ 
+ 
+ 
+Legacy:
+ 
+--rerun-failed --filter-tags EXTENDED&&LI&&CUPS_T2_INT
+ 
+--rerun-failed --filter-tags EXTENDED&&LI&&CUPS_T2_INT --node-diagnostics "3 LI" --node-traces "li" (enables debug)
+ 
+--filter-tags 'LI&&ONLY_CEPG' --run-until "5"  --run-until-options "force_prepare_restore"
+
+
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/29661672
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/29661671
+
+
+https://epgweb.sero.wh.rnd.internal.ericsson.com/testviewer/job/29661720
+
+
+
+    f_sr_LI_IMS__Disconnect
+    (
+        pl_x2_instance          := cl_LMISF_instance,
+        pl_x2_connections       := 1
+    );
+
+    
+        const LiAlarm alarm { LiAlarm::UnableToEstablishX2Connection, x2LocalIpAddress_, isLmisf };
+        itsISetcAgentRx->setdInd(alarm.encodeToTraceData());
+
+
+
+    f_sr_LI_IMS__Connect_to_SUT
+    (
+        pl_desired_versions     := vl_desired_x_versions,
+        pl_expected_versions    := vl_desired_x_versions,
+        pl_iri_buffering        := false,
+        pl_check_X2connections  := false,
+        pl_x2_instance          := cl_LMISF_instance,
+        pl_send_configure       := false,
+        pl_no_X2connections     := true
+    );
+  f_delay(pl_delay := 20.0);
+
+
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running1");
+    
+    f_CLI_OP_LI__getNodeLawfulInterceptStatus();
+    
+
+    f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_LMISF_instance);
+
+    f_CLI_LOG__log_banner( pl_message := "8. Payload UL/DL hi yes running2");
+  
+
+    f_CLI_OP_LI__getNodeLawfulInterceptStatus();
+    
+     f_delay(pl_delay := 10.0);
+    f_sr_X1_1__Alarm
+    (
+        pl_alarm := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_instance        := cl_LMISF_instance
+    );
+f_x_UTIL_LI__Get_SUT_X2_address
+    f_s_X2__reopen_socket(pl_instance := cl_LMISF_instance );
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_LMISF_instance
+    );
+
+
+
+    f_sr_X1_1__Local_audit
+    (
+        pl_local_audit := vl_local_audit,
+        pl_instance    := cl_LMISF_instance
+    );
+
+/lab/epg_ft/users/esimnaa/bbifftr/li_bbiff_seroicvm07401/TC47970__bbiff_lmisf_ims_apn_and_imsi_same_session_dedicated_ims_x1_version_1_3___latest.log.gz
+
+
+
+    f_sr_X1_1__Local_audit
+    (
+        pl_local_audit := vl_local_audit,
+        pl_instance    := cl_LMISF_instance
+    );
+
+
+    f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_LMISF_instance);
+
+    f_sr_X1_1__Alarm
+    (
+        pl_alarm     := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_receive_timeout := 40.0,
+        pl_instance  := cl_LMISF_instance
+    );
+
+    f_s_X2__reopen_socket(pl_instance := cl_LMISF_instance );
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_LMISF_instance,
+    );
+
+        f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_LMISF_instance);
+
+    f_sr_X1_1__Alarm
+    (
+        pl_alarm     := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress := ?,
+        pl_receive_timeout := 40.0,
+        pl_instance  := cl_LMISF_instance
+    );
+
+    f_s_X2__reopen_socket(pl_instance := cl_LMISF_instance );
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_LMISF_instance,
+    );
+
+
+
+
+#!/bin/bash
+cert_ttl=$ERIC_PC_SM_TARGET_DB_CERT_TTL
+
+# calculate redis server 
+sleep_timer=$((cert_ttl/20))
+
+TIMEOUT=0.2
+echo "sleep set to ${sleep_timer} "
+while true; do
+
+    response=$(timeout ${TIMEOUT} redis-cli --tls --cert /var/run/secrets/client/targetdb/cert.pem --key /var/run/secrets/client/targetdb/key.pem --cacert /var/run/secrets/client/targetdb/ca/cacertbundle.pem \
+    CONFIG SET \
+    tls-cert-file /var/run/secrets/server/targetdb/cert.pem tls-key-file /var/run/secrets/server/targetdb/key.pem \
+    tls-ca-cert-file /var/run/secrets/server/targetdb/ca/cacertbundle.pem
+    )
+    exit_status=$?
+
+    # Check the exit status of the timeout command
+    if [ $exit_status -eq 0 ]; then
+        # The command completed within the timeout
+        if [ "$response" != "OK" ]; then
+            echo "failed to update server certificates :$response"
+            echo "Certificates modified at $(date)"
+        else 
+            echo "failed to update server certificates :$response"
+        fi 
+    else 
+        echo "Returned with exit status :$?"
+    fi
+
+    sleep ${sleep_timer} 
+done
+
+
+
+
+I will miss standup as I am having c++ course.
+
+Yesterday, I delivered the code for 
+Reload certificates (server and replica).
+
+Regarding BBIFF tr, I have pushed changes to Gerrit.
+
+There are two scenarios:
+
+LMISF & LI-IMS are connected to EPG. LMISF looses an X2 connection.
+An X1 alarm sent out to both LMISF & LI-IMS (and LI-IMS feel this is not some event/alarm that they suppose to expect. )
+LMISF & LI-IMS are connected to EPG. LI-IMS looses an X2 connection.
+An X1 alarm sent out to both LMISF & LI-IMS (and LM-ISF will probably feel this is not welcome event/alarm. ) 
+
+Tr is about the first scenario, which is fixed.
+
+Anders and I had a meeting with the reporter yesterday about closing the ticket and creating an internal ticket for the second scenario. However, they prefer both to be submitted in the same TR instead of creating a new one and can wait for 2 more weeks.
+
+In between, I was working with service desk.
+
+
+
+
+tested this below internal commit through this ft test case.
+https://selngerrit.mo.sw.ericsson.se/#/c/1117115/
+
+there are some code checks failing on this commit. I will try to fix in my upcoming patch set :)
+
+bind more than one interface
+
+Not really any good way to manually trigger it.
+
+One theoretical way could be to disconnect the MDF2 & MDF3 function in the LI-IMS node, which would provoke a TCP connection loss of X2 & X3 destination issues.
+
+If we then have a ETSI MIIT a Report-NE-Issue would be issued from the SMF's X2 stack and transmitted via X1 stack to LI-IMS over the X1 interface.
+
+These are the condition that produces NE Issue:
+
+These are the condition that produces Task Issue:
+- report task issue will be generated when Lit3 rejected by UP due to missing pdr's, or  
+
+
+
+will get back to you with more info.
+
+Subject: Important Update Regarding Feature PCPB-18038
+
+Hi Isabella,
+
+I hope this email finds you well. I'm reaching out to inform you about a recent development related to our feature PCPB-18038.We've introduced a new functionality that enables mTLS for TargetDb. As part of our testing process, we've conducted a test case to evaluate ISSU upgrade compatibility. During the test, we observed that List counters need to be updated to new values. This adjustment is necessary because, as expected, during an ISSU upgrade, the target database loses its contents, resulting in the loss of all intercepted UEs without established connections.
+
+We noticed that ISSU is run weekly, with the last run taking place last Friday. Given this schedule, if the Tester runs the test on LSV tomorrow, the test case is likely to fail due to the current List counters. To pre-emptively address this issue, we need to make the necessary counter changes. It’s worth mentioning that we activated our feature on Monday .
+
+Your attention to this matter is highly appreciated. If you have any questions or require further clarification, please feel free to reach out.
+
+Tc: PccSmD_Maintainability_ISSU_PrevRel_LiService_LoadNormal_Small_Mesos1B_EricssonMbbA
+
+Best regards,
+Rohith
+7.2.0-sles-966b6c02
+
+            <parameter name="helm.flags" value="
+	        eric-pc-sm.eric-pc-sm-ip-allocator.targetdb.tls.certOverrideTtl=3600,
+	        eric-pc-sm.eric-pc-sm-sgw-session.targetdb.tls.certOverrideTtl=3600,
+	        eric-pc-sm.eric-pc-sm-smf-pgw-session.targetdb.tls.certOverrideTtl=3600,
+	        eric-pc-sm.eric-pc-sm-target-database-master-rd.targetdb.security.tls.certOverrideTtl=3600,
+	        eric-pc-sm.eric-pc-sm-target-database-replica-rd.targetdb.security.tls.certOverrideTtl=3600"/>
+
+	        <parameter name="helm.flags" value="
+	        eric-pc-sm.eric-pc-sm-ip-allocator.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-sgw-session.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-smf-pgw-session.targetdb.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-target-database-master-rd.targetdb.security.tls.certOverrideTtl=1800,
+	        eric-pc-sm.eric-pc-sm-target-database-replica-rd.targetdb.security.tls.certOverrideTtl=1800"/>
+
+li-clone
+
+
+cv -template 
+
+    {Full Stack Developer Internship} % Job title
+    {UnBiased AB} % Organization
+    { Gothenburg, Sweden} % Location
+    {june 2019 - Oct 2019} % Date(s)
+    {
+      \begin{cvitems} % Description(s) of tasks/responsibilities
+        \item {Developed an progressive web app UI using Angular for Search Engine platform (fud-world).}
+        \item {Developed  and  Updated  Micro  Services  related  to  Web  Scrapers,  Scraper  Manager,  Elastic  Search,GraphQL, Exchange Manager and Sentiment Analyzers using Java (Spring Boot).}
+      \end{cvitems}
+    } 
+
+
+    Procedures::ismfN2HandoverWithIsmfInsert.runActionsBefore(
+        "etsiDf2ReceivePduSessionEstablishmentEventRequest", defaultTask);
+
+    auto& x2Message = etsiDf2_.pduSessionEstablishInterceptEvent(session_);
+
+    auto& modification                           = x2Message.get<LiEtsiTest::X2::PduSessionEstablishmentIEs>();
+    modification.gtpTunnelInfo.fiveGsGtpTunnels_->dLRANTunnelInformation_ = std::nullopt;
+    etsiDf2_.receive(x2Message);
+
+    Procedures::ismfN2HandoverWithIsmfInsert.runActionsBetween(
+        "etsiDf2ReceivePduSessionEstablishmentEventRequest","AmfSendUpdateSmContextRequestHandoverRequestAcknowledgeTransfer",  defaultTask);
+
+
+
+I would like to invite you to a presentation on VEPG (Virtual Evolved Packet Gateway) where I will be covering the following topics:
+1.	ETSI (VEPG)
+2.	Legacy (VEPG)
+Your presence and insights would be appreciated. Please let me know if you can attend.
+Thank you, Best regards,

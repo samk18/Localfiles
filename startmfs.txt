@@ -1,0 +1,175 @@
+Alternative 1: 
+Description
+Secm and Certm Generated Certificates
+
+Secd shall be used to generate certificates for client and server
+
+mTLS always enabled
+
+
+Certificates from SECD written to disk in GSC, PSC boards
+
+Pros:
+Centralized certificate generation process.
+Certificates managed internally.
+
+
+
+Cons:
+ Dependency on support from other teams to generate internal CA.
+ Long lead time (around 4 months) for generating internal CA via Secm and Certm.
+
+
+Alternative 2:Customer-Provisioned CA
+
+
+Customer provisions a Certificate Authority (CA).
+Certificates for Redis clients and servers are generated using the provided CA via Secd and Certd.
+
+The customer provisions the Certificate Authority (CA).
+Using the provided CA, client and server certificates will be generated via secd.
+These certificates will then be propagated to boards via secd.
+
+
+Cons:
+Manual steps required for certificate provisioning by the customer.
+Reliance on the customer for certificate renewal annually.
+
+
+All this steps mentioned above shall be performed through manually by customer
+    Relying on customer to provide certificates for internal communication
+    Customer will have to renew certifcates every year explicilty
+
+Setting up security this way requires some hands-on work from the customer's end, which could lead to mistakes or delays.
+Manual steps required for certificate provisioning by the customer.
+Reliance on the customer for certificate renewal annually.
+
+Alternative 3: RootCA,Key Installed on GSC Board, Encrypted Transfer of CA Key
+
+Description:
+
+
+mtls always be enabled
+
+RootCA,CAKey are installed on GSC-board through openssl
+since secd doesnt have suppport propagating the CA private key, RootCA key will be propagated via Licommands from GSC-board  to PSC-board , encrypted using an already existing "global dynamic key.
+Client and server certificates are installed through OpenSSL upon availability of the common RootCA and key on GSC and PSC boards
+
+cons
+Security Concerns: Although the CA private key is encrypted during transfer, sending private keys, even in an encrypted form, is not recommended due to the inherent risks involved. This approach can potentially expose the private key if the encryption is compromised.
+Security Concerns: Although the CA private key is encrypted during transfer, sending private keys, even in an encrypted form, is not a recommended practice. If the encryption is compromised, the private key could be exposed, leading to a significant security breach
+
+Restart Handling:   How to handle if the GS/RP (the master VM that originally generated the private ROOT key) restarts? Should GSC go out and ask PSC for the private key and public certificate?
+Additional complexity in managing encryption/decryption processes for key transfer.
+
+Renewal case: Handling the renewal of the RootCA key and ensuring the updated key is propagated securely.
+Security Concern: Even though the key is encrypted, sending the private key via commands poses a potential risk if the encryption is compromised.
+Renewal Complexity: Handling the renewal of certificates requires careful management to ensure continuous security.
+Implementation Complexity: Additional complexity in managing encryption/decryption processes for key transfer.
+System Dependency: The process is highly dependent on the GSC board, and any issues with this board could affect the entire certificate management system.
+
+Pros
+Using encryption for transferring the CA private key helps to protect it during transit.
+Flexibility in certificate management using OpenSSL.
+Potential cost savings compared to internal CA setup vis secd.
+
+
+
+
+Alternative 4: CSR Requests and Responses with Proper CA Implementation on GSC board
+Implement a proper Certificate Authority (CA) on Board 1(GSC, PSC, SSC) and use CSR (Certificate Signing Request) request/response. Private keys should never be distributed.
+
+Board 2 (PSC, SSC) sends a CSR request to board 1, which then generates client and server certificates based on the CSRs  and sends them back to board 2.
+
+This approach ensures that private keys remain on the originating board and are never distributed.
+
+Pros:
+
+Private keys are never distributed, enhancing security, reducing the risk of key exposure.
+
+Using CSR requests and responses is a well-established, secure method for certificate management.
+
+cons.
+
+ The entire certificate management system is dependent on the proper functioning of GSC board.
+
+Similar issues as Alternative 3 regarding the restart of the gsc.
+
+Additional complexity in managing CSR requests and responses.
+
+Need to handle certificate renewal processes.
+
+Alternative 5: Implement New LI Process for secd in RP
+
+Since there is no support for private key propagation through secm, certm, the final alternative involves creating a new LI process on the RP board.
+
+Given the lack of support for private key propagation through Secd, implement the certificate management process directly in RP.
+
+The new LI process will handle the encryption and secure propagation of the CA private key in and certificates to all other boards (GSC, PSC, SSC) via secure channels.
+
+Create a new LI process in RP that handles certificate creation, propagation, and renewal.
+
+client and server shall be generated using the provided 
+
+Using the CA key provided by the new LI process, client and server certificates will be generated through OpenSSL.
+
+This process will supervise certificates, send alarms if certificates are about to expire, and manage certificate renewals centrally.
+
+pros.
+
+Persistent Storage: The RP board’s persistent and replicated storage ensures that the RootCA and keys are always available, even after reboots or failures.
+Enhanced Security: The new LI process on the RP board can ensure secure handling and propagation of keys and certificates.
+Automated Supervision: The process includes automated supervision and alerts for expiring certificates, ensuring continuous security compliance.
+
+Cons:
+Requires development of a new LI process within RP.
+Initial complexity in setting up the new process and ensuring it integrates well with existing systems.
+ Implementing this solution may take considerable time and effort, delaying the overall project timeline.
+  Implementing this solution may take considerable time and effort, delaying the overall project timeline.
+  Adding the new LI process to the RP board, which already handles certificate management for other clients, 
+  may impact and affect the existing functionalities and performance of the RP board. 
+  Any issues with this board could disrupt both the new and existing certificate management systems.
+
+
+
+
+Description:
+Since there is no support for private key propagation through secd, the final alternative involves creating a new LI process on the RP board.
+The RP board, which has persistent and replicated storage, ensures that the RootCA and keys are always available, even after GSC restarts  . 
+The new LI process will handle the encryption and secure propagation of the Cacert and its private key into GSC and PSC boards
+Using the Cacert and Ca key provided by the new LI process, client and server certificates will be generated through OpenSSL functions.
+This process will supervise certificates, sends alarms if certificates are about to expire, and manage certificate renewals automatically.
+
+Pros:
+Persistent Storage: The RP board’s persistent and replicated storage ensures that the RootCA and keys are always available, even after GSC restarts or .
+Enhanced Security: The new LI process on the RP board can ensure secure handling and propagation of keys and certificates.This process will supervise certificates, sends alarms if certificates are about to expire, and manage certificate renewals automatically.
+Automated Supervision: The process includes automated supervision and alerts for expiring certificates, ensuring continuous security compliance.
+
+Cons:
+-Requires development of a new LI process within RP.
+-Initial complexity in setting up the new process and ensuring it integrates well with existing systems.
+-Adding the new LI process to the RP board, which already handles certificate management for other services, may impact and affect the existing   functionalities and performance of the RP board. Any issues with this board could disrupt both the new and existing certificate management systems.
+-Implementing this solution may take considerable time and effort, delaying the overall project timeline.
+
+
+
+Impact will be when new UEs establish a connection they will not be intercepted directly during the ISSU procedure.
+
+Since there are currently no customer using ISSU and the impact is limited to a short period of time, team thinks this is ok. Team is working on getting this appoved by ISSU team and OPO.
+
+
+
+Server and client certificates are generated using Root certificate and key generated by openssl upon availability of the CSR’s for server and client.
+
+
+Target DB will lose its data when upgraded.
+Stop incoming traffic during midnight when traffic is low and then perform update
+ADMFs will need to reprovision all previous targets after ISSU is completed.
+ST will have to be updated or created(to be investigated)?
+Impact will be documented clearly in CPI. CPI will always mention that recommendation of ISSU will be done when traffic is low?
+ISSU will only be impacted when going from one release using TCP to a release using mTLS. From there on there is no impact in ISSU?.
+
+
+
+
+OpenSSL will be utilized for generating the root CA , its private key(To be implemented in C++).

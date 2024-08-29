@@ -1,0 +1,863 @@
+ no epg user-plane lawful-intercept transport-layer-security node-credential li-credential3 trust-category li-category3
+ commit
+no epg node lawful-intercept transport-layer-security node-credential li-credential3
+no epg node lawful-intercept transport-layer-security trust-category li-category3
+commit
+to commit.
+no epg node secm certm node-credential li-credential3
+no epg node secm
+commit
+exit
+config
+epg node secm certm node-credential li-credential3
+epg node secm certm trusted-certificate li_ca
+exit
+epg node secm certm node-credential li-credential5 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+
+commit
+exit
+epg node secm certm node-credential li-credential5 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+start-offline-csr-enrollment uri /md/smf.csr
+commit
+
+exit
+config
+
+epg node secm certm node-credential li-credential5 install-credential-from-uri uri /md/smf.crt 
+
+epg node secm certm trusted-certificate li_ca install-trusted-cert-from-uri uri /md/ca.crt
+
+epg node secm certm trust-category li-category5 trusted-certificates li_ca
+
+commit
+
+epg node lawful-intercept transport-layer-security node-credential li-credential5
+
+epg node lawful-intercept transport-layer-security node-credential li-credential5 trust-category li-category5
+
+commit
+
+epg user-plane lawful-intercept transport-layer-security node-credential li-credential5
+
+epg user-plane lawful-intercept transport-layer-security trust-category li-category5
+
+commit
+
+epg node secm certm trusted-certificate li_ims
+
+exit
+epg node secm certm trusted-certificate li_ims install-trusted-cert-from-uri uri /md/li_ims.crt
+commit
+
+epg node secm certm trust-category li-category5 trusted-certificates li_ims
+commit
+
+
+
+
+epg user-plane lawful-intercept transport-layer-security node-credential li-credential5
+epg user-plane lawful-intercept transport-layer-security trust-category li-category5
+commit
+epg sgw node vepg79-16-sgw control-plane session block node
+epg pgw node vepg79-16-pgw control-plane session block node
+epg user-plane association block node
+epg user-plane session block node
+commit
+epg sgw control-plane session block node
+epg pgw control-plane session block node
+ commit
+epg user-plane stop node
+ epg sgw stop node
+ epg pgw stop node
+commit
+epg user-plane network-instance om-cn interface x3 x3-name-default-interface transport dtls
+commit
+Commit complete.
+no epg user-plane stop
+no epg sgw stop
+no epg pgw stop
+commit
+Commit complete.
+no epg user-plane association block node
+no epg user-plane session block node
+no epg sgw control-plane session block node
+no epg pgw control-plane session block
+commit
+Commit complete.
+vepg79-16(config-x3-x3-name-default-interface)# exit
+vepg79-16(config-network-instance-om-cn)# exit
+vepg79-16(config)# epg pgw 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cd /tmp/
+bash-4.3$ mkdir certs
+bash-4.3$ cd certs/
+bash-4.3$ mkdir demoCA
+bash-4.3$ pwd
+/tmp/certs
+bash-4.3$ mkdir -p demoCA/private
+bash-4.3$ mkdir demoCA/newcerts
+bash-4.3$ touch demoCA/index.txt
+bash-4.3$ echo "01" >demoCA/serial
+bash-4.3$ echo "01" >demoCA/crlnumber
+bash-4.3$ rm demoCA/private/cakey.pem
+rm: cannot remove 'demoCA/private/cakey.pem': No such file or directory
+bash-4.3$ openssl genrsa -out demoCA/private/cakey.pem 2048
+Generating RSA private key, 2048 bit long modulus
+.........+++
+....................................................................................+++
+e is 65537 (0x10001)
+bash-4.3$ openssl req -x509 -sha256 -days 3650 -nodes -key demoCA/private/cakey.pem -subj "/C=SE/O=Ericsson AB/OU=PDU Packet Core/CN=CA/L=GBG" -out demoCA/cacert.pem
+bash-4.3$ openssl x509 -in demoCA/cacert.pem -out ca.crt
+bash-4.3$ openssl rsa -in demoCA/private/cakey.pem -out ca.key
+writing RSA key
+bash-4.3$ cp /usr/lib64/ssl/openssl.cnf config.cnf
+bash-4.3$ vi config.cnf 
+
+
+
+bash-4.3$ openssl ca -md sha256 -in /md/smf.csr -out demoCA/newcerts/smf_cert.pem -config config.cnf
+Using configuration from config.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 1 (0x1)
+        Validity
+            Not Before: Jul 15 11:02:32 2023 GMT
+            Not After : Jul 14 11:02:32 2024 GMT
+            issue date: Jul 14 11:02:32 2024 GMT
+            expirydate: Jul 21 11:02:32 2024 GMT
+        Subject:
+            countryName               = SE
+            organizationName          = Ericsson AB
+            organizationalUnitName    = PDU Packet Core
+            commonName                = VSMF01
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                4A:69:37:25:2F:AF:DF:A4:00:C4:B1:41:5D:64:BD:C2:E9:4C:74:11
+            X509v3 Authority Key Identifier: 
+                keyid:26:E7:DA:D5:FB:0A:65:3E:59:C8:5A:BF:A1:16:70:F5:B3:92:70:65
+
+
+Using configuration from config.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 1 (0x1)
+        Validity
+            Not Before: Jul 15 11:02:32 2023 GMT
+            Not After : Jul 14 11:02:32 2024 GMT
+            issue date: Jul 21 11:02:32 2024 GMT
+            expirydate: Jul 28 11:02:32 2024 GMT
+        Subject:
+            countryName               = SE
+            organizationName          = Ericsson AB
+            organizationalUnitName    = PDU Packet Core
+            commonName                = VSMF01
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                4A:69:37:25:2F:AF:DF:A4:00:C4:B1:41:5D:64:BD:C2:E9:4C:74:11
+            X509v3 Authority Key Identifier: 
+                keyid:26:E7:DA:D5:FB:0A:65:3E:59:C8:5A:BF:A1:16:70:F5:B3:92:70:65
+
+Certificate is to be certified until Jul 14 11:02:32 2024 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+bash-4.3$ openssl x509 -in demoCA/newcerts/smf_cert.pem -out smf.-crt
+bash-4.3$ openssl x509 -in demoCA/newcerts/smf_cert.pem -out smf.crt
+bash-4.3$ cp smf.crt /md/
+bash-4.3$ cp ca.crt /md
+bash-4.3$ openssl genrsa -out ims_key.pem 2048
+Generating RSA private key, 2048 bit long modulus
+....+++
+.................................................+++
+e is 65537 (0x10001)
+bash-4.3$ openssl req -sha256 -days 3650 -new -key ims_key.pem -subj "/C=SE/O=Ericsson AB/OU=PDU Packet Core/CN=admf" -batch -out ims_cert.csr -config config.cnf
+bash-4.3$ openssl ca -md sha256 -config config.cnf -in ims_cert.csr -out ims_cert.pem
+Using configuration from config.cnf
+Check that the request matches the signature
+Signature ok
+Certificate Details:
+        Serial Number: 2 (0x2)
+        Validity
+            Not Before: Jul 15 11:03:57 2023 GMT
+            Not After : Jul 14 11:03:57 2024 GMT
+        Subject:
+            countryName               = SE
+            organizationName          = Ericsson AB
+            organizationalUnitName    = PDU Packet Core
+            commonName                = admf
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                88:90:AF:B4:AB:7A:F2:2B:29:20:A3:C8:84:56:6E:92:64:3E:42:EC
+            X509v3 Authority Key Identifier: 
+                keyid:26:E7:DA:D5:FB:0A:65:3E:59:C8:5A:BF:A1:16:70:F5:B3:92:70:65
+
+Certificate is to be certified until Jul 14 11:03:57 2024 GMT (365 days)
+Sign the certificate? [y/n]:y
+
+
+1 out of 1 certificate requests certified, commit? [y/n]y
+Write out database with 1 new entries
+Data Base Updated
+bash-4.3$ openssl rsa -in ims_key.pem -out li_ims.key
+writing RSA key
+bash-4.3$ openssl x509 -in ims_cert.pem -out li_ims.crt
+bash-4.3$ cp ims_cert.pem /md/
+bash-4.3$ cp ims_key.pem /md
+bash-4.3$ cp li_ims.crt /md
+bash-4.3$ cp li_ims.key /md
+bash-4.3$ cat li_ims.key li_ims.crt > list.pem
+bash-4.3$ cat ca.key ca.crt > ca.pem
+
+Alarm Trigger for Certificate Expiry
+tar -xzvf list_st_cert.tar.gz
+
+/lab/epg_design5_builds/esimnaa/esimnaa-epg0-scratch_20230704_184647-esimnaa-epg-master-buildall/epgcats/tcdb/LIB_general/tcdb/hooks/li_enable_tls_pgwc.py
+
+
+
+
+ssh vepg79-16                                                                                                    # ~
+Warning: Permanently added 'vepg79-16,10.130.26.144' (ECDSA) to the list of known hosts.
+Notice
+This product processes subscriber's personal data. Depending on the local/country legislation where the product is deployed and operated, the use of this product may require providing notice of operator's privacy policy to subscribers.
+
+Ericsson discloses personal information to customers, professional advisors, suppliers or other third parties engaged to perform administrative or other business management services. This disclosure is always on a confidential basis or otherwise in accordance with law. Ericsson may also disclose personal information with the individual's consent or if disclosure is required or authorized by law.
+Ericsson takes reasonable steps in all circumstances to ensure that the personal information it holds is protected from misuse, from interference and loss and from unauthorized access, modification or disclosure. Ericsson holds personal information in both hard copy and electronic forms in secure databases on secure premises, accessible only by authorized personnel.
+no such identity: /proj/mpg_internal/testlab_dsakey: No such file or directory
+Last login: Sat Jul 15 12:50:57 CEST 2023 from 100.78.95.124 on pts/5
+
+Welcome to Ericsson IPOS
+Copyright (c) 2011 Ericsson AB.
+All rights reserved.
+
+
+User erv last logged in 2023-07-15T10:50:57.92902+00:00, to Ericsson, from 100.78.95.124 using cli-ssh
+erv connected from 100.78.95.124 using ssh on vepg79-16
+[local]vepg79-16#config
+Entering configuration mode private
+vepg79-16(config)# epg node secm certm 
+Possible completions:
+  node-credential       Represents the node credential and contains information about the corresponding certificate
+  trust-category        Represents a trusted category
+  trusted-certificate   Represents a trusted certificate
+vepg79-16(config)# epg node secm certm node-credential 
+Possible completions:
+  Node credential name
+vepg79-16(config)# epg node secm certm node-credential li-credential3 
+Possible completions:
+  certificate-content                    The X.509 content of the certificate
+  expiry-alarm-threshold                 Threshold value to calculate the date of the alarm indicating the coming expiry of the
+                                         certificate
+  install-credential-from-uri            Installs a node credential or certificate from the specified Uniform Resource Identifier
+                                         (URI)
+  install-external-credential-from-uri   Installs a extenral node credential or certificate from the external specified Uniform
+                                         Resource Identifier (URI)
+  key-info                               Specifies the key type and length that is used for the next enrollment
+  start-offline-csr-enrollment           Starts a manual enrollment procedure
+  subject-alternative-name               SAN is an extension to X.509 that allows various values to be associated with a security
+                                         certificate [PRELIMINARY]
+  subject-name                           The X501 Distinguished Name that is used for the next enrollment
+  |                                      Output modifiers
+  <cr>                                   
+vepg79-16(config)# epg node secm certm node-credential li-credential3 
+vepg79-16(config-node-credential-li-credential3)# commit
+Commit complete.
+vepg79-16(config-node-credential-li-credential3)# exit
+vepg79-16(config)# epg node secm certm trust 
+Possible completions:
+  trust-category        Represents a trusted category
+  trusted-certificate   Represents a trusted certificate
+vepg79-16(config)# epg node secm certm trusted-certificate li_ca
+vepg79-16(config-trusted-certificate-li_ca)# commit
+Commit complete.
+vepg79-16(config-trusted-certificate-li_ca)# exit               
+vepg79-16(config)# epg node secm certm 
+Possible completions:
+  node-credential       Represents the node credential and contains information about the corresponding certificate
+  trust-category        Represents a trusted category
+  trusted-certificate   Represents a trusted certificate
+vepg79-16(config)# epg node secm certm node-credential li-credential5 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+vepg79-16(config-node-credential-li-credential5)# commit
+Commit complete.
+vepg79-16(config-node-credential-li-credential5)# exit
+vepg79-16(config)# epg node secm certm node-credential li-credential3 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+vepg79-16(config-node-credential-li-credential3)# exit
+vepg79-16(config)# epg node secm certm node-credential li-credential3 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+vepg79-16(config-node-credential-li-credential3)# exit
+vepg79-16(config)# epg node secm certm node-credential li-credential5 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+vepg79-16(config-node-credential-li-credential5)# start-offline-csr-enrollment uri /md/smf.csr
+CSR created at: /md/smf.csr
+
+vepg79-16(config-node-credential-li-credential5)# exit
+vepg79-16(config)# exit
+Uncommitted changes found, commit them? [yes/no/CANCEL] yes
+Commit complete.
+[local]vepg79-16#config
+Entering configuration mode private
+vepg79-16(config)# epg node secm certm node-credential li-credential5 install-credential-from-uri uri /md/smf.crt  
+Certificate installed
+
+vepg79-16(config)# epg node secm certm trusted-certificate li_ca install-trusted-cert-from-uri uri /md/ca.crt
+Certificate installed
+
+vepg79-16(config)# epg node secm certm trust-category li-category5 trusted-certificates li_ca
+vepg79-16(config-trust-category-li-category5)# commit
+Commit complete.
+vepg79-16(config-trust-category-li-category5)# epg node lawful-intercept transport-layer-security node-credential li-credential5
+vepg79-16(config)# epg node lawful-intercept transport-layer-security node-credential li-credential5 trust-category li-category5
+vepg79-16(config)# commit
+Commit complete.
+vepg79-16(config)# epg user-plane lawful-intercept transport-layer-security node-credential li-credential5
+vepg79-16(config)# epg user-plane lawful-intercept transport-layer-security trust-category li-category5
+vepg79-16(config)# commit
+Commit complete.
+vepg79-16(config)# epg node secm certm trusted-certificate li_ims
+vepg79-16(config-trusted-certificate-li_ims)# commit
+Commit complete.
+vepg79-16(config-trusted-certificate-li_ims)# exit
+vepg79-16(config)# epg node secm certm trusted-certificate li_ims install-trusted-cert-from-uri uri /md/li_ims.crt
+Certificate installed
+
+vepg79-16(config)# commit
+% No modifications to commit.
+vepg79-16(config)# epg node secm certm trust-category li-category5 trusted-certificates li_ims 
+vepg79-16(config-trust-category-li-category5)# commit
+Commit complete.
+vepg79-16(config-trust-category-li-category5)# epg node lawful-intercept transport-layer-security node-credential li-credential5
+vepg79-16(config)# epg node lawful-intercept transport-layer-security node-credential li-credential5 trust-category li-category5
+vepg79-16(config)# commit
+% No modifications to commit.
+vepg79-16(config)# epg user-plane lawful-intercept transport-layer-security node-credential li-credential5
+vepg79-16(config)#  epg user-plane lawful-intercept transport-layer-security trust-category li-category5
+vepg79-16(config)# commit
+% No modifications to commit.
+vepg79-16(config)# epg sgw node vepg79-16-sgw control-plane session block node
+vepg79-16(config)# epg pgw node vepg79-16-pgw control-plane session block node
+vepg79-16(config)# epg user-plane association block node
+vepg79-16(config)# epg user-plane session block node
+vepg79-16(config)# commit
+Commit complete.
+vepg79-16(config)# epg sgw control-plane session block node
+vepg79-16(config)# epg pgw control-plane session block node
+vepg79-16(config)# commit
+% No modifications to commit.
+vepg79-16(config)# epg user-plane stop node
+vepg79-16(config)# epg sgw stop node
+vepg79-16(config)# epg pgw stop node
+vepg79-16(config)# commit
+Commit complete.
+vepg79-16(config)#  epg user-plane network-instance om-cn interface x3 x3-name-default-interface transport dtls
+vepg79-16(config-x3-x3-name-default-interface)# commit
+Commit complete.
+vepg79-16(config-x3-x3-name-default-interface)# no epg user-plane stop
+vepg79-16(config-x3-x3-name-default-interface)# no epg sgw stop
+vepg79-16(config-x3-x3-name-default-interface)# no epg pgw stop
+vepg79-16(config-x3-x3-name-default-interface)# commit
+Commit complete.
+vepg79-16(config-x3-x3-name-default-interface)# no epg user-plane association block node
+vepg79-16(config-x3-x3-name-default-interface)# no epg user-plane session block node
+vepg79-16(config-x3-x3-name-default-interface)# no epg sgw control-plane session block node
+vepg79-16(config-x3-x3-name-default-interface)# no epg pgw control-plane session block
+vepg79-16(config-x3-x3-name-default-interface)# commit
+Commit complete.
+vepg79-16(config-x3-x3-name-default-interface)# exit
+vepg79-16(config-network-instance-om-cn)# exit
+vepg79-16(config)# epg pgw 
+Possible completions:
+  aaa                             AAA settings
+  address-reuse                   Address reuse configuration
+  apn                             
+  charging                        Charging and CDR configuration
+  charging-control                Charging control settings
+  control-plane                   Control plane settings
+  credit-control                  Credit control settings
+  data-path-control               Data path control for Uplink Classifier or Branching Point [PRELIMINARY]
+  dhcp                            DHCP settings
+  dhcpv6                          Dhcpv6 settings
+  diagnostics                     Adaptive services diagnostics settings
+  diameter                        Diameter settings
+  dns                             DNS settings
+  ebm                             Event based monitoring settings
+  ecm                             show ECM statistics
+  eps-5gs-iwk                     EPS 5GS interworking configuration
+  fault-management                Fault management settings
+  feature-activation              Feature activation flags
+  ggsn-plmn-id                    Public land mobile network identifier [DEPRECATED]
+  gngp-default-rat-type           GN/GP default radio access technology (RAT) [DEPRECATED]
+  home-plmn                       Multiple home PLMN identifier
+  imsi-prefix-statistics          Prefix of IMSI (1~15 digits) for command epg pgw statistics-imsi-prefix
+  interface                       Interface settings
+  internal-debug                  Actions used internally
+  ipv6-router-advertisement       IPv6 router advertisement parameters
+  ismf                            Configure Qos Control For Ismf
+  l2tp                            L2TP settings
+  lawful-intercept                Configuration for lawful-interception in PGW
+  load-control                    Configuration for Load Control Information in PGW
+  location                        Location area
+  logical-apn                     
+  multi-config-term-profile       Node-level reference to Multi Config termination profile
+  network-slice                   Configure Slice information
+  ni-oi-apn-selection-enabled     Enables NI OI based APN selection
+  node                            Identifier for PGW node, it must not be equal to 1
+  nrf-control                     nrf control settings
+  p-cscf-ip-pool                  
+  p-cscf-path-monitoring          P-cscf path monitoring
+  p-cscf-path-status              Show status of pcscf path
+  packet-enforcement              Packet enforcement settings
+  paging                          Paging settings
+  pause-charging                  Pause Charging
+  pause-charging-enabled          Enables Pause Charging support in S5/S8 interfaces [DEPRECATED]
+  pco-gateway-address             PCO gateway address
+  pdp-context                     PDP context settings
+  plmn                            
+  plmn-id-selection-profile       Profile for PLMN-ID selection order
+  policy-charging-rule-scope      Policy and charging rule scope settings
+  policy-control                  Policy control settings
+  qos-control                     Quality of service settings
+  radius                          RADIUS settings
+  rate-control                    Rate control configuration
+  sbi                             Service based architecture related configurations
+  sbi-pcf-enabled-4g              Enable PCF SBI interface for 4G [OBSOLETE]
+  sbi-udm-enabled-4g              Enable UDM SBI interface for 4G [OBSOLETE]
+  sbi-udm-subscribe-enabled-4g    Enable UDM subscription after subscription data retieval from UDM for 4G
+  sbi-udm-unsubscribe-disabled    Disable UDM unsubscription [OBSOLETE]
+  selective-home-plmns            To configure a selective list from the full home-plmn list to register in NRF.
+  service-capability-exposure     
+  session-priority                Configure Enhanced Multimedia Priority Services
+  sgsn                            
+  shared-ip-pool                  
+  show-trace                      Identifier for IMSI [OBSOLETE]
+  show-trace-all                  Show all trace information [OBSOLETE]
+  snssai                          NSSAI configuration
+  start-trace                     Identifier for IMSI [OBSOLETE]
+  statistics                      Show PGW statistics
+  statistics-imsi-prefix          Show PGW statistics per IMSI prefix
+  statistics-iupf                 Show PGW statistics per Iupf Node Name
+  statistics-mpn                  Show PGW statistics per mpn fqdn [PRELIMINARY]
+  statistics-nf-instance          Show PGW statistics per NF instance ID
+  statistics-ocs                  Show PGW statistics per OCS DiameterHost
+  statistics-origin-host          Show PGW statistics per diameter originHost
+  statistics-pcrf                 Show PGW statistics per PCRF DiameterHost
+  statistics-pcscf                Show PGW statistics per p-cscf
+  statistics-plmn-id              Show PGW statistics per PLMN ID
+  statistics-sa-sessions-ni       Show PGW standalone sessions statistics for network instance and optionally upf
+                                  [PRELIMINARY]
+  statistics-serving-node         Show PGW statistics per Serving Node
+  statistics-static-pool          Show PGW UPF statistics
+  statistics-upf                  Show PGW statistics per Upf Node Name
+  stop                            Stop the PGW service
+  stop-trace                      Identifier for IMSI [OBSOLETE]
+  stop-trace-all                  Stop all tracing [OBSOLETE]
+  udm-control                     UDM control setting
+  udm-sm-subscription-data        Show udm sdm subscription info.
+  user-info                       Identifier for IMSI
+  user-info-up-summary-disabled   Action user-info will not show sessions' User Plane summary (far-in-use, pdr-in-use,
+                                  qer-in-use, and urr-in-use fields).
+  user-plane                      User plane settings
+  user-plane-pool                 User Plane pool
+  user-plane-selection            User plane selection
+  vsmf                            Configure Qos Constraints For V-SMF
+  |                               Output modifiers
+  <cr>                            
+vepg79-16(config)# epg pgw node 
+Possible completions:
+  <string>[vepg79-16-pgw]
+vepg79-16(config)# exit         
+[local]vepg79-16#epg node status
+node-status:
+
+    board-information:
+        board: gc-0/3/1
+        internal-address: 127.3.2.1
+        cpu-utilization: Peak 5%, Average 3%
+        memory: Total 16166884, Used 5419972
+        start-time: Sat Jul 15 13:19:22 2023
+
+        function:
+            function-name: local Session Controller
+            status: Ready
+
+        function:
+            function-name: PGW Session Controller
+            status: Ready
+            number-of-bearers: 0
+            number-of-pdn-connections: 0
+
+        function:
+            function-name: SGW Session Controller
+            status: Ready
+            number-of-bearers: 0
+            number-of-pdn-connections: 0
+
+    board-information:
+        board: gc-0/4/1
+        internal-address: 127.3.3.1
+        cpu-utilization: Peak 4%, Average 3%
+        memory: Total 16166884, Used 5171692
+        start-time: Sat Jul 15 13:19:22 2023
+
+        function:
+            function-name: PGW Session Controller
+            status: Ready
+            number-of-bearers: 0
+            number-of-pdn-connections: 0
+
+        function:
+            function-name: SGW Session Controller
+            status: Ready
+            number-of-bearers: 0
+            number-of-pdn-connections: 0
+
+    board-information:
+        board: gu-0/1/1
+        internal-address: 127.3.0.1
+        cpu-utilization: Peak 0%, Average 0%
+        memory: Total 16166884, Used 5246608
+        start-time: Sat Jul 15 13:19:26 2023
+
+        function:
+            function-name: UPF Packet Processor
+            status: Ready
+            pfcp-sessions: 0
+            uplink-packets: 0
+            downlink-packets: 0
+
+    board-information:
+        board: gu-0/2/1
+        internal-address: 127.3.1.1
+        cpu-utilization: Peak 0%, Average 0%
+        memory: Total 16166884, Used 5361336
+        start-time: Sat Jul 15 13:19:26 2023
+
+        function:
+            function-name: UPF Packet Processor
+            status: Ready
+            pfcp-sessions: 0
+            uplink-packets: 0
+            downlink-packets: 0
+[local]vepg79-16#epg node lawful-intercept status
+lawful-interception-status:
+    provisioning mode: x1
+    status: INACTIVE
+    license: BASE
+    active-target-limit-reached: FALSE
+
+    features-enabled:
+        iri-buffering: OFF
+        x2-keepalive: OFF
+        ms-in-iri-events: OFF
+        sgsn-update: OFF
+        user-access-report: OFF
+        exclude-outbound-roamers: OFF
+        single-interception: OFF
+        x1-block-dnn: OFF
+
+    etsi:
+        smf-enabled: OFF
+        pgw-enabled: OFF
+        x3-interface-name: OFF
+
+    transport-layer-security:
+        tls-enabled: TRUE
+
+    x1:
+        local-x1-ipv4-address: 5.16.5.1
+        local-x1-ipv6-address: 2a02:5:10:5::1
+        local-etsi-x1-ipv4-address: N/A
+        local-etsi-x1-ipv6-address: N/A
+
+    x2:
+        local-x2-ipv4-address: 5.16.5.2
+        local-x2-ipv6-address: 2a02:5:10:5::2
+
+    statistics:
+
+        sgw:
+            sgw-active-targets: 0
+            peak-sgw-active-targets: 0
+            bbiff-apn-targets: 0
+            peak-bbiff-apn-targets: 0
+
+        pgw:
+            pgw-active-targets: 0
+            peak-pgw-active-targets: 0
+[local]vepg79-16#show running-config epg node 
+Possible completions:
+  board-allocation       Board allocation
+  charging               Charging settings
+  diagnostics            Diagnostics and support
+  diameter               Diameter settings
+  direct-io              Direct I/O
+  dns                    
+  ebm                    Event Based Monitoring setting
+  fault-management       Fault management settings
+  feature-activation     Feature activation flags
+  file-age-monitoring    File age monitoring
+  icr                    Configure ICR Capabilities
+  interface              Configure interface used by both PGW and SGW
+  internal-command       ddc command collection flag
+  internal-debug         Actions used internally
+  isp                    Isp logging
+  itc                    ITC settings
+  lawful-intercept       Configuration for lawful-interception in the node
+  load-distribution      Load distribution settings
+  logical-interface      Interface settings
+  long-node-id-allowed   Extend the size of node ID up to 32
+  multi-config           Multiple configuration management.
+  node-name              The name of the EPG node, it must not be equal to 1
+  node-type              The name of the EPG node type [PRELIMINARY]
+  olp                    
+  pm                     performance management flags
+  qos-control            Qos control setting
+  secm                   Security management
+  uetrace                UE trace settings
+  |                      Output modifiers
+  <cr>                   
+[local]vepg79-16#show running-config epg node interface 
+epg node interface gom-c logical-interface gom-c-if
+epg node interface x1 logical-interface li-x1-if
+epg node interface x1 port 31330
+epg node interface x2 logical-interface li-x2-if
+epg node interface li-t3 logical-interface li-t3-if
+[local]vepg79-16#config
+Entering configuration mode private
+vepg79-16(config)# epg node logical-interface li-x1
+vepg79-16(config-logical-interface-li-x1)# 
+vepg79-16(config-logical-interface-li-x1)# routing-instance signaling
+vepg79-16(config-logical-interface-li-x1)# 
+vepg79-16(config-logical-interface-li-x1)# address 5.16.5.1
+vepg79-16(config-logical-interface-li-x1)# 
+vepg79-16(config-logical-interface-li-x1)# epg node interface li-x1 logical-interface 5.16.5.1 port 31335
+vepg79-16(config)# 
+vepg79-16(config)# epg node interface li-x1 port 31335 logical-interface li-x1-if admf admfID address 11.0.3.1 port 1996
+vepg79-16(config-admf-admfID)# 
+vepg79-16(config-admf-admfID)# epg node interface li-x2 logical-interface li-x2-if
+vepg79-16(config)# 
+vepg79-16(config)# epg pgw lawful-intercept etsi pgw-enabled true
+vepg79-16(config)# commit
+Commit complete.
+vepg79-16(config)# config
+-------------------^
+syntax error: unknown command
+vepg79-16(config)# epg node internal-debug traceoptions flag li
+vepg79-16(config-flag-li)# epg node internal-debug traceoptions debug-level 7
+vepg79-16(config)# epg node diagnostics trace libli.GtlDebug7
+vepg79-16(config-trace-libli.GtlDebug7)# commit 
+Commit complete.
+vepg79-16(config-trace-libli.GtlDebug7)# exit
+vepg79-16(config)# show run
+                        ^
+% Invalid input detected at '^' marker.
+vepg79-16(config)# show runnin
+                        ^
+% Invalid input detected at '^' marker.
+vepg79-16(config)# show runn  
+                        ^
+% Invalid input detected at '^' marker.
+vepg79-16(config)# show run 
+                        ^
+% Invalid input detected at '^' marker.
+vepg79-16(config)# show running
+                        ^
+% Invalid input detected at '^' marker.
+vepg79-16(config)# exit        
+[local]vepg79-16#show running-config epg node inter
+Possible completions:
+  interface          Configure interface used by both PGW and SGW
+  internal-command   ddc command collection flag
+  internal-debug     Actions used internally
+[local]vepg79-16#show running-config epg node interface 
+epg node interface gom-c logical-interface gom-c-if
+epg node interface x1 logical-interface li-x1-if
+epg node interface x1 port 31330
+epg node interface x2 logical-interface li-x2-if
+epg node interface li-x2 logical-interface li-x2-if
+epg node interface li-t3 logical-interface li-t3-if
+epg node interface li-x1 logical-interface li-x1-if
+epg node interface li-x1 port 31335
+epg node interface li-x1 admf admfID
+ address 11.0.3.1
+ port    1996
+
+
+
+
+/home/esimnaa/certs/vepg3416/vepg7916
+cd /repo/esimnaa./epg/
+   851	22:24	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze./ | grep "Stab_TC37542_1_1_2_ActivateTaskRequestNumbers"
+   855	22:40	build_all build-epgcats
+   856	22:52	cd /lab/epg_st_portal_logs/esimnaa_230704_184656_518207282_28194729_esimnaa/2023-07-05_10.08_TC37542.1.1.2_BS_3.5_MBB_2x_cots_PGWC_UPF_1_host_stability_ssr-vIP-Px2
+   858	22:52	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_ActivateTaskRequestNumbers"
+   859	22:52	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_ActivateTaskResonseNumbers"
+   860	22:53	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_GetTaskDetailsRequestNumbers"
+   861	22:53	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_GetTaskDetailsResponseNumbers"
+   862	22:53	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_DeactivateTasksRequestNumbers"
+   863	22:54	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab_TC37542_1_1_2_DeactivateTasksResponseNumbers"
+   864	22:54	/workspace/git/esimnaa/epg/epgcats/tools/verdict/bin/verdict-analyze ./ | grep "Stab__Log_LI_X1_KeepaliveResponseRecvNumbers"
+   865	6:19	cd /repo/esimnaa/epg
+   866	6:19	ll
+
+Stab__Log_ETSI_No_Report_Task_Issue = Check_log(
+    description = 'Check if there is any unexpected LI Report Task Issue',
+    pass_criterion = verdict.config.field.search('ReportTaskIssue(Request-recv|Response-sent) \\s+[1-9][0-9].*'),
+    fields = ['Text'],
+    log = verdict.config.tc.li_stability,
+    pass_if_contain = True,
+    time = verdict.config.time.from_start_to_end,
+    show_matches = 'ALL',
+)
+
+
+https://selngerrit/pc/gateway/epg/commit/154d5c76eecfddaa62df1b6b3d1030e18be1b7a8
+
+
+
+
+
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/autott_session’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/configurations’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/emms_logs’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/epg_testdata’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/extra’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/monitor_logs’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/pdc_tmp’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/raw_logs’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/special’
+cp: omitting directory ‘/lab/epg_st_portal_logs/EPG_28R201AL1_230821_120522_28656266_esimnaa/2023-08-25_00.22_TC37540.1.6.2_Multi_Feature_LOCO_GWC_UPF_1_host_stability_ssr-vIP-Pt2/uetrace_xml’
+
+
+framework/Test/TestSupport/X2/test-src/TestSupportX2/EtsiX2MessageHelper/FiveGsGtpTunnels.cpp
+
+omit : No value allowed
+?      : Any value allowed, but there must be a value
+*      : Any or none value allowed
+
+
+
+
+in below example, at this line( {{- $ttl := $local.security.tls.value  -}}) ttl has some value(ttls is 223) then there is another line(- $ttl = .Values.md.tls.value -) which has 22. will ttl have 22 or 223?
+
+  {{- $local := fromJson (include "rahul.local" .) -}}
+  {{- $ttl := $local.security.tls.value  -}}
+  {{- if .Values.md -}}
+    {{- if .Values.md.tls -}}
+      {{- if .Values.md.tls.value -}}
+        {{- $ttl = .Values.md.tls.value -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- print $ttl -}}
+
+
+
+{{/* TTL for client certificate */}}
+{{- define "rahul.targetdb.tls.certOverrideTtl" }}
+  {{- $global := fromJson (include "rahul.global" .) -}}
+  {{- $ttl := $global.security.tls.certOverrideTtl  -}}
+  {{- if .Values.targetdb -}}
+    {{- if .Values.targetdb.tls -}}
+      {{- if .Values.targetdb.tls.certOverrideTtl -}}
+        {{- $ttl = .Values.targetdb.tls.certOverrideTtl -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+  {{- print $ttl -}}
+{{- end -}}
+
+          - name: ERIC_PC_SM_TARGET_DB_TLS_ENABLED
+            value: {{ .Values.targetdb.tls.enabled | quote }}
+
+
+If you want to inspect the YAML configuration of running pods in Kubernetes, you can use the kubectl command-line tool. Here are a few commands to help you with that:
+
+To Get YAML Configuration of a Specific Pod:
+bash
+Copy code
+kubectl get pod <pod-name> -o yaml
+Replace <pod-name> with the name of the pod you want to inspect. This command retrieves and displays the YAML configuration of the specified pod.
+
+To Get YAML Configuration of All Pods in a Namespace:
+bash
+Copy code
+kubectl get pods --namespace=<namespace> -o yaml
+Replace <namespace> with the name of the namespace where your pods are running. This command retrieves and displays the YAML configuration of all pods in the specified namespace.
+
+To Get YAML Configuration of All Pods in All Namespaces:
+bash
+Copy code
+kubectl get pods --all-namespaces -o yaml
+This command retrieves and displays the YAML configuration of all pods in all namespaces.
+
+To Get YAML Configuration of Pods Matching a Label Selector:
+bash
+Copy code
+kubectl get pods -l <label-selector> -o yaml
+Replace <label-selector> with your label selector. This command retrieves and displays the YAML configuration of pods that match the specified label selector.
+
+Output to a File:
+If the YAML output is too long, you might want to redirect it to a file for easier inspection:
+
+bash
+Copy code
+kubectl get pod <pod-name> -o yaml > pod-config.yaml
+This command saves the YAML configuration of the specified pod to a file named pod-config.yaml. Adjust it based on your specific needs.
+
+
+
+Thanks, yes, I did by checking yaml configuration of files(secret, deployment) on the running node in which TTL value exists and  verified other things too  when tls enabled as true. I did run regression with this change and, regression looks okay :).
+
+
+
+env REDIS_UNIX_SOCKET=/tmp/tmp.c3tBaTi3tD /proj/epg-tools/go/1.20.7/bin/go  test -v -timeout 10m -count=1 -p=1 --tags=integration --run= ./...
+?   	X1If/cmd/envgen	[no test files]
+?   	X1If/cmd/goat	[no test files]
+?   	X1If/cmd/licsim	[no test files]
+?   	X1If/cmd/tcpproxy	[no test files]
+?   	X1If/cmd/x1server	[no test files]
+=== RUN   TestCreateRemoveDestinationIPv4
+Hello, World! create destination 12345789
+Hello, World! create destination 12345
+hello world task intergration
+Hello, World! create destination
+Hello, World! create destination after
+hello world task intergration
+Hello, World! create destination
+hello world task intergration
+Hello, World! create destination
+hello world task intergration
+hello world task intergration
+hello world task intergration
+hello world task intergration

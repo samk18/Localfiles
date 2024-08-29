@@ -1,0 +1,180 @@
+Hi, 
+
+This is the example:
+1.	Linux server:
+export SAN="IP:x.x.x.x, IP:x.x.x.x"
+CADIR=demoCA0
+CNF=ca0.cnf
+KEYLEN=2048
+MD=sha256
+
+mkdir $CADIR
+mkdir $CADIR/certs $CADIR/crl $CADIR/newcerts $CADIR/private 
+echo "01" >$CADIR/serial
+echo "01" >$CADIR/crlnumber 
+touch $CADIR/index.txt
+openssl genrsa -out $CADIR/private/cakey.pem $KEYLEN
+openssl req -x509 -$MD -days 3650 -new -nodes -key $CADIR/private/cakey.pem -subj "/C=SE/O=Ericsson AB/OU=PDU Packet Core/CN=CA" -batch -out $CADIR/cacert.pem -config $CNF
+
+CACOUNT=0
+CNF=ca$CACOUNT.cnf
+KEYLEN=2048
+IMSDIR=ims
+OUTDIR=cert
+MD=sha256
+
+mkdir $IMSDIR
+mkdir $OUTDIR
+mkdir tmp
+openssl genrsa -out $IMSDIR/ims_key.pem $KEYLEN
+openssl req -$MD -days 3650 -new -key $IMSDIR/ims_key.pem  -subj "/C=SE/O=Ericsson AB/OU=PDU Packet Core/CN=admf" -batch -out $IMSDIR/ims_cert.csr -config $CNF
+openssl ca -md $MD -config $CNF -in $IMSDIR/ims_cert.csr -out $IMSDIR/ims_cert.pem
+
+rm -fr $OUTDIR/*
+
+count=$CACOUNT
+
+while (($count>=0))
+do
+
+`openssl  x509 -in demoCA$count/cacert.pem -out  tmp/ca$count.crt`
+`cat tmp/ca$count.crt >>$OUTDIR/ca.crt`
+`rm tmp/ca$count.crt`
+let "count--" 
+done
+openssl  x509 -in demoCA0/cacert.pem  -out  $OUTDIR/ca.crt
+openssl  rsa -in demoCA0/private/cakey.pem -out  $OUTDIR/ca.key
+openssl  rsa -in $IMSDIR/ims_key.pem -out  $OUTDIR/li_ims.key
+openssl  x509 -in $IMSDIR/ims_cert.pem  -out  $OUTDIR/li_ims.crt
+
+2.	SMF node
+              config
+              epg node secm certm node-credential li-credential5 subject-name "O=Ericsson AB,C=SE,L=Gothenburg,OU=PDU Packet Core,CN=VSMF01" key-info rsa-2048
+              commit
+              start-offline-csr-enrollment uri /md/smf.csr
+    scp erv@$NODE:/md/smf.csr .
+
+3.	Linux server:
+CACOUNT=0
+CNF=ca$CACOUNT.cnf
+KEYLEN=2048
+SMFDIR=smf
+OUTDIR=cert
+MD=sha256
+
+mkdir $SMFDIR
+
+openssl  x509 -in $SMFDIR/smf_cert.pem  -out  $OUTDIR/smf.crt
+
+cd cert/
+scp smf.crt erv@$NODE:/md
+scp ca.crt erv@$NODE:/md
+scp li_ims.crt erv@$NODE:/md
+thanks
+Hellen
+
+
+
+
+example
+
+    if (result == 0)
+    {
+    std::cout<<"found"; scriptpath = "../../../../../gen-tests-cert.sh /n";
+    }
+    else {
+    std::cout << "not found \n";
+    //scriptpath = "../../../../../gen-tests-cert.sh /n";
+    }
+ 
+
+
+ gsc card
+
+ ssh fs@lc-1 
+
+ ps aux | grep redis 
+
+
+ps -ef | grep redis
+
+
+I am getting this below error?
+
+
+cannot use Init() (value of type *Adapter) as *Db value in assignment: 
+*Adapter does not implement *Db (type *Db is pointer to interface, not interface) compilerInvalidIfaceAssign
+
+at this point i am having above error
+p.DB = InitR()
+
+type server struct { 
+    DB *Db1
+}
+
+type Db1 interface {Method() string}
+
+type Adapter struct{}
+func(x *Adapter )methodstring {
+	return "Hello from MyType"
+}
+
+
+where DB is an variable of interface type and
+
+Initredis return *Adapter this where Adapter is a subclass
+
+
+
+cannot use adater (variable of type *Adapter) as *Db value in assignment: *Adapter does not implement 
+*Db (type *Db is pointer to interface, not interface)compilerInvalidIfaceAssign
+
+cannot use &adater (value of type **Adapter) as *Db value in assignment: 
+**Adapter does not implement *Db (type *Db is pointer to interface, not interface)
+
+
+https://go.dev/tour/methods/6
+
+
+While pass by pointer can be useful for large-sized data types or structs with many fields due to reduced memory overhead and
+ performance gains, I guess. yes , I did. 
+It is fine to use pass by value here ,since the struct has only a few fields I assume. please correct me if I am wrong.
+I wonder if it is keep as is or worth changing it to pass by pointer?
+
+needs any discussion with manager as it didn't impact sprint goal as i couldnt find any opportunity 
+
+ I have explained everything in our last meeting that I will continue being transparency and share needed information  . all the actions that i have taken so far are just to help team to reach sprint goals and improve team dynamics they are general part of my work.  the reason that I brought that up as he already mentioned in daily 
+ scrum before that meeting that we can have the mob session which was the same that I mentioned in the meeting other than that it was not my intention to bring anyone down.   
+
+
+
+
+
+
+ <tq0000:X1Request xmlns:tq0000="http://uri.etsi.org/03221/X1/2017/10" xmlns:tq0003="http://uri.etsi.org/03280/common/2017/07" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <tq0000:x1RequestMessage xsi:type="tq0000:CreateDestinationRequest">
+    <tq0000:admfIdentifier>admfID</tq0000:admfIdentifier>
+    <tq0000:neIdentifier>neID</tq0000:neIdentifier>
+    <tq0000:messageTimestamp>2017-10-06T18:46:21.446605Z</tq0000:messageTimestamp>
+    <tq0000:version>v1.7.1</tq0000:version>
+    <tq0000:x1TransactionId>8e8ca539-e4dd-41f3-b1cb-acc2a5edece0</tq0000:x1TransactionId>
+    <tq0000:destinationDetails>
+      <tq0000:dId>b0ce308c-aa17-42bd-a27b-287bcb5b3468</tq0000:dId>
+      <tq0000:deliveryType>X2andX3</tq0000:deliveryType>
+      <tq0000:deliveryAddress>
+        <tq0000:ipAddressAndPort>
+          <tq0003:address>
+            <tq0003:IPv4Address>192.0.2.2</tq0003:IPv4Address>
+          </tq0003:address>
+          <tq0003:port>
+            <tq0003:TCPPort>12345</tq0003:TCPPort>
+          </tq0003:port>
+        </tq0000:ipAddressAndPort>
+      </tq0000:deliveryAddress>
+    </tq0000:destinationDetails>
+  </tq0000:x1RequestMessage>
+</tq0000:X1Request>
+
+
+
+grep rock /var/log/dallas_msg.log

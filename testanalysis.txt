@@ -1,0 +1,42 @@
+Work packages:
+ETSI Global Configuration
+
+(An idea: add Pois in LiPoi to avoid double deliveries)
+
+Update handleOpen event to harvest for pois {PgwCreateSessionS5 PgwCreateDedicatedBearers} if PGW Standalone
+Implement handleUpdateEvent(event, poi) to harvest for pois {PgwUpdateServingNodeInitiatedS5} if PGW standalone
+Implement handleCloseEvent to harvest for pois {PgwDeleteInternal, PgwDeleteInternalDedicatedBearer, PgwDeleteServingNodeInitiatedS5S2Gtp, PgwDeleteBearerCommand} if PGW standalone
+Implement an overloaded Harvest function for start of interception
+Implement start of interception poi {PgwStartOfInterceptionWithActiveBearer} if Standalone
+
+IRI Building
+- Generate ASN1 code (the shellscript)
+- Build X2 message for
+                Bearer Activation
+                                PgwCreateSessionS5
+                                PgwCreateDedicatedBearers
+                                PgwStartOfInterceptionWithActiveBearer
+                Bearer Modification
+                                PgwUpdateServingNodeInitiatedS5,
+                Bearer Deactivation
+                                PgwDeleteInternal,
+                                PgwDeleteInternalDedicatedBearer,
+                                PgwDeleteServingNodeInitiatedS5S2Gtp,
+                                PgwDeleteBearerCommand
+
+
+LIT3
+Create LiT3Etsi4GBuilder
+
+TCNN
+1.            Verify that ETSI X1, X2 configuration is excluded with the configuration of li-oam: epg node feature-activation li-oam
+2.            Verify Bearer Activation/Deactivation IRI is sent correctly by PGW-C for each default/dedicated bearer via ETSI LI X2 interface (TargetIdentifier = IMSI). 
+3.            Verify Bearer Deactivation IRI is sent correctly by PGW-C for each default/dedicated bearer via ETSI LI X2 interface when deleting default bearer (TargetIdentifier = MSISDN).
+4.            Verify Start of Interception with Bearer Active/Deactivation IRI is sent correctly by PGW-C for each default/dedicated bearer via ETSI LI X2 interface (TargetIdentifier = IMEI). 
+5.            Verify Bearer Modification IRI is sent correctly for default and each dedicated bearer by PGW-C via ETSI LI X2 interface when RAT/ECI is changed (without SGW change).
+
+SFT
+Create4GSessionWithEtsiPgwEnable
+Create4GSessionWithoutEtsiPgwEnable
+Create4GSessionWithoutEtsiX3InterfaceName
+Verify LiT3 ReportTaskIssue is sent if the request fails

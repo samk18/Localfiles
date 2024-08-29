@@ -1,0 +1,74 @@
+
+
+
+
+
+framework/SecurityManagement/CredentialCommon/src/PemPrivateKeyHandler.cpp
+
+
+
+
+
+epg node secm certm trust-category li-category4 trusted-certificates li_ims5
+
+
+application/LiOam/Certificate/LiSecdCommon/src/LiConfigValidator/SecMValidationRule.cpp
+
+/workspace/git/esimnaa/epg/framework/SecurityManagement/SecdCommon/src/CredentialRepository/CredentialRepository.cpp
+processcmd
+epg/framework/SecurityManagement/SecdCommon/src/CredentialRepository/CredentialRepository.cpp
+
+
+epg/application/LiOam/Certificate/LiCredentialIf/LiCredentialAgent/src/Agent.cpp
+epg/framework/SecurityManagement/CredentialIf/CredentialAgent/src/PendingReq.cpp
+
+ncsr successful
+/workspace/git/esimnaa/epg_internal/epg/framework/SecurityManagement/SecdTest/test-src/SecdTest/utest_NodeCredentialCommands.cpp
+
+.crt stored
+framework/SecurityManagement/SecdCommon/src/CmdHandler/NodeCredentialCommands.cpp
+
+epg/framework/SecurityManagement/SecdCommon/src/CredentialRepository/CredentialRepository.cpp ------------>
+
+ 
+      framework/SecurityManagement/SecdCommon/src/CredentialRepository/Cache.cpp ----> 
+      application/LiOam/Certificate/LiSecdCommon/src/LiCredentialRepository/StoreCertificateRepoCmd.cpp -------> 
+      framework/SecurityManagement/SecdCommon/src/CmdHandler/TrustedCertCommands.cpp
+
+
+
+this is not information that we put in mfs.
+
+this is give you an overiew about alternative 3
+we have a problem with alternative 3
+RootCA installed through OpenSSL, propagated to all boards via Secm and Certd. 
+we need rootca key as well to propagate to all boards for which we don't have support secm or certm that will propagate ca key to boards and secm,certm lives in rp board which is in node management board and which is connected to all boards
+
+
+so we decided to another way by installing ca key, ca cert in board itself and propagate this via commands which is unencrypted from board 1 to board 2 since there is no support for secm, certm which will propagate ca key to boards
+
+
+we reached out security experts if we can do like above that I mentioned and they told that you send keys via commands which is unencrypted and they are not okay with it 
+
+I will provide more info in next message
+ask me if you have any doubts so we can update mfs together 
+
+there is a slightly misleading information that you provided no worries  I will correct you
+
+rootca will also be installed in board itself not via secm,certm
+
+rooct ca key will be sent via commands from board 1 to board 2 which is encrypted (Encrypt private key using already existing “global dynamic key” before sending via commands from board 1 to board 2)
+
+we have missed cons for this 
+renewal case 
+
+
+
+framework/SecurityManagement/SecdCommon/src/CredentialRepository/StoreKeyRepoCmd.cpp
+
+framework/Support/EscFramework/src/Esc.cpp
+
+
+
+
+framework/CommandDispatching/LocalCmdDispatchingIf/LocalCmdDispatchingService/src/CmdHandler.cpp

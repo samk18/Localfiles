@@ -1,0 +1,517 @@
+IEs:
+    dnn:"apn1.com"
+    pduSessionId:10
+    observedGpsi:"1707688188"
+    observedSupi:"310012392442497"
+    observedPei:<not present>
+    requestType:InitialRequest
+    accessType:AccessType_3GPP_ACCESS
+    ratType:NR
+    Location:
+      locationInfo:
+        Current Location:true
+        RatType:NR
+        timeZone:"+00:00+0"
+    snssai:
+      sst:2
+      sd:"d143a4"
+    gtpTunnelId:<empty matcher>
+    amfId:
+      amfRegionId:175
+      amfSetId:973
+      amfPointer:5
+    ueEndpointAddress:
+      ipv4:"192.90.138.192"
+      ipv6:<not present>
+      prefixLength:<not present>
+    servingNetwork:
+      mcc:"310"
+      mnc:"012"
+    handoverState:<not present>
+    gtpTunnelInfo:
+      fiveGsGtpTunnels:
+        uLNGUUPTunnelInformation:
+          TEID:4266212927
+          IPADDRESS:
+            ipv4:<not present>
+            ipv6:"2a01:2001::88:c7a2"
+            prefixLength:<not present>
+        additionalULNGUUPTunnelInformation:<empty vector>
+        dLRANTunnelInformation:
+          dLQOSFlowTunnelInformation:
+            uPTunnelInformation_:<not present>
+            associatedQOSFlowList_:
+              [0]:
+                Qfi:11
+                QosRules:
+                  Qos rules:
+                    Element:
+                      Qos rule identifier:11
+                      Rule operation code:CreateNewQosRule
+                      DefaultQosRule:true
+                      Precedence:255
+                      Segregation:0
+                      Qfi:11
+                      Spare:<empty matcher>
+                      Packet filters:
+                        Element:
+                          Packet filter identifier:0
+                          Packet filter direction:Uplink
+                          Packet filter spare:<empty matcher>
+                          Packet filter precedence:<empty matcher>
+                          Packet filter components:
+                            TestSupport::Types::PacketFilter::Component:
+                              type:MatchAll
+                EpsBearerId:<not present>
+                QosFlowDescription:
+                  Qfi:11
+                  OperationCode:CreateNewQosFlowDescription
+                  E:ParametersListIsIncluded
+                  Parameters:
+                    TestSupport::Types::QosFlowDescription::Parameter:
+                      type:FiveQi
+                      value:5
+                  Spare0:<empty matcher>
+                  Spare1:<empty matcher>
+                  Spare2:<empty matcher>
+                FiveQi:<not present>
+                AccessType:AccessType_3GPP_ACCESS
+                defaultQOSRuleIndication_:<not present>
+          additionalDLQOSFlowTunnelInformation:<empty vector>
+          redundantDLQOSFlowTunnelInformation:<empty vector>
+          additionalredundantDLQOSFlowTunnelInformation:<empty vector>
+      epsGtpTunnels:<not present>
+    non3GPPAccessEndpoint:<not present>
+    smPDUDNRequest:<not present>
+we suppose to get event here because the related poi of this case not handled in switchcase in internal. commented out to make sure that this change doesnt break anything In upcoming patchset, I will uncomment it out :)
+SmfClearUpfBufferN4
+IsmfRelease5gConnectionN11
+internal/SessionEventTracing/X2If/src/X2Multiplexer.cpp
+
+    Procedures::networkTriggeredServiceRequestWithIsmf.runActionsBetween("AmfSendN1n2MessageTransferResponse","etsiDf2ReceivePduSessionModificationEventRequest",
+                                                                           {liSessionTask_});
+ etsiDf2_.receive(etsiDf2_.pduSessionModificationInterceptEventWithDefaultQosInActiveList(session_));
+
+
+https://selngerrit.mo.sw.ericsson.se/#/c/1120716/
+
+
+grep on particular files
+
+git grep -i -E ".*IsmfRelease5gConnectionN11.*" -- '*.yaml'
+
+
+https://selngerrit.mo.sw.ericsson.se/#/c/1120716/
+
+ 288  01:04:34.428               |               |---------------------------------------------------------------------------------------------->| EtsiPduSessionReleaseEvent:EtsiPduUnsuccessfulProcedureEvent
+                                 |               |               |               |               |               |               |               | pduSessionId:1
+ 289  01:04:34.428               |               |------------------------------>|               |               |               |               | SessionModificationRequest
+                                 |               |               |               |               |               |               |               |   Seid:8918265481844116630, SeqNr:16125711
+                                 |               |               |               |               |               |               |               |   UpdateFar{FarId:4, ApplyAction[Buffer,NotifyTheCpFunction]}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PayloadType:PduSessionModification
+    IEs:
+        observedGpsi:"1707400511"
+        observedSupi:"310012567669695"
+        observedPei:<not present>
+        requestType:Modification
+        accessType:AccessType_3GPP_ACCESS
+        ratType:NR
+        location:
+            locationInfo:
+                Current Location:true
+                RatType:NR
+                timeZone:"-05:00+1"
+        snssai:
+            sst:2
+            sd:"d143a4"
+        non3GPPAccessEndpoint:<not present>
+        supiUnauthenticated:false
+        servingNetwork:
+            mcc:"310"
+            mnc:"012"
+        handoverState:<not present>
+        epsPdnConnectionModification:<not present>
+        GtpTunnelInfo:
+            fiveGsGtpTunnels:
+                uLNGUUPTunnelInformation:
+                    TEID:3543963942
+                    IPADDRESS:
+                        ipv4:<not present>
+                        ipv6:"2a01:2001::f2:8d42"
+                        prefixLength:<not present>
+                additionalULNGUUPTunnelInformation:<empty vector>
+                dLRANTunnelInformation:
+                    dLQOSFlowTunnelInformation:
+                        uPTunnelInformation_:<not present>
+                        associatedQOSFlowList_:
+                            [0]:
+                                Qfi:1
+                                QosRules:<any value>
+                                EpsBearerId:<not present>
+                                QosFlowDescription:
+                                    Qfi:1
+                                    OperationCode:CreateNewQosFlowDescription
+                                    E:ParametersListIsIncluded
+                                    Parameters:
+                                        [0]:
+                                            type:FiveQi
+                                            value:1
+                                        [1]:
+                                            type:GfbrUplink
+                                            value:200000
+                                        [2]:
+                                            type:GfbrDownlink
+                                            value:400000
+                                        [3]:
+                                            type:MfbrUplink
+                                            value:2200000
+                                        [4]:
+                                            type:MfbrDownlink
+                                            value:4200000
+                                    Spare0:<empty matcher>
+                                    Spare1:<empty matcher>
+                                    Spare2:<empty matcher>
+                                FiveQi:<not present>
+                                AccessType:AccessType_3GPP_ACCESS
+                                defaultQOSRuleIndication_:<not present>
+                    additionalDLQOSFlowTunnelInformation:<empty vector>
+                    redundantDLQOSFlowTunnelInformation:<empty vector>
+                    additionalredundantDLQOSFlowTunnelInformation:<empty vector>
+            epsGtpTunnels:<not present>
+        ueEndpointAddress:
+            ipv4:"20.0.1.1"
+            ipv6:<not present>
+            prefixLength:<not present>
+        smPDUDNRequest:<not present>
+
+
+  if (session->isConfigured())
+        {
+            // If DF2 connection failure occurs on an LMISF connection, do not send the alarm to
+            // legacy sessions (i.e sessions with X2version != 2.0)
+            if (isLmisf && alarmId == LiAlarmId::Df2pConnectionFailure &&
+                session->x2version.getVersionAsEnum() == Li::XProtocolEnumVersion::V2_0)
+            {
+                                 // create a unique transaction for this session and process it
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+                LI_LOG2(Log::Notice, LI_ID,
+                        getLogId(__FUNCTION__).c_str()
+                            << ": Alarm {id:" << alarmId << ", addr:" << boardAddr.toString().c_str()
+                            << "} sent to ADMF client lmisf: (" << session->getLogId("").c_str()
+                            << " remote EP:" << session->getRemoteEndpoint().toString().c_str() << ").");
+            }
+            else if(!isLmisf && alarmId == LiAlarmId::Df2pConnectionFailure &&
+                session->x2version.getVersionAsEnum() != Li::XProtocolEnumVersion::V2_0)
+            {
+                // create a unique transaction for this session and process it
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+                LI_LOG2(Log::Notice, LI_ID,
+                        getLogId(__FUNCTION__).c_str()
+                            << ": Alarm {id:" << alarmId << ", addr:" << boardAddr.toString().c_str()
+                            << "} sent to ADMF client liims: (" << session->getLogId("").c_str()
+                            << " remote EP:" << session->getRemoteEndpoint().toString().c_str() << ").");
+            }
+            else {
+                LI_LOG(Log::Debug, LI_ID, "%s: neither X2 disconnection alarm is from LMISF and should not be sent to LI-IMS",
+                       getLogId(__FUNCTION__).c_str());
+            }
+            
+        case Li::LiPoi::IsmfDownlinkDataNotificationN2:
+
+Jan 19 11:43:51.263: {1/LP}: %ASESDK-5-NOTICE: pgwcd[22636] 3388.0 uid=[12938817628163204380] gsc LI: X1.Server(sendAlarmNotification): Alarm {id:Df2pConnectionFailure, addr:5.8.5.2} sent to ADMF client lmisf: (X1.Session{11.0.3.102:40011,59,TCP,[2.0,2.0,2.7],Rea ...
+
+Payload:
+  MessageHeader:
+    PayloadFormat:14
+  MessageType:Begin_record
+  LiId:
+    LiId:"LIIDNotPresent"
+  CorrelationNumber:4294967295
+  EventType:StartOfInterception
+  EpsTimeStamp:
+    Timestamp length:13
+    Last Character:"Z"
+    Timestamp Format:UtcTime
+  Initiator:Ue
+  NetworkIdentifier:310012
+  Gtpv2SpecificParameters:
+    PdnAddressAllocation:
+      IP:
+        ipv4:"192.114.129.175"
+        ipv6:<not present>
+        prefixLength:<not present>
+      PdnType:Ipv4
+    Apn:"apn1.com"
+    BearerId:7
+    BearerQos:
+      Qci:
+        value:5
+      Arp:
+        Priority Level:11
+        Preemption Capability:NOT_PREEMPT
+        Preemption Vulnerability:PREEMPTABLE
+      Maximum bitrate (uplink):0 kb
+      Maximum bitrate (downlink):0 kb
+      Guaranteed bitrate (uplink):0 kb
+      Guaranteed bitrate (downlink):0 kb
+    Tft:<empty matcher>
+    PdnType:[Ipv4]
+    ApnAmbr:
+      Uplink:2048 Kbps
+      Downlink:4096 Kbps
+    IsHandover:<empty matcher>
+    BearerActivation:DefaultBearer
+    RatType:Eutran
+    ProtocolConfigurations:<empty matcher>
+    LinkedEPSBearerId:<empty matcher>
+    UserLocationInformation:
+      Cgi:<empty matcher>
+      Sai:<empty matcher>
+      Rai:<empty matcher>
+      Tai:
+        Plmn:
+          :310012
+        TAC:1
+      Ecgi:<empty matcher>
+      Lai:<empty matcher>
+    DeactivationCause:<empty matcher>
+    DeactivationType:<empty matcher>
+  PartyInformationList:
+    [0]:
+      PartyIdentity:
+        Imei:<empty string>
+        Imsi:"310012397218078"
+        Msisdn:"1707040543"
+  LogicalFunctionType:pDNGW
+
+   IEs:
+    dnn:"apn1.com"
+    pduSessionId:7
+    observedGpsi:"1707226502"
+    observedSupi:"310012715984495"
+    observedPei:<not present>
+    requestType:InitialRequest
+    accessType:AccessType_3GPP_ACCESS
+    ratType:NR
+    Location:
+      locationInfo:
+        Current Location:true
+        RatType:NR
+        timeZone:"-05:00+1"
+    snssai:
+      sst:2
+      sd:"d143a4"
+    gtpTunnelId:
+      TEID:1363187703
+      IPADDRESS:
+        ipv4:"192.3.120.181"
+        ipv6:<not present>
+        prefixLength:<not present>
+    amfId:
+      amfRegionId:175
+      amfSetId:973
+      amfPointer:5
+    ueEndpointAddress:
+      ipv4:"192.3.120.189"
+      ipv6:<not present>
+      prefixLength:<not present>
+    servingNetwork:
+      mcc:"310"
+      mnc:"012"
+    handoverState:<not present>
+    gtpTunnelInfo:
+      fiveGsGtpTunnels:
+        uLNGUUPTunnelInformation:
+          TEID:1363187703
+          IPADDRESS:
+            ipv4:"192.3.120.181"
+            ipv6:<not present>
+            prefixLength:<not present>
+        additionalULNGUUPTunnelInformation:<empty vector>
+        dLRANTunnelInformation:
+          dLQOSFlowTunnelInformation:
+            uPTunnelInformation_:
+              TEID:1363187703
+              IPADDRESS:
+                ipv4:"192.3.120.181"
+                ipv6:<not present>
+                prefixLength:<not present>
+            associatedQOSFlowList_:
+              [0]:
+                Qfi:5
+                QosRules:<any value>
+                EpsBearerId:<not present>
+                QosFlowDescription:
+                  Qfi:5
+                  OperationCode:CreateNewQosFlowDescription
+                  E:ParametersListIsIncluded
+                  Parameters:
+                    TestSupport::Types::QosFlowDescription::Parameter:
+                      type:FiveQi
+                      value:5
+                  Spare0:<empty matcher>
+                  Spare1:<empty matcher>
+                  Spare2:<empty matcher>
+                FiveQi:<not present>
+                AccessType:AccessType_3GPP_ACCESS
+                defaultQOSRuleIndication_:<not present>
+          additionalDLQOSFlowTunnelInformation:<empty vector>
+          redundantDLQOSFlowTunnelInformation:<empty vector>
+          additionalredundantDLQOSFlowTunnelInformation:<empty vector>
+      epsGtpTunnels:<not present>
+    non3GPPAccessEndpoint:<not present>
+    smPDUDNRequest:<not present>
+
+
+
+
+
+
+
+// =====================================
+    f_CLI_LOG__log_banner(pl_message := "8. Kill X2 Connection of LMISF")
+    // =====================================
+
+    f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_IMS_instance);
+
+    // =====================================
+    f_CLI_LOG__log_banner(pl_message := "Expect Alarm sent from EPG to LMISF")
+    // =====================================
+
+    f_sr_X1_1__Alarms
+    (
+        pl_alarm           := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress       := ?,
+        pl_number_of_alarms := 2,
+        pl_receive_timeout := 40.0,
+        pl_instance        := cl_IMS_instance
+    );
+
+    f_CLI_LOG__log_banner(pl_message := "Ensure no alarm was sent to the LI-IMS");
+
+    f_r_X1_1__Silence
+    (
+        pl_instance := cl_LMISF_instance
+    );
+
+    f_s_X2__reopen_socket(pl_instance := cl_IMS_instance );
+
+    // =====================================
+    f_CLI_LOG__log_banner(pl_message := "9. LMISF: X2 ReConnect")
+    // =====================================
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_IMS_instance,
+        pl_x2_connects            := 2,
+        pl_expected_version       := "1.6"
+    );
+
+
+
+// =====================================
+    f_CLI_LOG__log_banner(pl_message := "11. Kill X2 Connection of LIIMS")
+    // =====================================
+
+    f_s_X2__hard_disconnect_from_SUT( pl_instance := cl_IMS_instance);
+
+    // =====================================
+    f_CLI_LOG__log_banner(pl_message := "Expect Alarm sent from EPG to LIIMS")
+    // =====================================
+
+    f_sr_X1_1__Alarms
+    (
+        pl_alarm           := cg_X1_1__Alarm__DF2_unavailable,
+        pl_ipaddress       := ?,
+        pl_number_of_alarms := 2,
+        pl_receive_timeout := 40.0,
+        pl_instance        := cl_IMS_instance
+    );
+
+    f_CLI_LOG__log_banner(pl_message := "Ensure no alarm was sent to the LI-IMS");
+
+    f_r_X1_1__Silence
+    (
+        pl_instance := cl_LMISF_instance
+    );
+
+    f_s_X2__reopen_socket(pl_instance := cl_IMS_instance );
+
+    // =====================================
+    f_CLI_LOG__log_banner(pl_message := "9. LMISF: X2 ReConnect") 
+    // =====================================
+
+    f_sr_LI_IMS__Connect_to_X2
+    (
+        pl_x2_instance            := cl_IMS_instance,
+        pl_x2_connects            := 2,
+        pl_expected_version       := "1.6"
+    );
+
+
+            if (isLmisf && alarmId == LiAlarmId::Df2pConnectionFailure &&
+                session->x2version.getVersionAsEnum() != Li::XProtocolEnumVersion::V2_0)
+            {
+                LI_LOG(Log::Debug, LI_ID, "X2 disconnection alarm is from LMISF and should not be sent to LI-IMS");
+            }
+            else
+            {
+                // create a unique transaction for this session and process it
+                onTransaction(std::make_unique<AlarmNotificationReq>(session->getSessionIdentifier(),
+                                                                     session->getUpSessionSeqNo(),
+                                                                     static_cast<uint8_t>(alarmId), boardAddr));
+                LI_LOG2(Log::Notice, LI_ID,
+                        "Alarm {id:" << alarmId << ", addr:" << boardAddr.toString().c_str()
+                                     << "} sent to ADMF client: (" << session->getLogId("").c_str()
+                                     << " remote EP:" << session->getRemoteEndpoint().toString().c_str() << ").");
+            }
+
+
+../../application/PgwControlPlane/LawfulInterception/test-src/ClassicUnitTest/ut_li_x1_stack.cpp:959: Failure
+Actual function call count doesn't match EXPECT_CALL(eventMonitorTxMock, onBytesTransmitted(context))...
+         Expected: to be called once
+           Actual: never called - unsatisfied and active
+Trace/BPT trap

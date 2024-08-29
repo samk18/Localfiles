@@ -1,0 +1,275 @@
+grep rock /var/log/dallas_msg.log
+
+lts_run_mobiles '1,1,[104]'
+
+lts_help tc_mme
+lts_help tc_mme
+
+tail -F /var/log/list/etsix2handler.log
+
+lts_run_mobiles '37109,1,[104,{158,cont}]'
+
+lts_control start -c /autott/dallas
+
+
+lts_control stop
+
+lts_run_mobiles '37109,1,[165,106]'
+lts_run_mobiles '37109,1,[104,{158,cont}]'
+lts_run_mobiles '1,1,[104]' 
+lts_run_mobiles '37109,1,[{158,1}]'
+lts_run_mobiles '37109,1,[104]'
+
+
+1052	14:23	cp /lab/epg_scm4_builds/program/ci/EPG_28R240YU1/vipp/test-tools.info paths
+  1053	14:23	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg34-9 -t TC37540.40.6.1 install all configure all start all NOT testMethod
+  1054	15:42	/lab/epg_st_utils/testtools/autott/LSV/latest/latest/bin/autoTT.sh -n vepg34-9 -t TC37540.40.6.1 start testMethod
+
+
+
+export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+
+cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/lib/python3.8/site-packages/list/config/list.cfg .
+
+
+
+ lts_control start -c /autott/dallas
+29995  lts_info
+29996  grep "ready to rock" /var/log/dallas_msg.log
+29997  lts_info
+29998  ls /autott/cdrdecoder_conf/*.xml |grep -v "^$"
+29999  /lab/j20/testtools/binaries/windows/outline/ng/ng configuration load /autott/cdrdecoder_conf/cdrdecoder_default.xml
+30000  /lab/testtools/dallas/rhel764/Release/3R209B02/3pp/ltt/util/dpdk-procinfo -- -m > /var/log/ltt_memory.log_started
+30001  ls
+30002  lts_info
+30003  vim list.cfg
+30004  list -c list.cfg start
+30005  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+30006  list -c list.cfg start
+30007  list -c list.cfg start liT3UPsim
+30008  list -h
+30009  list start -h
+30010  list start5G -h
+30011  list -c list.cfg stop liT3UPsim
+30012  list -c list.cfg -h
+30013  list -c list.cfg local-audit -h
+30014  list -c list.cfg local-audit pgwcsim-apn-media-51000.mnc001.mcc001.gprs pgwcsim-apn-media-51001.mnc001.mcc001.gprs pgwcsim-apn-media-51002.mnc001.mcc001.gprs
+30015  lts_get_ms_group range
+30016  lts_get_ms_group_range
+30017  lts_get_msgroup_range
+30018  lts_ms_group_range
+30019  lts_get_ms_groups_range 
+30020  lts_get_ms_groups_range  | less
+30021  lts_run_mobiles '1,10,[104,{158,cont}]'
+30022  lts_get_subscriber 1
+30023  list -c list.cfg show -h
+30024  list -c list.cfg show counters
+30025  list -c list.cfg showLiT3 counters
+30026  list -c list.cfg showEtsi counters
+30027  list -c list.cfg -h
+30028  list -c list.cfg get-apn-target
+30029  lts_get_ms_groups_range  | less
+30030  lts_run_mobiles '8202,20,[104,{158,cont}]'
+30031  list -c list.cfg get-apn-target
+30032  list -c list.cfg activate-cc -h
+30033  list -c list.cfg activate-cc ALL --amount 10
+30034  lts_get_subscriber 1
+30035  list -c list.cfg add 100000000000001-100000000000010
+30036  list -c list.cfg add 100000000000001-100000000000010 --cc on
+30037  list -c list.cfg add 100000000000001-100000000000010 --cc off
+30038  list -c list.cfg add 100000000000001-100000000000010 
+30039  list -c list.cfg remove 100000000000001-100000000000010 
+30040  list -c list.cfg add 100000000000001-100000000000010 --cc on
+30041  list -c list.cfg show counters
+30042  list -c list.cfg remove 100000000000001-100000000000010 
+30043  list -c list.cfg ActivateTask -h
+30044  list -c list.cfg remove 100000000000001-100000000000010 
+30045* 
+30046* 
+30047  vim list.cfg
+30048* 
+30049  lts_get_subscriber 1
+30050  list -c list.cfg -h
+30051  list -c list.cfg ActivateTask 100000000000001-100000000000010 --type imsi
+30052  lts_run_mobiles '1,10,[165,106]'
+30053  lts_run_mobiles '1,10,[104,{158,cont}]'
+30054  list -c list.cfg RemoveAllTasks
+30055  list -c list.cfg DeactivateAllTasks
+30056  list -c list.cfg ActivateTask 100000000000001-100000000000010 --type imsi
+30057  lts_get_ms_groups_range
+30058  list -c list.cfg ActivateTask 100000000024971 --type imsi
+30059  lts_run_mobiles '24971,10,[104,{158,cont}]'
+30060  list -c list.cfg -h
+30061  list -c list.cfg GetAllDetails
+30062  history
+
+
+
+
+
+30001  tail -F /var/log/list/x1handler.log
+30002  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+30003  list -c list.cfg get-apn-target
+30004  list -c list.cfg local-audit -h
+30005  list -c list.cfg terminate-cc ALL --amount 5
+30006  list -c list.cfg get-apn-target
+30007  list -c list.cfg terminate-cc ALL --amount ALL
+30008  list -c list.cfg local-audit
+30009  list -c list.cfg stop -h
+30010  list -c list.cfg stop
+30011  vim list.cfg
+30012  tail -F /var/log/list/x1handler.log
+30013  tail -F /var/log/list/etsix1handler.log
+30014  history
+
+
+
+29990  vim list.cfg
+29991  top list.cfg
+29992  head list.cfg
+29993  list -c list.cfg start
+29994  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+29995  list -c list.cfg start
+29996  list -c list.cfg start liT3UPsim
+29997  list -h
+29998  list start -h
+29999  list start5G -h
+30000  list -c list.cfg stop liT3UPsim
+30001  less /autott/dallas/dallas.mobile
+30002  history
+
+
+29994  lts_info
+29995  grep "ready to rock" /var/log/dallas_msg.log
+29996  lts_info
+29997  ls /autott/cdrdecoder_conf/*.xml |grep -v "^$"
+29998  /lab/j20/testtools/binaries/windows/outline/ng/ng configuration load /autott/cdrdecoder_conf/cdrdecoder_default.xml
+29999  /lab/testtools/dallas/rhel764/Release/3R209B02/3pp/ltt/util/dpdk-procinfo -- -m > /var/log/ltt_memory.log_started
+30000  ls
+30001  top list.cfg
+30002  head list.cfg
+30003  tail -F /var/log/list/x2handler.log
+30004  less /autott/dallas/dallas.mobile 
+30005  tail -F /var/log/list/etsix2handler.log
+30006  history
+
+
+show running-config epg node interface
+
+
+
+less /autott/dallas/dallas.mobile
+29917  list -c list.cfg local-audit pgwcsim-apn-media-51000.mnc001.mcc001.gprs pgwcsim-apn-media-51001.mnc001.mcc001.gprs pgwcsim-apn-media-51002.mnc001.mcc001.gprs
+29918  lts_get_ms_group range
+29919  lts_get_ms_group_range
+29920  lts_get_msgroup_range
+29921  lts_ms_group_range
+29922  lts_get_ms_groups_range 
+29923  lts_get_ms_groups_range  | less
+29924  lts_run_mobiles '1,10,[104,{158,cont}]'
+29925  lts_get_subscriber 1
+29926  list -c list.cfg show -h
+29927  list -c list.cfg show counters
+29928  list -c list.cfg showLiT3 counters
+29929  list -c list.cfg showEtsi counters
+29930  list -c list.cfg -h
+29931  list -c list.cfg get-apn-target
+29932  lts_get_ms_groups_range  | less
+29933  lts_run_mobiles '8202,20,[104,{158,cont}]'
+29934  list -c list.cfg get-apn-target
+29935  list -c list.cfg activate-cc -h
+29936  list -c list.cfg activate-cc ALL --amount 10
+29937  tail -F /var/log/list/x1handler.log
+29938  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+29939  list -c list.cfg get-apn-target
+29940  list -c list.cfg local-audit -h
+29941  list -c list.cfg terminate-cc ALL --amount 5
+29942  list -c list.cfg get-apn-target
+29943  list -c list.cfg terminate-cc ALL --amount ALL
+29944  list -c list.cfg local-audit
+29945  list -c list.cfg stop -h
+29946  list -c list.cfg stop
+29947  vim list.cfg
+29948  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.5.17/bin
+29949  list -c list.cfg start
+29950  lts_get_subscriber 1
+29951  list -c list.cfg add 100000000000001-100000000000010
+29952  list -c list.cfg add 100000000000001-100000000000010 --cc on
+29953  list -c list.cfg add 100000000000001-100000000000010 --cc off
+29954  list -c list.cfg add 100000000000001-100000000000010 
+29955  list -c list.cfg remove 100000000000001-100000000000010 
+29956  list -c list.cfg add 100000000000001-100000000000010 --cc on
+29957  list -c list.cfg show counters
+29958  tail -F /var/log/list/x2handler.log
+29959  list -c list.cfg remove 100000000000001-100000000000010 
+29960  list -c list.cfg ActivateTask -h
+29961  list -c list.cfg remove 100000000000001-100000000000010 
+29962  list -c list.cfg stop
+29963  less /autott/dallas/dallas.mobile 
+29964  tail -F /var/log/list/x1handler.log
+29965  list -c list.cfg start5G
+29966  list -c list.cfg CreateDestination
+29967  list -c list.cfg stop5G
+29968  vim list.cfg
+29969  list -c list.cfg start5G
+29970  list -c list.cfg CreateDestination
+29971  lts_get_subscriber 1
+29972  list -c list.cfg -h
+29973  list -c list.cfg ActivateTask 100000000000001-100000000000010 --type imsi
+29974  lts_run_mobiles '1,10,[165,106]'
+29975  lts_run_mobiles '1,10,[104,{158,cont}]'
+29976  list -c list.cfg RemoveAllTasks
+29977  list -c list.cfg DeactivateAllTasks
+29978  list -c list.cfg ActivateTask 100000000000001-100000000000010 --type imsi
+29979  lts_get_ms_groups_range
+29980  list -c list.cfg ActivateTask 100000000024971 --type imsi
+29981  lts_run_mobiles '24971,10,[104,{158,cont}]'
+29982  list -c list.cfg -h
+29983  list -c list.cfg GetAllDetails
+29984  history
+29985  tail -F /var/log/list/etsix1handler.log
+29986  history
+29987  history
+29988  tail -F /var/log/list/etsix2handler.log
+29989  history
+29990  set +o emacs;set +o vi
+29991  export TERM=dumb
+29992  ls
+29993  exit
+29994  exit
+29995  tail -F /var/log/list/x1handler.log
+29996  tail -F /var/log/list/etsix1handler.log
+29997  exit
+29998  list -c list.cfg ActivateTask 100000000000001-100000000000010 --type imsi
+
+
+29997  /lab/j20/testtools/binaries/windows/outline/ng/ng help
+29998  ls /autott/snmp_conf/*.xml |grep -v "^$"
+29999  /lab/j20/testtools/binaries/windows/outline/ng/ng configuration load /autott/snmp_conf/vepg34-5.snmp_default.xml
+30000  /lab/j20/testtools/binaries/windows/outline/ng/ng plugin status SnmpPlugin.type
+30001  export PATH=${PATH}:/lab/epg_st_utils/testtools/lawful_intercept/list/release/1.6.0/bin
+30002  cp /lab/epg_st_utils/testtools/lawful_intercept/list/release/1.6.0/lib/python3.11/site-packages/list/config/list.cfg .
+30003  vi list.cfg
+30004  list -c list.cfg start
+30005  list -c list.cfg local-audit pgwcsim-apn-media-51000.mnc001.mcc001.gprs pgwcsim-apn-media-51001.mnc001.mcc001.gprs pgwcsim-apn-media-51002.mnc001.mcc001.gprs
+30006  lts_run_mobiles '8202,20,[104,{158,cont}]'
+30007  lts_run_mobiles '8202,20,[165,106]'
+30008  lts_run_mobiles '8202,20,[104,{158,cont}]'
+30009  lts_run_mobiles '8202,20,[106]'
+30010  lts_help
+30011  lts_help tc_payload
+30012  lts_help tc_mme
+30013  lts_help tc_sgw
+30014  lts_run_mobiles '8202,20,[104,{158,cont}]'
+30015  history
+
+29929  lts_pm pp
+29930  lts_msgshow
+29931  lts_pm p amf_tm_scheduling
+29932  lts_pm p amf_sbr_events
+29933  lts_pm p amf_tm_scheduling
+29934  lts_list_nrf all
+29935  lts_list_amf all
+29936  lts_list_hss_udm all
+29937  lts_list_smf all
+29938  lts_list_sgwu all

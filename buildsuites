@@ -1,0 +1,6 @@
+
+
+
+ build -c lin pgwcd_Smf_Li_Etsi_Common_SFTSUITE
+
+./build/Linux_x86_64/bin/pgwcd_Smf_Li_Etsi_Common_SFTSUITE/pgwcd_Smf_Li_Etsi_Common_SFTSUITE_Linux_x86_64.elf

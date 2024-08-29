@@ -1,0 +1,10 @@
+
+service desk
+create a ticket with story and select as epic and select as service desk
+
+
+
+PccSmD_Maintainability_ISSU_PrevRelease_LoadNormal_Cee18B_EricssonMbbA
+
+
+PCC-PccSmD_Maintainability_CCD_RenewCerts_LoadNormal_Cee3B_EricssonMbbA

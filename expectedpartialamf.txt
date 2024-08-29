@@ -1,0 +1,126 @@
+Type:N1n2MessageTransferRequest
+Header:
+    Method:Post
+    Status code:Init
+    Location:<empty matcher>
+    Path:
+        Path:"/namf-comm/v1/ue-contexts/imsi-310012581469858/n1-n2-messages"
+        Parameters (string):<empty map>
+        Parameters (Json):<empty map>
+    3gpp-sbi-binding:<empty vector>
+    Server:<empty string>
+    3gpp-sbi-origination-timestamp:<empty matcher>
+    3gpp-sbi-nf-peer-info:<empty matcher>
+    3gpp-sbi-producer-id:<empty string>
+    3gpp-sbi-correlation-info:<empty string>
+    user-agent:<empty string>
+    3gpp-sbi-message-priority:<empty string>
+    authorization:<empty string>
+Body:
+    Body Parts:
+        ["PDUSessionModificationCommand"]:
+            Header:
+                Content Id:"PDUSessionModificationCommand"
+                Content type:Nas
+                Content type field name:"Content-Type"
+                Content Id field name:"Content-ID"
+            Content:
+                Ies:
+                    [0]:
+                        "ExtendedProtocolDiscriminator":SessionManagementMessage5gs
+                    [1]:
+                        "PduSessionIdentity":5
+                    [2]:
+                        "ProcedureTransactionIdentity":0
+                    [3]:
+                        "MessageType":PduSessionModificationCommand
+                    [4]:
+                        IeI:QosRules
+                        Qos rules:
+                            Qos rules:
+                                [0]:
+                                    Qos rule identifier:3
+                                    Rule operation code:DeleteExistingQosRule
+                                    DefaultQosRule:false
+                                    Precedence:<empty matcher>
+                                    Segregation:<empty matcher>
+                                    Qfi:<empty matcher>
+                                    Spare:<empty matcher>
+                                    Packet filters:<empty vector>
+                    [5]:
+                        IeI:QosFlowDescriptions
+                        Qos flow descriptions:
+                            QosFlowDescriptions:
+                                [0]:
+                                    Qfi:8
+                                    OperationCode:DeleteExistingQosFlowDescription
+                                    E:ParametersListIsNotIncluded
+                                    Parameters:<empty vector>
+                                    Spare0:<empty matcher>
+                                    Spare1:<empty matcher>
+                                    Spare2:<empty matcher>
+        ["PduSessionResourceModifyRequestTransfer"]:
+            Header:
+                Content Id:"PduSessionResourceModifyRequestTransfer"
+                Content type:Ngap
+                Content type field name:"Content-Type"
+                Content Id field name:"Content-ID"
+            Content:
+                Type:PduSessionResourceModifyRequestTransfer
+                PDU Session Aggregate Maximum Bit Rate:<not present>
+                UL NG-U UP TNL Modify List:<not present>
+                Network Instance:<not present>
+                QoS Flow Add Or Modify Request List:<not present>
+                QoSFlowReleasedList:
+                    [0]:
+                        QoS Flow Identifier:8
+                        Cause:
+                            Type:Nas
+                            Value:"NormalRelease"
+                Additional UL NG-U UP TNL Information:<not present>
+                Common Network Instance:<not present>
+            Content:<empty string>
+        ["json"]:
+            Header:
+                Content Id:"json"
+                Content type:Json
+                Content type field name:"Content-Type"
+                Content Id field name:"Content-ID"
+            Content:
+                {
+                    "pduSessionId": 5,
+                    "n2InfoContainer": {
+                        "n2InformationClass": "SM",
+                        "smInfo": {
+                            "pduSessionId": 5,
+                            "n2InfoContent": {
+                                "ngapIeType": "PDU_RES_MOD_REQ",
+                                "ngapData": {
+                                    "contentId": "PduSessionResourceModifyRequestTransfer"
+                                }
+                            },
+                            "sNssai": {
+                                "sst": 2,
+                                "sd": "d143a4"
+                            }
+                        }
+                    },
+                    "n1MessageContainer": {
+                        "n1MessageClass": "SM",
+                        "n1MessageContent": {
+                            "contentId": "PDUSessionModificationCommand"
+                        },
+                        "nfId": "12345678-1234-1234-1234-123456789abc"
+                    }
+                }
+Ipc:
+    Sequence id:<any value>
+    Attempted Scps:
+        Attempted Scps:<empty vector>
+    API prefix:<empty string>
+    NumberOfNfInstances:0
+    Ue Trace Identifiers:<not present>
+    Ue Trace Message Type:<not present>
+    Ue Trace Source Node:<not present>
+    Ue Trace Target Node:<not present>
+ContentType:1

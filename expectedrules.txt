@@ -1,0 +1,179 @@
+ PayloadType:PduSessionEstablishment
+  IEs:
+    dnn:"apn1.com"
+    pduSessionId:9
+    observedGpsi:"1707610348"
+    observedSupi:"310012801891137"
+    observedPei:"12345678901234"
+    requestType:InitialRequest
+    accessType:AccessType_3GPP_ACCESS
+    ratType:NR
+    Location:
+      locationInfo:
+        Current Location:true
+        RatType:NR
+        timeZone:"-05:00+1"
+    snssai:
+      sst:2
+      sd:"d143a4"
+    gtpTunnelId:
+      TEID:2581214434
+      IPADDRESS:
+        ipv4:<not present>
+        ipv6:"2a01:2001::fd:836f"
+        prefixLength:<not present>
+    amfId:
+      amfRegionId:175
+      amfSetId:973
+      amfPointer:5
+    ueEndpointAddress:
+      ipv4:"20.0.1.1"
+      ipv6:<not present>
+      prefixLength:<not present>
+    servingNetwork:
+      mcc:"310"
+      mnc:"012"
+    handoverState:<not present>
+    gtpTunnelInfo:
+      fiveGsGtpTunnels:
+        uLNGUUPTunnelInformation:
+          TEID:2581214434
+          IPADDRESS:
+            ipv4:<not present>
+            ipv6:"2a01:2001::fd:836f"
+            prefixLength:<not present>
+        additionalULNGUUPTunnelInformation:<empty vector>
+        dLRANTunnelInformation:
+          dLQOSFlowTunnelInformation:
+            uPTunnelInformation_:
+              TEID:2581214434
+              IPADDRESS:
+                ipv4:<not present>
+                ipv6:"2a01:2001::fd:836f"
+                prefixLength:<not present>
+            associatedQOSFlowList_:
+              [0]:
+                Qfi:6
+                QosRules:
+                  Qos rules:
+                    Element:
+                      Qos rule identifier:6
+                      Rule operation code:CreateNewQosRule
+                      DefaultQosRule:true
+                      Precedence:255
+                      Segregation:0
+                      Qfi:6
+                      Spare:<empty matcher>
+                      Packet filters:
+                        Element:
+                          Packet filter identifier:0
+                          Packet filter direction:Uplink
+                          Packet filter spare:<empty matcher>
+                          Packet filter precedence:<empty matcher>
+                          Packet filter components:
+                            TestSupport::Types::PacketFilter::Component:
+                              type:MatchAll
+                EpsBearerId:<not present>
+                QosFlowDescription:
+                  Qfi:6
+                  OperationCode:CreateNewQosFlowDescription
+                  E:ParametersListIsIncluded
+                  Parameters:
+                    TestSupport::Types::QosFlowDescription::Parameter:
+                      type:FiveQi
+                      value:6
+                  Spare0:<empty matcher>
+                  Spare1:<empty matcher>
+                  Spare2:<empty matcher>
+                FiveQi:<not present>
+                AccessType:AccessType_3GPP_ACCESS
+                defaultQOSRuleIndication_:<not present>
+          additionalDLQOSFlowTunnelInformation:<empty vector>
+          redundantDLQOSFlowTunnelInformation:<empty vector>
+          additionalredundantDLQOSFlowTunnelInformation:<empty vector>
+      epsGtpTunnels:<not present>
+    non3GPPAccessEndpoint:<not present>
+    smPDUDNRequest:<not present>
+
+
+
+    Once you send the order, the courier will provide you with a receipt and a new tracking number. Please provide us with either piece of information as proof of your return and our team will provide the full refund.
+
+says:what is the return label?
+
+says:how do i get the return label and put waehouse address on it?
+
+Kamila G.
+
+
+Kamila G. says:You have to purchase it with the post office.
+
+says:it is tool complicated process . i really didnt understand 
+
+says:it is not been an 1 hr since order placed. you cant cancel it ? 
+
+says:¨please conect me to your call agent ?
+
+says:what do you mean by purchase label?purchase a return label
+can you explain?
+
+Kamila G.
+
+
+Kamila G. says:Please note that we do not have a phone service line. We only provide support through Live Chat and email. I apologize for this.  
+  
+I understand that the order was processed no long ago, but we cannot cancel it. Once you receive the order, please go to the post office and inform them you want to return the order. They will ask you for the address for the return and you have to give them this information:  
+ 
+Lumin Skin
+Hoevenseweg 41
+4877 LA Etten-Leur, Netherlands
+
+They will charge you for the return, so please take a photo of the receipt and send it to us so we can provide you with a full refund.
+
+says:what are the things to be included in the package during my return ? 
+
+says:okay
+
+Kamila G.
+
+Kamila G. says:You have to return the order unopen. When you receive it, just take it to the post office as it is and process the return.
+
+
+Kamila G. says:The order includes our Class Act Bundle but again, the order should be unopened for us to accept the return.
+
+says:okay, should i get delivery charge that i will pay there for return right?
+
+Kamila G.
+
+
+Kamila G. says:Yes, you have to pay for the return. We cannot cover return shipping costs. Once you send us the proof of your return, we will process the refund for the amount of the order only SEK 1,010.91.
+
+says:so shippinbg charges not included right ?
+
+Kamila G.
+
+
+Kamila G. says:Correct!
+
+says:one last question.what do you mean by  so please take a photo of the receipt?
+
+Kamila G.
+
+
+Kamila G. says:When you pay at the post office to make the return, they will give you a receipt for the payment made. That receipt is the proof we need so we can process the refund.   
+  
+You will need to take a picture of the receipt and send it to us via email or Live Chat!
+
+says:okay. thanks 
+
+Kamila G.
+
+Please note that we do not have a phone service line. We only provide support through Live Chat and email. I apologize for this.  
+  
+I understand that the order was processed no long ago, but we cannot cancel it. Once you receive the order, please go to the post office and inform them you want to return the order. They will ask you for the address for the return and you have to give them this information:  
+ 
+Lumin Skin
+Hoevenseweg 41
+4877 LA Etten-Leur, Netherlands
+
+They will charge you for the return, so please take a photo of the receipt and send it to us so we can provide you with a full refund

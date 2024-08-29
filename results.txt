@@ -1,0 +1,144 @@
+
+
+
+
+pgwtest - jenkins errors
+build pgwtest
+
+
+
+
+void buildPacketFilters(const std::vector<Sft::Gx::FlowInformation>& flowInformations, QosRule& qosRule)
+{
+    for (const auto& flowInformation : flowInformations)
+    {
+        ::TestSupport::Types::PacketFilter packetFilter =
+            Sft::SmfNasTft::convertFlowInformationToFilter(flowInformation);
+        qosRule.addPacketFilter(packetFilter);
+    }
+}
+
+void buildQosRules(const Sft::Bearer& bearer,QosRules& qosRules, const Gx::ChargingRuleDefinition* chargingRule,
+                                           const bool isCreate)
+{
+    for (const auto& qri : bearer.qosRuleIds_)
+    {
+     std::cout<<"esimnaa \n";
+            QosRule qosRule{};
+            qosRule.setQosRuleId(qri);
+            qosRule.setDefaultQosRule(false);
+
+            if (isCreate)
+            {
+                qosRule.setQfi(bearer.qfi_);
+                qosRule.setSegregation(0);
+                qosRule.setRuleOperationCode(::TestSupport::Types::QosRule::RuleOperationCode::CreateNewQosRule);
+                qosRule.setPrecedence(chargingRule->getPrecedence().value_or(0));
+                buildPacketFilters(chargingRule->getFlowInformation(),qosRule);
+
+            }
+            if (!isCreate)
+            {
+                qosRule.setRuleOperationCode(::TestSupport::Types::QosRule::RuleOperationCode::DeleteExistingQosRule);
+            }
+
+            qosRules.addQosRule(std::move(qosRule));
+      
+    }
+    
+}
+
+
+TestSupport::Types::QosRules createQosRuleDefinitions(const std::vector<Sft::Bearer*>& bearers, const Sft::ProcedureData& procedureData,
+                                           const bool isCreate)
+{
+    using namespace TestSupport::Types;
+    QosRules                               qosRules{};
+    const Sft::Gx::ChargingRuleDefinition* chargingRule = nullptr;
+
+    for (const auto* bearer : bearers)
+    {
+    std::cout<<"esimnaa1  \n";
+      chargingRule = procedureData.getChargingRuleDefinition(bearer->qos_);
+      buildQosRules(*bearer, qosRules, chargingRule, isCreate);
+
+    }
+    return qosRules; 
+}
+
+
+
+
+std::vector<LiEtsiTest::X2::QosFlowList> buildExpectedQosFlows(const std::vector<Sft::Bearer*>& bearers,
+                                                               const TestSupport::Types::QosRules&       qosRules,
+                                                               const bool                       isCreate)
+{
+    std::vector<LiEtsiTest::X2::QosFlowList> qosFlows{};
+    qosFlows.reserve(bearers.size());
+    for (const auto* bearer : bearers)
+    {
+        LiEtsiTest::X2::QosFlowList qosFlow{};
+        qosFlow.qfi_ = bearer->qfi_;
+
+        using namespace TestSupport::Types;
+        QosFlowDescription qosFlowDescription{};
+        qosFlowDescription.setQfi(bearer->qfi_);
+        qosFlow.qosFlowDescription_ = buildQosFlowDescription(*bearer, isCreate);
+        qosFlow.qosRules_           = buildQosRules(*bearer, qosRules);
+        std::cout<<"esimnaa 4\n"<<qosFlow.qosRules_->getQosRules().size();
+        qosFlow.accessType_         = TestSupport::Types::AccessType::AccessType_3GPP_ACCESS;
+
+        qosFlows.emplace_back(qosFlow);
+    }
+    return qosFlows;
+}
+
+
+
+
+TestSupport::Types::QosRules buildQosRules(const Sft::Bearer& bearer, const TestSupport::Types::QosRules&        qOSRules)
+{
+    using namespace TestSupport::Types;
+    QosRules   qosRules1{};
+
+    for (const auto& qri : bearer.qosRuleIds_)
+    {  
+            qosRules1.addQosRule(*qOSRules.getQosRule(qri));
+    }
+    return qosRules1;
+}
+
+
+    Sft::X2::Message& pduSessionModificationInterceptEventWithQosFlows(const Session&              session,
+                                                                       const std::vector<Bearer*>& bearers,
+                                                                       const TestSupport::Types::QosRules&        qosRules) const;
+
+TestSupport::Types::QosRules createQosRuleDefinitions(const std::vector<Sft::Bearer*>& bearers, const Sft::ProcedureData& procedureData,
+                                           const bool isCreate = true);
+
+const auto& qosRules = Sft::Util::createQosRuleDefinitions(optionalData, dedicatedQosBearers, true);
+
+
+const auto& qosRules = Sft::Util::createQosRuleDefinitions(optionalData, dedicatedQosBearers, false);
+
+const auto& deleteQosRules = Sft::Util::createQosRuleDefinitions(optionalData, dedicatedQosBearers, false);
+
+0x8000000000000000
+
+0x8000000000000000
+
+
+I mean, if we split up for loops in if and else then we end up having in total 3 for loops which makes harder to read, I guess.
+if(!procedureData.getQosRules().empty() && isCreate)
+{
+    for (const auto& qri : bearer.qosRuleIds_)
+    ...
+}
+else
+{
+    for (const auto& qri : bearer.qosRuleIds_)
+        for (const auto& flowInformation : chargingRule->getFlowInformation())
+   ...
+}
+
+may be I am assuming something else. please correct me if I am wrong :).

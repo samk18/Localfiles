@@ -1,0 +1,119 @@
+
+
+/workspace/git/esimnaa/epg/application/HttpServer/HttpServerTest/test-src/HttpServerTest/HttpServerTest.cpp
+
+/workspace/git/esimnaa/epg/framework/SecurityManagement/SecdCommon/include/SecdCommon/CmdHandler/NodeCredentialCommands.h
+
+f_openssl_sign_certificate_signing_request
+
+
+f_CLI_TLS__configure_node_credential
+
+out of which one alternative would be generating certificates through openssl without secm, or   certd for which we need to have global sharing file system so all psc, ssc applications from different boards can access to those paths. I am uncertain if this is right way of doing it. 
+
+
+In the context of certificates and security protocols, "TrustedCategories" typically refers to a classification or categor
+ization system used to organize and manage trusted entities, such as certificate authorities (CAs) or certificate issuers.
+
+When dealing with certificates, especially in the context of TLS/SSL connections or other secure communications, it's important to esta
+blish trust in the entities that issue the certificates. This trust is often managed through a hierarchy of trusted CAs. Each CA is responsible for issuing cert
+ificates for specific purposes or domains, 
+and their certificates are trusted by relying parties based on various criteria, such as being included in a list of trusted root certificates.
+
+The term "TrustedCategories" could refer to a mechanism within your codebase for o
+rganizing or managing these trusted entities. It might involve categorizing certificates or CAs based on 
+certain criteria or attributes, such as their purpose, validity pFseteriod, or level of trust. However, without more
+ context about your specific codebase or application, it's difficult to provide a more precise explanation. 
+ If you can provide more details or context about where you encountered this term in your code, I can offer a more tailored explanation.
+
+
+
+ —Target DB will lose its data when upgraded. Master and replica are not upgraded at the same time which means that restoring data from the other redis pod (master not replica) is not possible.
+
+—ADMFs will need to reprovision all previous targets after ISSU is completed.
+
+—Impact will be when new UEs establish a connection they will not be intercepted directly during the ISSU procedure.
+
+
+redis-cli --tls --cert /path/to/client.crt --key /path/to/client.key -h hostname -p port
+
+
+redis-cli -h 127.0.0.1 -p 6000
+
+
+
+it is way beyond actual limit
+
+
+
+tcp        0      0 127.3.0.1:6002          0.0.0.0:*               LISTEN      15509/redis_lslave1 
+tcp        0      0 127.0.0.1:6003          0.0.0.0:*               LISTEN      15503/redis_lslave2 
+tcp        0      0 127.3.0.1:6003          0.0.0.0:*               LISTEN      15503/redis_lslave2 
+tcp        0      0 127.0.0.1:6004          0.0.0.0:*               LISTEN      15504/redis_lslave3 
+tcp        0      0 127.3.0.1:6004          0.0.0.0:*               LISTEN      15504/redis_lslave3 
+tcp        0      0 127.3.0.1:6000          127.3.1.1:35602         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.0.0.1:6000          127.0.0.1:47800         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60912         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.1.1:35604         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.1.1:35564         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60906         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60940         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:60912         127.3.0.1:6000          ESTABLISHED 15509/redis_lslave1 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60910         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:60906         127.3.0.1:6000          ESTABLISHED 15503/redis_lslave2 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60942         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.0.0.1:6000          127.0.0.1:47754         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60946         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:60910         127.3.0.1:6000          ESTABLISHED 15504/redis_lslave3 
+tcp        0      0 127.3.0.1:6000          127.3.0.1:60908         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:6000          127.3.1.1:35606         ESTABLISHED 15502/redis_lmaster 
+tcp        0      0 127.3.0.1:60908         127.3.0.1:6000          ESTABLISHED 15505/redis_lslave0 
+unix  2      [ ACC ]     STREAM     LISTENING     45990    15503/redis_lslave2  /var/run/redis/redis_6003/redis.sock
+unix  2      [ ACC ]     STREAM     LISTENING     83112    15505/redis_lslave0  /var/run/redis/redis_6001/redis.sock
+unix  2      [ ACC ]     STREAM     LISTENING     46016    15502/redis_lmaster  /var/run/redis/redis_6000/redis.sock
+unix  2      [ ACC ]     STREAM     LISTENING     46026    15504/redis_lslave3  /var/run/redis/redis_6004/redis.sock
+unix  2      [ ACC ]     STREAM     LISTENING     83126    15509/redis_lslave1  /var/run/redis/redis_6002/redis.sock
+unix  3      [ ]         STREAM     CONNECTED     83304    15509/redis_lslave1  /var/run/redis/redis_6002/redis.sock
+
+
+./redis-server --tls-port 6379  --tls-cert-file /opt/services/epg/etc/redis/rediscerts/server.crt --tls-key-file 
+/opt/services/epg/etc/redis/rediscerts/server.key --tls-ca-cert-file /opt/services/epg/etc/redis/rediscerts/ca.crt --tls-auth-clients yes --port 0
+
+
+redis-cli --tls --cert /path/to/client.crt --key /path/to/client.key -h hostname -p port
+
+
+
+30436:S 10 May 2024 20:44:07.520 * Synchronization with replica 127.3.1.1:6002 succeeded
+30436:S 10 May 2024 20:44:07.520 * Streamed RDB transfer with replica 127.3.1.1:6004 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming
+30436:S 10 May 2024 20:44:07.520 * Synchronization with replica 127.3.1.1:6004 succeeded
+30436:S 10 May 2024 20:44:07.520 * Streamed RDB transfer with replica 127.3.1.1:6003 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming
+30436:S 10 May 2024 20:44:07.520 * Synchronization with replica 127.3.1.1:6003 succeeded
+
+
+
+application/LawfulInterception/LiSrc/LiRedisAdapter/src/TargetDbOam.cpp
+
+-subj "/C=SE/O=Ericsson AB/OU=PDU Packet Core/CN=IOV"
+
+# Generate a private key for the CA
+openssl genrsa -out ca.key 2048
+
+# Create a self-signed certificate for the CA (valid for 365 days)
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 365 -out ca.crt
+
+
+# Generate a private key for the server
+openssl genrsa -out server.key 2048
+
+# Create a certificate signing request (CSR) for the server
+openssl req -new -key server.key -out server.csr
+
+
+# Sign the server certificate with the CA
+openssl x509 -req -in server.csr -CA ca.crt -CAkey ca.key -CAcreateserial -out server.crt -days 365 -sha256
+
+
+openssl genrsa -out client.key 2048
+
+openssl req -new -key client.key -out client.csr

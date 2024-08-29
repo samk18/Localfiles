@@ -1,0 +1,687 @@
+AMF     -SMF-     UPF      NRF      UDM      PCF      DF2     LIT3
+ |        |        |        |        |        |        |        |
+ |        |------->|        |        |        |        |        | AssociationSetupRequest
+ |        |        |        |        |        |        |        |   Seid:0, SeqNr:3238774
+ |        |<-------|        |        |        |        |        | AssociationSetupResponse
+ |        |        |        |        |        |        |        |   Seid:0, SeqNr:3238774
++----------------------------------------------------------------+
+| Pre Test case                                                  |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Test case start                                                |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Add target to DB                                               |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Establish session                                              |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Start of Establish5gSessionForStartOfIntercept                 |
++----------------------------------------------------------------+
+ |------->|        |        |        |        |        |        | CreateSmContextRequest [Post]/nsmf-pdusession/v1/sm-contextsBody Parts: PduSessionEstablishmentRequest: Header: Conte...
+ |        |        |        |        |        |        |        |       Content type: Nas
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Extended protocol discriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |       Pdu session identity: 15
+ |        |        |        |        |        |        |        |       Procedure transaction identity: 1
+ |        |        |        |        |        |        |        |       Message type: PduSessionEstablishmentRequest
+ |        |        |        |        |        |        |        |       Information elements: [0]: ExtendedProtocolDiscriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |         [1]: PduSessionIdentity: 15
+ |        |        |        |        |        |        |        |         ... (66 more lines)
+ |        |---------------->|        |        |        |        | DiscoveryRequest [Get]/nnrf-disc/v1/nf-instances?service-names=nudm-sdm&target-nf-type=UDM&requester-nf-type=SMF&requ...
+ |        |<----------------|        |        |        |        | DiscoveryResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "validityPeriod": 360000,
+ |        |        |        |        |        |        |        |           "nfInstances": [
+ |        |        |        |        |        |        |        |               {
+ |        |        |        |        |        |        |        |                   "ipv4Address": [
+ |        |        |        |        |        |        |        |                   ... (54 more lines)
+ |        |------------------------->|        |        |        | SmSubscriptionDataRequest [Get]/nudm-sdm/v2/imsi-310012847468703/sm-data?dnn=apn1.com&single-nssai=%7B%22sst%22%3A2%2...
+ |        |<-------------------------|        |        |        | SmSubscriptionDataResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       [
+ |        |        |        |        |        |        |        |           {
+ |        |        |        |        |        |        |        |               "singleNssai": {
+ |        |        |        |        |        |        |        |                   "sst": 2,
+ |        |        |        |        |        |        |        |                   "sd": "d143a4"
+ |        |        |        |        |        |        |        |                   ... (37 more lines)
+ |        |------------------------->|        |        |        | SubscribeRequest [Post]/nudm-sdm/v2/imsi-310012847468703/sdm-subscriptionsBody Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "callbackReference": "http://5.16.0.25:8080/notifications/udm/sdm/v2/referenceid/2968518656",
+ |        |        |        |        |        |        |        |           "implicitUnsubscribe": true,
+ |        |        |        |        |        |        |        |           "monitoredResourceUris": [
+ |        |        |        |        |        |        |        |               "http://[2a01:2001::df:657a]:57707/nudm-sdm/v2/imsi-310012847468703/sm-data"
+ |        |        |        |        |        |        |        |           ],
+ |        |        |        |        |        |        |        |           "nfInstanceId": "12345678-1234-1234-1234-123456789abc"
+ |        |        |        |        |        |        |        |       }
+ |        |<-------------------------|        |        |        | SubscribeResponse [Created (201)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "callbackReference": "http://5.16.0.25:8080/notifications/udm/sdm/v2/referenceid/2968518656",
+ |        |        |        |        |        |        |        |           "nfInstanceId": "12345678-1234-1234-1234-123456789abc",
+ |        |        |        |        |        |        |        |           "implicitUnsubscribe": true,
+ |        |        |        |        |        |        |        |           "monitoredResourceUris": [
+ |        |        |        |        |        |        |        |               "http://[2a01:2001::df:657a]:57707/nudm-sdm/v2/310012847468703/sm-data"
+ |        |        |        |        |        |        |        |           ]
+ |        |        |        |        |        |        |        |       }
+ |<-------|        |        |        |        |        |        | CreateSmContextResponse [Created (201)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "supportedFeatures": "0"
+ |        |        |        |        |        |        |        |       }
+ |        |---------------->|        |        |        |        | DiscoveryRequest [Get]/nnrf-disc/v1/nf-instances?service-names=npcf-smpolicycontrol&target-nf-type=PCF&requester-nf-t...
+ |        |<----------------|        |        |        |        | DiscoveryResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "validityPeriod": 360000,
+ |        |        |        |        |        |        |        |           "nfInstances": [
+ |        |        |        |        |        |        |        |               {
+ |        |        |        |        |        |        |        |                   "ipv4Address": [
+ |        |        |        |        |        |        |        |                   ... (54 more lines)
+ |        |---------------------------------->|        |        | PolicyRequest [Post]/npcf-smpolicycontrol/v1/sm-policiesBody Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "accNetChId": {
+ |        |        |        |        |        |        |        |               "accNetChaIdValue": 2147484039,
+ |        |        |        |        |        |        |        |               "sessionChScope": true
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           ... (66 more lines)
+ |        |<----------------------------------|        |        | PolicyResponse [Created (201)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "sessRules": {
+ |        |        |        |        |        |        |        |               "sessRule1": {
+ |        |        |        |        |        |        |        |                   "sessRuleId": "sessRule1",
+ |        |        |        |        |        |        |        |                   "authSessAmbr": {
+ |        |        |        |        |        |        |        |                   ... (15 more lines)
+ |        |---------------->|        |        |        |        | DiscoveryRequest [Get]/nnrf-disc/v1/nf-instances?service-names=namf-comm&target-nf-type=AMF&requester-nf-type=SMF&req...
+ |        |<----------------|        |        |        |        | DiscoveryResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "validityPeriod": 360000,
+ |        |        |        |        |        |        |        |           "nfInstances": [
+ |        |        |        |        |        |        |        |               {
+ |        |        |        |        |        |        |        |                   "ipv4Address": [
+ |        |        |        |        |        |        |        |                   ... (43 more lines)
+ |        |------->|        |        |        |        |        | SessionEstablishmentRequest
+ |        |        |        |        |        |        |        |   Seid:0, SeqNr:3238775, CpFseid(2968518656,2a02:10:18::1)
+ |        |        |        |        |        |        |        |   CreatePdr{PdrId:1, FarId:1, QerId:1, Pdi{SourceInterface(Access), NetworkInstance(n3-nw), Qfi(5), AppId:default}, P...
+ |        |        |        |        |        |        |        |   CreatePdr{PdrId:2, FarId:2, QerId:4, QerId:1, Pdi{SourceInterface(Core), NetworkInstance(internet.sft.net), AppId:d...
+ |        |        |        |        |        |        |        |   CreateFar{FarId:2, ApplyAction[Buffer], ForwardingParameters{DestinationInterface(Access)}, DebugInfo(Type=NetworkI...
+ |        |        |        |        |        |        |        |   CreateFar{FarId:1, ApplyAction[Forward], ForwardingParameters{DestinationInterface(Core)}, DebugInfo(Type=N6 Uplink...
+ |        |        |        |        |        |        |        |   CreateQer{QerId:1, GateStatus(UL:Enabled, DL:Enabled), MaximumBitRate(UL:2048, DL:4096), DebugInfo(Type=APN-AMBR)}
+ |        |        |        |        |        |        |        |   CreateQer{QerId:4, GateStatus(UL:Enabled, DL:Enabled), Qfi(5), DebugInfo(Type=QFI)}
+ |        |<-------|        |        |        |        |        | SessionEstablishmentResponse
+ |        |        |        |        |        |        |        |   Seid:2968518656, SeqNr:3238775, Cause(RequestAccepted), UpFseid(1338,2a01:2001::df:657b)
+ |<-------|        |        |        |        |        |        | N1n2MessageTransferRequest [Post]/namf-comm/v1/ue-contexts/imsi-310012847468703/n1-n2-messagesBody Parts: PduSessionE...
+ |        |        |        |        |        |        |        |       Content type: Nas
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Extended protocol discriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |       Pdu session identity: 15
+ |        |        |        |        |        |        |        |       Procedure transaction identity: 1
+ |        |        |        |        |        |        |        |       Message type: PduSessionEstablishmentAccept
+ |        |        |        |        |        |        |        |       Information elements: [0]: ExtendedProtocolDiscriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |         [1]: PduSessionIdentity: 15
+ |        |        |        |        |        |        |        |         ... (79 more lines)
+ |------->|        |        |        |        |        |        | N1n2MessageTransferResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "cause": "N1_N2_TRANSFER_INITIATED"
+ |        |        |        |        |        |        |        |       }
+ |        |------------------------------------------->|        | <li-event><correlation-nbr>800001870A100001</correlation-nbr>
+ |        |        |        |        |        |        |        | <event-type>19</event-type>
+ |        |        |        |        |        |        |        | <event-date>10 05 2051</event-date>
+ |        |        |        |        |        |        |        | <event-time>17:51:13</event-time>
+ |        |        |        |        |        |        |        | <event-time-ms>751</event-time-ms>
+ |        |        |        |        |        |        |        | <LIRID>ffff03e8ffff</LIRID>
+ |        |        |        |        |        |        |        | <offset-utc>-11:00</offset-utc>
+ |        |        |        |        |        |        |        | <dnn>apn1.com</dnn>
+ |        |        |        |        |        |        |        | <ne-id>seroiuts02184</ne-id>
+ |        |        |        |        |        |        |        | <observed-gpsi>msisdn-1707238319</observed-gpsi>
+ |        |        |        |        |        |        |        | ... (25 more lines)
+ |        |---------------------------------------------------->| LawfulInterceptionRequest
+ |        |        |        |        |        |        |        |   Seid:0, SeqNr:4294967295
+ |        |        |        |        |        |        |        |   Operation [Operation: Set[]]
+ |        |        |        |        |        |        |        |   SEID(1338)
+ |        |        |        |        |        |        |        |   adfmId (< empty >) 
+ |        |        |        |        |        |        |        |   destination (< empty >) 
+ |        |        |        |        |        |        |        |   transportLevelMarking (< empty >) 
+ |        |        |        |        |        |        |        |   RandomVector(RANDOMVECTOR)
+ |        |        |        |        |        |        |        |   LiRules : { 
+ |        |        |        |        |        |        |        |     LIRule{PdrId(1)InterceptionId(1)}}
+ |        |        |        |        |        |        |        |     LIRule{PdrId(2)InterceptionId(1)}} } 
+ |        |        |        |        |        |        |        |   Tasks : {  } 
+ |        |        |        |        |        |        |        |   InterceptionParameters : { 
+ |        |        |        |        |        |        |        |     InterceptionParameters{InterceptionId(1)DeliveryAddress(Address: 127.0.0.1, Port: 10003)VersionICECCT(CCT: 1, DIR...
+ |------->|        |        |        |        |        |        | UpdateSmContextRequest [Post]/nsmf-pdusession/v1/sm-contexts/2968518656/modifyBody Parts: <id001-ngap@pdu_session_res...
+ |        |        |        |        |        |        |        |       Content type: Ngap
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Type: PduSessionResourceSetupResponseTransfer
+ |        |        |        |        |        |        |        |       DL QoS Flow per TNL Information: UP Transport Layer Information: Transport Layer Address: Ipv6: 2a01:2001::df:6584
+ |        |        |        |        |        |        |        |           GTP TEID: 1878536890
+ |        |        |        |        |        |        |        |         Associated QoS Flow List: [0]: QoS Flow Identifier: 5
+ |        |        |        |        |        |        |        |   json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "anType": "3GPP_ACCESS",
+ |        |        |        |        |        |        |        |           "n2SmInfo": {
+ |        |        |        |        |        |        |        |               "contentId": "<id001-ngap@pdu_session_resource_setup_response_transfer>"
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "n2SmInfoType": "PDU_RES_SETUP_RSP"
+ |        |        |        |        |        |        |        |       }
+ |        |------->|        |        |        |        |        | SessionModificationRequest
+ |        |        |        |        |        |        |        |   Seid:1338, SeqNr:3238776
+ |        |        |        |        |        |        |        |   UpdateFar{FarId:2, ApplyAction[Forward], ForwardingParameters{DestinationInterface(Access)OuterHeaderCreation(GTP,T...
+ |        |<-------|        |        |        |        |        | SessionModificationResponse
+ |        |        |        |        |        |        |        |   Seid:2968518656, SeqNr:3238776, Cause(RequestAccepted)
+ |        |---------------->|        |        |        |        | DiscoveryRequest [Get]/nnrf-disc/v1/nf-instances?service-names=nudm-uecm&target-nf-type=UDM&requester-nf-type=SMF&req...
+ |        |<----------------|        |        |        |        | DiscoveryResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "validityPeriod": 360000,
+ |        |        |        |        |        |        |        |           "nfInstances": [
+ |        |        |        |        |        |        |        |               {
+ |        |        |        |        |        |        |        |                   "ipv4Address": [
+ |        |        |        |        |        |        |        |                   ... (54 more lines)
+ |        |------------------------->|        |        |        | RegistrationRequest [Put]/nudm-uecm/v1/imsi-310012847468703/registrations/smf-registrations/15Body Parts: json: Heade...
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "dnn": "apn1.com",
+ |        |        |        |        |        |        |        |           "pduSessionId": 15,
+ |        |        |        |        |        |        |        |           "pgwFqdn": "smf",
+ |        |        |        |        |        |        |        |           "plmnId": {
+ |        |        |        |        |        |        |        |               "mcc": "310",
+ |        |        |        |        |        |        |        |               "mnc": "012"
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "singleNssai": {
+ |        |        |        |        |        |        |        |               "sd": "d143a4",
+ |        |        |        |        |        |        |        |               "sst": 2
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "smfInstanceId": "12345678-1234-1234-1234-123456789abc"
+ |        |        |        |        |        |        |        |       }
+ |        |<-------------------------|        |        |        | RegistrationResponse [Created (201)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "plmnId": {
+ |        |        |        |        |        |        |        |               "mnc": "012",
+ |        |        |        |        |        |        |        |               "mcc": "310"
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "smfInstanceId": "12345678-1234-1234-1234-123456789abc",
+ |        |        |        |        |        |        |        |           "dnn": "apn1.com",
+ |        |        |        |        |        |        |        |           "pduSessionId": 15,
+ |        |        |        |        |        |        |        |           "singleNssai": {
+ |        |        |        |        |        |        |        |               "sst": 2,
+ |        |        |        |        |        |        |        |               "sd": "d143a4"
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "pgwFqdn": "smf"
+ |        |        |        |        |        |        |        |       }
+ |<-------|        |        |        |        |        |        | UpdateSmContextResponse [Ok (200)]Body Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "upCnxState": "ACTIVATED"
+ |        |        |        |        |        |        |        |       }
++----------------------------------------------------------------+
+| End of Establish5gSessionForStartOfIntercept                   |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| X2 (PduSessionEstablishEvent)                                  |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| LiT3 (LawfulInterceptionRequest)                               |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Release Session                                                |
++----------------------------------------------------------------+
++----------------------------------------------------------------+
+| Start of Release5gSessionForStartOfIntercept                   |
++----------------------------------------------------------------+
+ |------->|        |        |        |        |        |        | UpdateSmContextRequest [Post]/nsmf-pdusession/v1/sm-contexts/2968518656/modifyBody Parts: PduSessionReleaseRequest: H...
+ |        |        |        |        |        |        |        |       Content type: Nas
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Extended protocol discriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |       Pdu session identity: 15
+ |        |        |        |        |        |        |        |       Procedure transaction identity: 1
+ |        |        |        |        |        |        |        |       Message type: PduSessionReleaseRequest
+ |        |        |        |        |        |        |        |       Information elements: [0]: ExtendedProtocolDiscriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |         [1]: PduSessionIdentity: 15
+ |        |        |        |        |        |        |        |         ... (13 more lines)
+ |        |------->|        |        |        |        |        | SessionDeletionRequest
+ |        |        |        |        |        |        |        |   Seid:1338, SeqNr:3238777
+ |        |<-------|        |        |        |        |        | SessionDeletionResponse
+ |        |        |        |        |        |        |        |   Seid:2968518656, SeqNr:3238777, Cause(RequestAccepted)
+ |<-------|        |        |        |        |        |        | UpdateSmContextResponse [Ok (200)]Body Parts: PduSessionReleaseCommand: Header: Content Id: PduSessionReleaseCommand
+ |        |        |        |        |        |        |        |       Content type: Nas
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Extended protocol discriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |       Pdu session identity: 15
+ |        |        |        |        |        |        |        |       Procedure transaction identity: 1
+ |        |        |        |        |        |        |        |       Message type: PduSessionReleaseCommand
+ |        |        |        |        |        |        |        |       Information elements: [0]: ExtendedProtocolDiscriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |         [1]: PduSessionIdentity: 15
+ |        |        |        |        |        |        |        |         ... (25 more lines)
+ |------->|        |        |        |        |        |        | UpdateSmContextRequest [Post]/nsmf-pdusession/v1/sm-contexts/2968518656/modifyBody Parts: PduSessionReleaseComplete: ...
+ |        |        |        |        |        |        |        |       Content type: Nas
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Extended protocol discriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |       Pdu session identity: 15
+ |        |        |        |        |        |        |        |       Procedure transaction identity: 1
+ |        |        |        |        |        |        |        |       Message type: PduSessionReleaseComplete
+ |        |        |        |        |        |        |        |       Information elements: [0]: ExtendedProtocolDiscriminator: SessionManagementMessage5gs
+ |        |        |        |        |        |        |        |         [1]: PduSessionIdentity: 15
+ |        |        |        |        |        |        |        |         ... (13 more lines)
+ |<-------|        |        |        |        |        |        | UpdateSmContextResponse [NoContent (204)]
+ |------->|        |        |        |        |        |        | UpdateSmContextRequest [Post]/nsmf-pdusession/v1/sm-contexts/2968518656/modifyBody Parts: <id001-ngap@pdu_session_res...
+ |        |        |        |        |        |        |        |       Content type: Ngap
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: Type: PduSessionResourceReleaseResponseTransfer
+ |        |        |        |        |        |        |        |   json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "n2SmInfo": {
+ |        |        |        |        |        |        |        |               "contentId": "<id001-ngap@pdu_session_resource_release_response_transfer>"
+ |        |        |        |        |        |        |        |           },
+ |        |        |        |        |        |        |        |           "n2SmInfoType": "PDU_RES_REL_RSP",
+ |        |        |        |        |        |        |        |           "anType": "3GPP_ACCESS"
+ |        |        |        |        |        |        |        |       }
+ |<-------|        |        |        |        |        |        | UpdateSmContextResponse [NoContent (204)]
+ |<-------|        |        |        |        |        |        | SmContextStatusNotificationRequest [Post]/notifications/smf/status-change/v1?referenceid=imsi-310012847468703-15Body ...
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "statusInfo": {
+ |        |        |        |        |        |        |        |               "resourceStatus": "RELEASED"
+ |        |        |        |        |        |        |        |           }
+ |        |        |        |        |        |        |        |       }
+ |------->|        |        |        |        |        |        | SmContextStatusNotificationResponse [NoContent (204)]
+ |        |------------------------------------------->|        | <li-event><correlation-nbr>800001870A100001</correlation-nbr>
+ |        |        |        |        |        |        |        | <event-type>20</event-type>
+ |        |        |        |        |        |        |        | <event-date>10 05 2051</event-date>
+ |        |        |        |        |        |        |        | <event-time>17:51:14</event-time>
+ |        |        |        |        |        |        |        | <event-time-ms>401</event-time-ms>
+ |        |        |        |        |        |        |        | <LIRID>ffff03e8ffff</LIRID>
+ |        |        |        |        |        |        |        | <offset-utc>-11:00</offset-utc>
+ |        |        |        |        |        |        |        | <ne-id>seroiuts02184</ne-id>
+ |        |        |        |        |        |        |        | <observed-gpsi>msisdn-1707238319</observed-gpsi>
+ |        |        |        |        |        |        |        | <observed-pei>imeisv-0000000000000000</observed-pei>
+ |        |        |        |        |        |        |        | <observed-supi>imsi-310012847468703</observed-supi>
+ |        |        |        |        |        |        |        | <pdu-session-id>0f</pdu-session-id>
+ |        |        |        |        |        |        |        | <ue-time-zone>-05:00+1</ue-time-zone>
+ |        |        |        |        |        |        |        | </li-event>
+ |        |---------------------------------->|        |        | PolicyRequest [Post]/npcf-smpolicycontrol/v1/sm-policies/1234567/deleteBody Parts: json: Header: Content Id: json
+ |        |        |        |        |        |        |        |       Content type: Json
+ |        |        |        |        |        |        |        |       Content type field name: Content-Type
+ |        |        |        |        |        |        |        |       Content Id field name: Content-ID
+ |        |        |        |        |        |        |        |     Content: 
+ |        |        |        |        |        |        |        |       {
+ |        |        |        |        |        |        |        |           "userLocationInfo": {
+ |        |        |        |        |        |        |        |               "nrLocation": {
+ |        |        |        |        |        |        |        |                   "ncgi": {
+ |        |        |        |        |        |        |        |                       "nrCellId": "304050607",
+ |        |        |        |        |        |        |        |                       ... (15 more lines)
+ |        |<----------------------------------|        |        | PolicyResponse [NoContent (204)]
+ |        |------------------------->|        |        |        | RegistrationRequest [Delete]/nudm-uecm/v1/imsi-310012847468703/registrations/smf-registrations/15
+ |        |<-------------------------|        |        |        | RegistrationResponse [NoContent (204)]
+
+
+
+
+
+
+
+
+    @Test (groups = { "BUC:FT39-7", "MTLS", "QUICK"})
+    @JcatMethod (testTag = "MTls-SCRAP-REST-PT-TC-2", testTitle = "Scraping Rest interfaces work with mTls")
+    public void scrapingMustEnforceMtls() throws DefaultHttpTransportException {
+
+        String namespace = System.getProperty("namespace");
+        setTestInfo("Test using K8S namespace " + namespace);
+        KubernetesClient client = new DefaultKubernetesClient();
+        Map<String, String> serviceName = new HashMap<>();
+        serviceName.put("eric-pm-bulk-reporter", "9089");
+        serviceName.put("eric-odca-diagnostic-data-collector", "8101");
+        serviceName.put("eric-data-coordinator-zk", "21008");
+        serviceName.put("eric-data-search-engine", "9115");
+        serviceName.put("eric-log-transformer", "9115");
+        serviceName.put("eric-lm-database-pg", "9187");
+        serviceName.put("eric-fm-database-pg", "9187");
+        serviceName.put("eric-cm-database-pg", "9187");
+        serviceName.put("eric-idam-database-pg", "9187");
+        serviceName.put("eric-ctrl-bro", "7003");
+        serviceName.put("eric-cm-mediator", "5005");
+        serviceName.put("eric-dst-collector", "14269");
+        serviceName.put("eric-bss-ref-tpg", "8183");
+        serviceName.put("eric-data-distributed-coordinator-ed", "2379");
+
+        Map<String, String> serviceNameUnsecure = new HashMap<>();
+        serviceNameUnsecure.put("eric-data-coordinator-zk", "21007");
+        serviceNameUnsecure.put("eric-odca-diagnostic-data-collector", "8100");
+        serviceNameUnsecure.put("eric-pm-bulk-reporter", "9090");
+        // serviceNameUnsecure.put("eric-cm-mediator", "5005");
+
+       /*  serviceName.put("eric-odca-diagnostic-data-collector", "8100");
+        serviceName.put("eric-data-coordinator-zk", "21007");
+     //   serviceName.put("eric-data-search-engine", "9115");
+     //   serviceName.put("eric-log-transformer", "9115");
+        serviceName.put("eric-lm-database-pg", "9187");
+        serviceName.put("eric-fm-database-pg", "9187");
+        serviceName.put("eric-cm-database-pg", "9187");
+        serviceName.put("eric-idam-database-pg", "9187");
+   //     serviceName.put("eric-ctrl-bro", "7003");
+        serviceName.put("eric-cm-mediator", "5005");
+    //    serviceName.put("eric-dst-collector", "14269");
+        serviceName.put("eric-bss-ref-tpg", "8183");
+        serviceName.put("eric-data-distributed-coordinator-ed", "2379"); */
+
+        PodList podList = client.pods().inNamespace(namespace).list();
+        Boolean promethus=true;
+        ServiceList ServiceList = client.services().inNamespace(namespace).list();
+        for(Service svc: ServiceList.getItems())
+        {
+            if(svc.getMetadata().getAnnotations()!= null)
+            {
+                if(svc.getMetadata().getAnnotations().get("prometheus.io/scrape")!=null ) {
+                    setTestInfo(String.format("Exception Msg was %s", svc.getMetadata().getName()));
+                    setTestInfo(String.format("prometheus %s", svc.getMetadata().getAnnotations().get("prometheus.io/scrape")));
+                    setTestInfo(String.format("prometheus %s", svc.getMetadata().getAnnotations().get("prometheus.io/port")));
+                }
+            }
+        }
+        for (Pod pod : podList.getItems())
+        {
+            String podStatus = pod.getStatus().getPhase();
+
+            if(serviceName.containsKey(pod.getMetadata().getLabels().get("app.kubernetes.io/name")) && podStatus.equals("Running") ) {
+                promethus = true;
+                if(pod.getMetadata().getAnnotations()!= null)
+                {
+                    if(pod.getMetadata().getAnnotations().get("prometheus.io/scrape") == null)
+                    {
+                        try {
+                            Service service = client.services().inNamespace(namespace).withName(pod.getMetadata().getLabels().get("app")).get();
+                            if (service.getMetadata().getAnnotations() != null) {
+                                if (service.getMetadata().getAnnotations().get("prometheus.io/scrape") != null) {
+                                    if (!service.getMetadata().getAnnotations().get("prometheus.io/scrape").contains("true")) {
+                                        setTestInfo(String.format("Exception Msg iss name %s", pod.getMetadata().getName()));
+                                        promethus = false;
+                                    }
+                                    else
+                                    {
+                                        setTestInfo(String.format("Exception Msg iss name %s", service.getMetadata().getAnnotations().get("prometheus.io/scrape").contains("true")));
+                                    }
+                                }
+                                else
+                                {
+                                    promethus = false;
+                                }
+
+                            }
+                            else
+                            {
+                                promethus = false;
+                            }
+                        }
+                        catch(Exception e)
+                        {
+                            promethus = false;
+                            //         System.out.println(pod.getMetadata().getLabels().get("app"));
+                        }
+                    }
+                }
+
+                if (promethus) {
+
+                    setTestInfo(String.format("Exception Msg is name %s", pod.getMetadata().getName()));
+                    String REST_INTERFACE_ENDPOINT = "https://";
+                    REST_INTERFACE_ENDPOINT = REST_INTERFACE_ENDPOINT + pod.getStatus().getPodIP() + ":" + serviceName.get(pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                    String endpoint = pod.getMetadata().getAnnotations().get("prometheus.io/path");
+                    if(pod.getMetadata().getLabels().get("app.kubernetes.io/name")=="eric-cm-mediator")
+                    {
+                        String REST_INTERFACE_ENDPOINT_UNSECURE_CM = "http://";
+                        REST_INTERFACE_ENDPOINT_UNSECURE_CM = REST_INTERFACE_ENDPOINT_UNSECURE_CM + pod.getStatus().getPodIP() + ":" + serviceNameUnsecure.get(pod.getMetadata().getLabels().get("app.kubernetes.io/name"))+endpoint;
+                        cmScrapMustEnforceMtlsHTTP(REST_INTERFACE_ENDPOINT_UNSECURE_CM, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                    }
+                    if (endpoint != null) {
+                        REST_INTERFACE_ENDPOINT = REST_INTERFACE_ENDPOINT + endpoint;
+                        mustEnforceMtlsHTTPS(REST_INTERFACE_ENDPOINT, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        MustEnforceMtlsNoCerts(REST_INTERFACE_ENDPOINT, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        if(serviceNameUnsecure.containsKey(pod.getMetadata().getLabels().get("app.kubernetes.io/name")))
+                        {
+                            String REST_INTERFACE_ENDPOINT_UNSECURE = "http://";
+                            REST_INTERFACE_ENDPOINT_UNSECURE = REST_INTERFACE_ENDPOINT_UNSECURE + pod.getStatus().getPodIP() + ":" + serviceNameUnsecure.get(pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                            mustEnforceMtlsHTTP(REST_INTERFACE_ENDPOINT_UNSECURE, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        }
+                    } else {
+                        REST_INTERFACE_ENDPOINT = REST_INTERFACE_ENDPOINT + "/metrics";
+                        mustEnforceMtlsHTTPS(REST_INTERFACE_ENDPOINT, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        MustEnforceMtlsNoCerts(REST_INTERFACE_ENDPOINT, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        if(serviceNameUnsecure.containsKey(pod.getMetadata().getLabels().get("app.kubernetes.io/name")))
+                        {
+                            String REST_INTERFACE_ENDPOINT_UNSECURE = "http://";
+                            REST_INTERFACE_ENDPOINT_UNSECURE = REST_INTERFACE_ENDPOINT_UNSECURE + pod.getStatus().getPodIP() + ":" + serviceNameUnsecure.get(pod.getMetadata().getLabels().get("app.kubernetes.io/name"))+ "/metrics";
+                            mustEnforceMtlsHTTP(REST_INTERFACE_ENDPOINT_UNSECURE, pod.getMetadata().getLabels().get("app.kubernetes.io/name"));
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+
+    private void cmScrapMustEnforceMtlsHTTP(String rest_interface_endpoint_unsecure_cm, String POD_NAME) {
+        setTestInfo(String.format("Running Negative test on %s UnSecure REST Scraping interface with endpoint %s", POD_NAME, rest_interface_endpoint_unsecure_cm ));
+        String exceptionMsg = "";
+        try {
+            final DefaultHttpResponse defaultHttpsResponse = HttpUtils.send(rest_interface_endpoint_unsecure_cm, DefaultHttpMethod.GET,
+                    DefaultHttpContentType.APPLICATION_JSON, null, null, null);
+            Assertions.assertThat(defaultHttpsResponse.getMyHttpStatusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+        }
+        catch(DefaultHttpTransportException e){
+            exceptionMsg=e.getMyErrorDescription();
+            setTestInfo(String.format("Exception Msg is %s", e.getMyErrorDescription()));
+        }
+        assertTrue(exceptionMsg.contains("Connection reset"));
+        setTestInfo("Negative mTls test passed successfully ");
+    }
+
+    private void mustEnforceMtlsHTTP(String rest_interface_endpoint, String POD_NAME) {
+        setTestInfo(String.format("Running Negative test on %s UnSecure REST Scraping interface with endpoint %s", POD_NAME, rest_interface_endpoint ));
+        String exceptionMsg = "";
+        try {
+            final DefaultHttpResponse defaultHttpsResponse = HttpUtils.send(rest_interface_endpoint, DefaultHttpMethod.GET,
+                    DefaultHttpContentType.APPLICATION_JSON, null, null, null);
+            Assertions.assertThat(defaultHttpsResponse.getMyHttpStatusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+        }
+        catch(DefaultHttpTransportException e){
+            exceptionMsg=e.getMyErrorDescription();
+            setTestInfo(String.format("Exception Msg is %s", e.getMyErrorDescription()));
+        }
+        assertTrue(exceptionMsg.contains("Connection refused"));
+        setTestInfo("Negative mTls test passed successfully ");
+    }
+
+    private void MustEnforceMtlsNoCerts(String rest_interface_endpoint, String POD_NAME) throws DefaultHttpTransportException {
+        setTestInfo(String.format("Running negative test on %s REST Scraping interface with endpoint %s with no certs", POD_NAME, rest_interface_endpoint ));
+        int counter=0;
+        String exceptionMsg = "";
+        while (counter < MAX_ATTEMPTS  && !exceptionMsg.contains("readHandshakeRecord") )
+        {
+            try
+            {
+                final DefaultHttpResponse defaultHttpsResponse = HttpUtils.send(rest_interface_endpoint, DefaultHttpMethod.GET,
+                        DefaultHttpContentType.APPLICATION_JSON, null, null, null);
+            }
+            catch (DefaultHttpTransportException e)
+            {
+                exceptionMsg = e.getMyErrorDescription();
+                setTestInfo(String.format("Exception Msg is %s", e.getMyErrorDescription()));
+            }
+            counter++;
+        }
+        if(exceptionMsg.contains("readHandshakeRecord") || exceptionMsg.contains("Received fatal alert: bad_certificate"))
+        {
+            setTestInfo("Negative mTls test passed successfully");
+        }
+        assertTrue(exceptionMsg.contains("readHandshakeRecord") || exceptionMsg.contains("Received fatal alert: bad_certificate") );
+        //Assertions.assertThat(exceptionMsg).isEqualTo("readHandshakeRecord");
+
+    }
+
+    private void mustEnforceMtlsHTTPS(String REST_INTERFACE_ENDPOINT, String POD_NAME) throws DefaultHttpTransportException {
+        setTestInfo(String.format("Running Positive test on %s REST Scraping interface with endpoint %s", POD_NAME, REST_INTERFACE_ENDPOINT ));
+        try {
+            final DefaultHttpResponse defaultHttpsResponse = HttpUtils.send(REST_INTERFACE_ENDPOINT, DefaultHttpMethod.GET,
+                    DefaultHttpContentType.APPLICATION_JSON, CM_CERT, CM_KEY, null);
+            Assertions.assertThat(defaultHttpsResponse.getMyHttpStatusCode()).isEqualTo(HttpURLConnection.HTTP_OK);
+        }
+        catch(DefaultHttpTransportException e){
+            setTestInfo(String.format("Exception Msg is %s", e.getMyErrorDescription()));
+            setTestInfo(String.format("Exception Msg is %s", e.getMessage()));
+        }
+        setTestInfo("Positive mTls test passed successfully");
+    }
+
+
+
+
+
+// codechecker_suppress [performance-no-int-to-ptr]
+
+
+I have created a ticket for feature review as the first step in the process to hand over to the LSV team. Could you please review the new ST test case? We are approaching the F4 deadline date
+
+
+ Release EPG 3.34
+git log --since="5 months ago" --reverse
+
+
+git log -p -S"your_string_here" | grep -B 3 -A 3 "your_string_here"
+
+/workspace/git/esimnaa/epg/application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/servicerequest/Mainflows.cpp
+
+
+
+
+
+
+
+
+
+
+
+
+Steps one by one:
+1.	New TC review done by TOR Jingjing Liu H.
+2.	XFT team creates the handover ticket here.
+3.	TTC: Jingyi Zhao pls. check and give Scope if accepted, check the fix version whether right or need adjust.
+4.	TOR: Jingjing Liu H pls. create new case Jira ticket
+5.	pls. XFT team prepare new TC handover confluence page.
+6.	TL: Jiang Du to assign teams.
+7.	New TC assignee in LSV team to start the handover session (XFT team support & QA) and update responsible team & scope in EPGCATS.
+8.	Handover done, we close this ticket.
+
+
+
+/workspace/git/esimnaa/epg/application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/asmf/DedicatedQosFlows/AsmfDedicatedQosFlows.cpp
+
+
+
+dedicated flows 
+
+//
+//    - PCF installs two DCRs on dedicated QoS flow:
+//      DCR1: RG1, SI1, offline
+//      DCR2: RG2, SI2, online
+//
+//    - AN release with change of UE time zone
+
+/workspace/git/esimnaa/epg/application/PgwControlPlane/signalflowtest/psci/testsuites/test-src/smf/chf/dedicatedqosflows/DedicatedQosFlowsChargingConverged.cpp
+
+
+
+
+git grep -i -E ".*create.*dedicated.*qos.*flows.*" -- 
+
+
+git grep on files with 
+
+git grep -i -E -C 10 ".*bbiff.*" -- '*.yaml'
+
+ 877	17:09	git grep -i "create.*dedicated*qos*flows" --
+   878	17:11	git grep -i "create.*dedicated*qos*flows" -- | grep "create two new dedicated QoS flows."
+   879	17:12	git grep -i "create.*dedicated*qos*flows" -- | grep "create two new dedicated QoS flows"
+   880	17:14	git grep -E "create.*dedicated*qos*flows" -- | grep "create two new dedicated QoS flows"
+   881	17:14	git grep -E "create.*dedicated*qos*flows" --
+   882	17:15	git grep -i -E "create.*dedicated*qos*flows" --
+   883	17:15	git grep -i -E "create.*dedicated*qos*flows" -- | grep "create two new dedicated QoS flows"
+   884	17:19	git grep -i -E ".*create.*dedicated.*qos.*flows.*" --
+   885	17:24	git grep -i -C 10 -E ".*create.*dedicated.*qos.*flows.*" --
+   886	17:26	git grep -i -C 10 -E ".*[1-9].*create.*dedicated.*qos.*flows.*" --
+   887	17:28	git grep -n -i -C 10 -E ".*[1-9].*create.*dedicated.*qos.*flows.*" --
+   888	17:34	git grep -n -i -C 10 -E ".*[1-9].*create.*dedicated.*qos.*flows.*|.*[1-9].*create.*dedicated.*qos.*flows.*" --before-context=10 --after-context=10
+   890	17:36	li- -n -i -C 10 -E ".*create.*dedicated.*qos.*flows.*|.*create.*dedicated.*qos.*flows.*[1-9].*" -- *
+   891	17:41	git grep -n -i -C 10 -P "(?=.*create dedicated qos flows.*).*create dedicated qos flows.*" -- *
+   892	17:41	hisory
+
+
+
+git grep -i -C 10 -E "word1|word2" | grep -i -C 10 -E "word1.*word2|word2.*word1"-
